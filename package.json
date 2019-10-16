@@ -1,0 +1,8 @@
+{
+  "name": "@self-buy/api",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "repository": "git@gitlab.com:self-buy/api.git",
+  "author": "Ynov Ydays",
+  "license": "MIT"
+}
