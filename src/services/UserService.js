@@ -1,6 +1,7 @@
-const Crypto = require('crypto')
+const Crypto = require('crypto');
 const MongooseService = require('./MongooseService');
-const Encrypt = require('crypto-js')
+const MailService = require('./MailService');
+const Encrypt = require('crypto-js');
 
 class UserService extends MongooseService {
 
@@ -14,28 +15,27 @@ class UserService extends MongooseService {
         try {
             if (userInDb && !userInDb.active) {
                 const activationLink = `${process.env.CLIENT_HOSTNAME}/user/activation?u=${userInDb._id}&k=${userInDb.activationKey}`;
+                const mailIsSent = await MailService.registrationMail(userInDb.mail, activationLink)
 
-                //  @TODO: MailService to send activation link
-                // const mailIsSent = await MailHelper.registerMail({recipientMail: userP.mail, activationLink})
+                const {_id, mail} = userInDb;
 
-                const mailIsSent = true;
-                return { userExist: true, userWasActive: false, mailIsSent };
+                return {success: true, data: { user: { _id, mail }, userExist: true, mailIsSent }};
             } else if (userInDb && userInDb.active) {
                 return { success: false, code: 'MAIL_ALREADY_USING' };
             } else {
-                params.activationKey =  Crypto.randomBytes(50).toString('hex')
+                params.activationKey = Crypto.randomBytes(50).toString('hex')
                 params.active = false;
 
                 const newUser = await this.create(params);
                 const activationLink = `${process.env.CLIENT_HOSTNAME}/user/activation?u=${newUser._id}&k=${newUser.activationKey}`
+                const mailIsSent = await MailService.registrationMail(newUser.mail, activationLink)
 
-                //  @TODO: MailService to send activation link
-                // const mailIsSent = await MailHelper.registerMail({recipientMail: userP.mail, activationLink})
+                const {_id, mail} = newUser;
 
-                const mailIsSent = true;
-                return { userExist: false, mailIsSent };
+                return {success: true, data: { user: { _id, mail } ,userExist: false, mailIsSent }};
             }
         } catch (e) {
+            console.log(e)
             return false
         }
 
