@@ -10,7 +10,7 @@ class UserService extends MongooseService {
     }
 
     async createUser(params) {
-        const userInDb = await this.getOneBy({ mail: params.mail });
+        const userInDb = await this.findOneBy({ mail: params.mail });
 
         try {
             if (userInDb && !userInDb.active) {
@@ -42,7 +42,7 @@ class UserService extends MongooseService {
     }
 
     async activeUser ({ userId, activationKey, password }) {
-        const user = await this.getOneBy({ _id: userId });
+        const user = await this.findOneBy({ _id: userId });
 
         try {
             if (!user) {
@@ -57,7 +57,7 @@ class UserService extends MongooseService {
                 return { success: false, code: 'INVALID_ACTIVATION_KEY' }
             }
 
-            await this.update({ _id: user.id }, {
+            await this.updateOne({ _id: user.id }, {
                 password: this.encryptPassword(password, user.mail),
                 active: true,
                 activationKey: null,

@@ -6,11 +6,19 @@ class MongooseService {
         this.model = mongoose.model(model)
     }
 
-    async getOneBy (condition) {
+    async findOneBy (condition) {
         try {
             return await this.model.findOne(condition)
         } catch (e) {
             return false
+        }
+    }
+
+    async findManyBy (condition) {
+        try {
+            return await this.model.find(condition)
+        } catch (e) {
+            return []
         }
     }
 
@@ -34,7 +42,7 @@ class MongooseService {
         }
     };
 
-    async update (condition, propertiesToSet) {
+    async updateOne(condition, propertiesToSet) {
         try {
             const update = await this.model.updateOne(condition, { $set: propertiesToSet, $inc: { __v: 1 } });
             return update.nModified > 0;
@@ -42,6 +50,15 @@ class MongooseService {
             return false
         }
     };
+
+    async updateMany(condition, propertiesToSet) {
+        try {
+            const update = await this.model.updateMany(condition, { $set: propertiesToSet, $inc: { __v: 1 } });
+            return update.nModified > 0;
+        } catch (e) {
+            return false
+        }
+    }
 }
 
 module.exports = MongooseService;

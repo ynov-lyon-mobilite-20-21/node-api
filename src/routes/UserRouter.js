@@ -67,7 +67,7 @@ class UserRouter extends Router{
         //  EXAMPLE :
         const id = req.params.userId
 
-        UserService.getOneBy({ _id: id })
+        UserService.findOneBy({ _id: id })
     };
 
 }
