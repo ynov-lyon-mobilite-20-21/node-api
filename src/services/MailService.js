@@ -12,6 +12,23 @@ const mailer = NodeMailer.createTransport({
 
 class MailService {
 
+    async registrationMail(userMail, activationLink) {
+        const html = this._getMailTemplate('registrationMail', { activationLink });
+
+        if (!html) {
+            return false;
+        }
+
+        const mail = {
+            from: process.env.GMAIL_ADDRESS,
+            to: userMail,
+            subject: 'Inscription à SelfBuy',
+            html
+        };
+
+        return await this._send(mail);
+    }
+
     _send(mail) {
         return new Promise((resolve) => {
             mailer.sendMail(mail, (err) => {
