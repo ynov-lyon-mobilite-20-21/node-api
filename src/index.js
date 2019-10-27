@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const passport = require("passport");
+const swaggerUi = require('swagger-ui-express');
 const BearerStrategy = require("passport-http-bearer").Strategy;
 const setModels = require('./models/setModels');
 
@@ -17,9 +18,11 @@ setModels();
 const AuthService = require('./services/AuthService');
 
 app.use(express.json())
+app.use(swaggerUi.serve)
 passport.use( new BearerStrategy(AuthService.verifyToken) )
-app.use('/api', require('./routes/AuthRoutes').getRouter())
+app.use('/api', require('./routes/AuthRouter').getRouter())
 app.use('/api', require('./routes/UserRouter').getRouter())
+app.use(require('./routes/SwaggerRouter').getRouter())
 
 const port = process.env.PORT;
 app.listen(port, () => {

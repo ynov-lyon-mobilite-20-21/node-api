@@ -1,33 +1,3 @@
-// const refreshTokenRoute = async (req, res) => {
-//     //  @TODO: AuthService GetOneBy (token)
-//     const token = await AuthHelper.getRefreshTokenBy({ token: req.body.refreshToken })
-//
-//     if (!token.active || !AuthHelper.refreshTokenIsValid(token)) {
-//         JSONResponse({
-//             res,
-//             statusCode: 401,
-//             dataObject: {
-//                 message: "Invalid Refresh Token"
-//             }
-//         })
-//
-//         return
-//     }
-//
-//     const user = await UserHelper.getOneUserBy({ _id: token.userId })
-//     const tokens = await AuthHelper.createTokens(user)
-//
-//     JSONResponse({
-//         res,
-//         statusCode: 200,
-//         dataObject: tokens
-//     })
-// }
-//
-//
-// router.post('/refresh', refreshTokenRoute)
-// router.post('/', authenticationRoute);
-
 const Router = require('./Router');
 const AuthService = require('../services/AuthService');
 const RefreshTokenService = require('../services/RefreshTokenService');
