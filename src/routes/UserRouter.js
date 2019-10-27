@@ -41,7 +41,7 @@ class UserRouter extends Router{
             return this.response(400, {}, { code: userCreation.code })
         }
 
-        this.response(200, userCreation)
+        this.response(200, userCreation.data)
     };
 
     async activeUser (req)  {
