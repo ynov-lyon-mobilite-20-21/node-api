@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 class MongooseService {
 
@@ -6,7 +6,7 @@ class MongooseService {
         this.model = mongoose.model(model)
     }
 
-    getOneBy = async (condition) => {
+    async getOneBy (condition) {
         try {
             return await this.model.findOne(condition)
         } catch (e) {
@@ -14,7 +14,7 @@ class MongooseService {
         }
     }
 
-    create = async(userData) => {
+    async create (userData) {
         const newObject = new this.model(userData)
 
         try {
@@ -23,22 +23,25 @@ class MongooseService {
         } catch (e) {
             return false
         }
-    };
+    }
 
-    delete = async (userId) => {
+    async delete (userId) {
         try {
             const deleteObject = await this.model.deleteOne({_id: userId})
-            return deleteObject.deletedCount > 1;
+            return deleteObject.deletedCount > 1
         } catch (e) {
             return false
         }
     };
 
-    update = async () => {
+    async update (condition, propertiesToSet) {
         try {
-            //  @TODO Complete MongooseService Update Function
+            const update = await this.model.updateOne(condition, { $set: propertiesToSet, $inc: { __v: 1 } });
+            return update.nModified > 0;
         } catch (e) {
             return false
         }
     };
 }
+
+module.exports = MongooseService;
