@@ -13,7 +13,7 @@ const mailer = NodeMailer.createTransport({
 class MailService {
 
     async registrationMail(userMail, activationLink) {
-        const html = this._getMailTemplate('registrationMail', { activationLink });
+        const html = await this._getMailTemplate('registrationMail', { activationLink });
 
         if (!html) {
             return false;
@@ -33,6 +33,7 @@ class MailService {
         return new Promise((resolve) => {
             mailer.sendMail(mail, (err) => {
                 if (err) {
+                    console.log(err)
                     resolve(false)
                 } else {
                     resolve(true)
@@ -45,7 +46,7 @@ class MailService {
     async _getMailTemplate(template, replacements) {
         try {
             const html = await fs.readFileSync(`${__dirname}/../templates/mails/${template}.html`, {encoding: 'utf-8'});
-            return handlebars.template(html)(replacements);
+            return handlebars.compile(html)(replacements);
         } catch (e) {
             return false
         }
