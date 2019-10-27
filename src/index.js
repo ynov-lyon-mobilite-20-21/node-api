@@ -13,7 +13,8 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useCreateIndex: tr
 setModels();
 
 app.use(express.json())
-app.use('/api/user', require('./routes/UserRouter').getRouter())
+app.use('/api', require('./routes/AuthRoutes').getRouter())
+app.use('/api', require('./routes/UserRouter').getRouter())
 
 const port = process.env.PORT;
 app.listen(port, () => {

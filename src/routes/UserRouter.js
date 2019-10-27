@@ -7,29 +7,29 @@ class UserRouter extends Router{
         super();
 
         this.post({
-            endpoint: '/',
+            endpoint: '/user/',
             callback: this.createUser.bind(this),
             requiredFields: [{ name: 'mail', format: 'email' }]
         })
 
         this.post({
-            endpoint: '/active',
+            endpoint: '/user/active',
             callback: this.activeUser.bind(this),
             requiredFields: [{ name: 'userId' }, { name: 'activationKey' },{ name: 'password' }]
         })
 
         this.get({
-            endpoint: '/',
+            endpoint: '/user',
             callback: this.getCurrentUser.bind(this)
         })
 
         this.put({
-            endpoint: '/',
+            endpoint: '/user',
             callback: this.updateUser.bind(this)
         })
 
         this.delete({
-            endpoint: '/',
+            endpoint: '/user',
             callback: this.deleteUser.bind(this)
         });
     }
