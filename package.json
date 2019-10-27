@@ -6,7 +6,10 @@
   "author": "Ynov Ydays",
   "license": "MIT",
   "dependencies": {
+    "crypto-js": "^3.1.9-1",
     "express": "^4.17.1",
+    "express-validator": "^6.2.0",
+    "mongoose": "^5.7.7",
     "nodemon": "^1.19.4"
   },
   "devDependencies": {
