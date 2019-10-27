@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const passport = require("passport");
+const BearerStrategy = require("passport-http-bearer").Strategy;
 const setModels = require('./models/setModels');
 
 if (process.env.NODE_ENV !== 'production') {
@@ -12,7 +14,10 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useCreateIndex: tr
     .catch( (err) => console.log(err) )
 setModels();
 
+const AuthService = require('./services/AuthService');
+
 app.use(express.json())
+passport.use( new BearerStrategy(AuthService.verifyToken) )
 app.use('/api', require('./routes/AuthRoutes').getRouter())
 app.use('/api', require('./routes/UserRouter').getRouter())
 
