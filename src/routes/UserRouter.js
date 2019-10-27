@@ -55,12 +55,24 @@ class UserRouter extends Router {
         this.response(200, {message: 'User is now active'})
     };
 
-    deleteUser (req, res) {
-        //@TODO UserService Delete Function
+    async deleteUser (req) {
+        const userDeletion = await UserService.delete({ _id: req.user.id })
+
+        if (!userDeletion) {
+            this.response(400, {}, { code: "CANNOT_DELETE_USER" })
+        }
+
+        this.response(200, { message: `User ${req.user.object.id} is now deleted.` })
     };
 
-    updateUser (req, res) {
-        //@TODO UserService Update Function
+    async updateUser (req, res) {
+        const userUpdate = await UserService.updateOne({ _id: req.user.id}, req.body)
+
+        if (!userUpdate) {
+            this.response(400, {}, { code: "CANNOT_UPDATE_USER" })
+        }
+
+        this.response(200, { message: `User ${req.user.object.id} was updated.` })
     };
 
     getUser (req) {

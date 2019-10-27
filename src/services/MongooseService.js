@@ -33,9 +33,9 @@ class MongooseService {
         }
     }
 
-    async delete (userId) {
+    async delete (condition) {
         try {
-            const deleteObject = await this.model.deleteOne({_id: userId})
+            const deleteObject = await this.model.deleteOne(condition)
             return deleteObject.deletedCount > 1
         } catch (e) {
             return false
