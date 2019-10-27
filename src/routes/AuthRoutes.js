@@ -1,54 +1,73 @@
-const router = require('express').Router();
+// const refreshTokenRoute = async (req, res) => {
+//     //  @TODO: AuthService GetOneBy (token)
+//     const token = await AuthHelper.getRefreshTokenBy({ token: req.body.refreshToken })
+//
+//     if (!token.active || !AuthHelper.refreshTokenIsValid(token)) {
+//         JSONResponse({
+//             res,
+//             statusCode: 401,
+//             dataObject: {
+//                 message: "Invalid Refresh Token"
+//             }
+//         })
+//
+//         return
+//     }
+//
+//     const user = await UserHelper.getOneUserBy({ _id: token.userId })
+//     const tokens = await AuthHelper.createTokens(user)
+//
+//     JSONResponse({
+//         res,
+//         statusCode: 200,
+//         dataObject: tokens
+//     })
+// }
+//
+//
+// router.post('/refresh', refreshTokenRoute)
+// router.post('/', authenticationRoute);
 
-const authenticationRoute = async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+const Router = require('./Router');
+const AuthService = require('../services/AuthService');
+const RefreshTokenService = require('../services/RefreshTokenService');
+const UserService = require('../services/UserService');
 
-    //  @TODO UserService GetOneBy Function (Check if user already exist in bdd)
+class AuthRouter extends Router {
 
-    if (!user || username !== user.username || password !== user.password) {
-        res.statusCode = 401;
-        res.json({
-            message: 'Bad password or mail'
-        });
-        return
-    }
+    constructor () {
+        super();
 
-    //  @TODO AuthService CreateToken function
-
-    res.json({
-        token: 'le token' // token récupéré par la fonction précédente
-    })
-};
-
-const refreshTokenRoute = async (req, res) => {
-    //  @TODO: AuthService GetOneBy (token)
-    const token = await AuthHelper.getRefreshTokenBy({ token: req.body.refreshToken })
-
-    if (!token.active || !AuthHelper.refreshTokenIsValid(token)) {
-        JSONResponse({
-            res,
-            statusCode: 401,
-            dataObject: {
-                message: "Invalid Refresh Token"
-            }
+        this.post({
+            endpoint: '/auth',
+            callback: this.authentication.bind(this),
+            requiredFields: [ { name: 'mail', format: 'email' }, { name: 'password' } ]
         })
 
-        return
+        this.post({
+            endpoint: '/auth/refresh'
+        })
     }
 
-    const user = await UserHelper.getOneUserBy({ _id: token.userId })
-    const tokens = await AuthHelper.createTokens(user)
+    async authentication(req) {
+        const user = await UserService.findOneBy({ mail: req.body.mail });
 
-    JSONResponse({
-        res,
-        statusCode: 200,
-        dataObject: tokens
-    })
+        if (!user || user.password !== UserService.encryptPassword(req.body.password, user.mail) ) {
+            return this.response(401, {}, {
+                code: "BAD_CREDENTIALS",
+                message: "Invalid password or mail"
+            })
+        }
+
+        const refreshToken = await RefreshTokenService.createRefreshToken(user.id);
+        const token = await AuthService.createTokens(user.id);
+
+        this.response(200, { token, refreshToken: refreshToken.token })
+    }
+
+    // async refresh(req) {
+    //     const
+    // }
 }
 
-
-router.post('/refresh-token', refreshTokenRoute)
-router.post('/auth', authenticationRoute);
-
-module.exports = router;
+module.exports = new AuthRouter();

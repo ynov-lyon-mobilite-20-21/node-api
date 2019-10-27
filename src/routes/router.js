@@ -1,3 +1,4 @@
+const passport = require('passport');
 const router = require('express').Router();
 const { body, param, query, validationResult } = require('express-validator');
 
@@ -11,28 +12,39 @@ class Router {
         return this.router;
     }
 
-    post({ endpoint, callback, requiredFields = [] }) {
-        this.router.post(endpoint, this._typeValidation(requiredFields), (req, res) => {
+    post({ endpoint, callback, requiredFields = [], authentication = false }) {
+        this.router.post(endpoint, this._getMiddlewares(authentication, requiredFields), (req, res) => {
             this._routeCallback(req, res, callback);
-        });
+        })
     }
 
-    get({ endpoint, callback, requiredFields = [] }) {
-        this.router.get(endpoint, this._typeValidation(requiredFields), (req, res) => {
-            this._routeCallback(req, res, callback).bind(this);
-        });
+    get({ endpoint, callback, requiredFields = [], authentication = false }) {
+        this.router.get(endpoint, this._getMiddlewares(authentication, requiredFields), (req, res) => {
+            this._routeCallback(req, res, callback);
+        })
     }
 
-    put({ endpoint, callback, requiredFields = [] }) {
-        this.router.put(endpoint, this._typeValidation(requiredFields), (req, res) => {
-            this._routeCallback(req, res, callback).bind(this);
-        });
+    put({ endpoint, callback, requiredFields = [], authentication = false }) {
+        this.router.put(endpoint, this._getMiddlewares(authentication, requiredFields), (req, res) => {
+            this._routeCallback(req, res, callback);
+        })
     }
 
-    delete({ endpoint, callback, requiredFields = [] }) {
-        this.router.delete(endpoint, this._typeValidation(requiredFields), (req, res) => {
-            this._routeCallback(req, res, callback).bind(this);
-        });
+    delete({ endpoint, callback, requiredFields = [], authentication = false }) {
+        this.router.delete(endpoint, this._getMiddlewares(authentication, requiredFields), (req, res) => {
+            this._routeCallback(req, res, callback);
+        })
+    }
+
+    _getMiddlewares(authentication, requiredFields) {
+        const middlewares = [];
+
+        if (authentication) {
+            middlewares.push(passport.authenticate('bearer', {session: false}));
+        }
+        middlewares.push(...this._typeValidation(requiredFields));
+
+        return middlewares;
     }
 
     _routeCallback(req, res, callback) {

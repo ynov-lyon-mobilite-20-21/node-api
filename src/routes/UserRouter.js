@@ -1,75 +1,72 @@
-const Router = require('./Router');
-const UserService = require('../services/UserService');
+const Router = require('./Router')
+const UserService = require('../services/UserService')
 
-class UserRouter extends Router{
+class UserRouter extends Router {
 
-    constructor (){
-        super();
+    constructor () {
+        super()
 
         this.post({
-            endpoint: '/',
+            endpoint: '/user/',
             callback: this.createUser.bind(this),
-            requiredFields: [{ name: 'mail', format: 'email' }]
+            requiredFields: [{name: 'mail', format: 'email'}]
         })
 
         this.post({
-            endpoint: '/active',
+            endpoint: '/user/active',
             callback: this.activeUser.bind(this),
-            requiredFields: [{ name: 'userId' }, { name: 'activationKey' },{ name: 'password' }]
+            requiredFields: [{name: 'userId'}, {name: 'activationKey'}, {name: 'password'}]
         })
 
         this.get({
-            endpoint: '/',
-            callback: this.getCurrentUser.bind(this)
+            endpoint: '/user',
+            callback: this.getUser.bind(this),
+            authentication: true
         })
 
         this.put({
-            endpoint: '/',
+            endpoint: '/user',
             callback: this.updateUser.bind(this)
         })
 
         this.delete({
-            endpoint: '/',
+            endpoint: '/user',
             callback: this.deleteUser.bind(this)
-        });
+        })
     }
 
-    async createUser (req)  {
+    async createUser (req) {
         const userCreation = await UserService.createUser(req.body)
 
         if (!userCreation.success) {
-            return this.response(400, {}, { code: userCreation.code })
+            return this.response(400, {}, {code: userCreation.code})
         }
 
         this.response(200, userCreation.data)
     };
 
-    async activeUser (req)  {
+    async activeUser (req) {
         const userActivation = await UserService.activeUser(req.body)
 
         if (!userActivation.success) {
-            return this.response(400, {}, { code: userActivation.code })
+            return this.response(400, {}, {code: userActivation.code})
         }
 
-        this.response(200, { message: 'User is now active' })
+        this.response(200, {message: 'User is now active'})
     };
 
-     deleteUser(req, res)  {
+    deleteUser (req, res) {
         //@TODO UserService Delete Function
     };
 
-     updateUser(req, res)  {
+    updateUser (req, res) {
         //@TODO UserService Update Function
     };
 
-     getCurrentUser(req, res)  {
-        //@TODO UserService GetOneBy Function
-        //  EXAMPLE :
-        const id = req.params.userId
-
-        UserService.getOneBy({ _id: id })
+    getUser (req) {
+        this.response(200, req.user.object)
     };
 
 }
 
-module.exports = new UserRouter();
+module.exports = new UserRouter()
