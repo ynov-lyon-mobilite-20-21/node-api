@@ -10,7 +10,6 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
-
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
     .then( () => console.log('Connected to MongoDB') )
     .catch( (err) => console.log(err) )
