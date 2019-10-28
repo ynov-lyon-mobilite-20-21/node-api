@@ -7,8 +7,7 @@ info:
 produces:
   - application/json
 
-host: localhost:7000
-basePath: /
+host: https://self-buy-api.herokuapp.com/
 
 paths:
   /auth:
