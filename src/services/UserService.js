@@ -1,7 +1,7 @@
 const Crypto = require('crypto');
 const MongooseService = require('./MongooseService');
 const MailService = require('./MailService');
-const Encrypt = require('crypto-js');
+const bcrypt = require('bcrypt');
 
 class UserService extends MongooseService {
 
@@ -58,7 +58,7 @@ class UserService extends MongooseService {
             }
 
             await this.updateOne({ _id: user.id }, {
-                password: this.encryptPassword(password, user.mail),
+                password: await bcrypt.hash(password, 15),
                 active: true,
                 activationKey: null,
                 registrationDate: Date.now()
@@ -68,10 +68,6 @@ class UserService extends MongooseService {
         } catch (e) {
             return { success: false, code: 'UNKNOWN_ERROR' };
         }
-    }
-
-    encryptPassword (password, mail) {
-        return Encrypt.SHA256(`${password}===${mail}`).toString()
     }
 }
 
