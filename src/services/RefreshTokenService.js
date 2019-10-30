@@ -1,6 +1,6 @@
 const MongooseService = require('./MongooseService');
-const moment = require('moment')
-const Encrypt       = require('crypto-js')
+const moment = require('moment');
+const Encrypt = require('crypto-js');
 
 class RefreshTokenService extends MongooseService{
 
