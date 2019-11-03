@@ -69,6 +69,13 @@ class UserService extends MongooseService {
             return { success: false, code: 'UNKNOWN_ERROR' };
         }
     }
+
+    async updateOne (params) {
+        const {password, ...user} = params;
+        user.password = await bcrypt.hash(password, 15);
+
+        return super.updateOne(params);
+    }
 }
 
 module.exports = new UserService();
