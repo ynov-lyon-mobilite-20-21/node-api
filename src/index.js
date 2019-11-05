@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const app = express();
 const mongoose = require('mongoose');
 const passport = require("passport");
@@ -17,6 +18,7 @@ setModels();
 
 const AuthService = require('./services/AuthService');
 
+app.use(cors())
 app.use(express.json())
 app.use(swaggerUi.serve)
 passport.use( new BearerStrategy(AuthService.verifyToken) )
