@@ -3,98 +3,104 @@ const UserService = require('../services/UserService')
 
 class UserRouter extends Router {
 
-    constructor () {
-        super()
+  constructor () {
+    super()
 
-        this.post({
-            endpoint: '/users/',
-            callback: this.createUser.bind(this),
-            requiredFields: [{name: 'mail', format: 'email'}]
-        })
+    this.post({
+      endpoint: '/users/',
+      callback: this.createUser.bind(this),
+      requiredFields: [{name: 'mail', format: 'email'}]
+    })
 
-        this.post({
-            endpoint: '/users/active',
-            callback: this.activeUser.bind(this),
-            requiredFields: [{name: 'userId'}, {name: 'activationKey'}, {name: 'password'}]
-        })
+    this.post({
+      endpoint: '/users/active',
+      callback: this.activeUser.bind(this),
+      requiredFields: [{name: 'userId'}, {name: 'activationKey'}, {name: 'password'}]
+    })
 
-        this.get({
-            endpoint: '/users/getCurrent',
-            callback: this.getUser.bind(this),
-            authentication: true
-        })
+    this.get({
+      endpoint: '/users/:userId',
+      callback: this.getUser.bind(this),
+      authentication: true
+    })
 
-        this.get({
-            endpoint: '/users',
-            callback: this.getAllUsers.bind(this),
-            authentication: true
-        })
+    this.get({
+      endpoint: '/users',
+      callback: this.getAllUsers.bind(this),
+      authentication: true
+    })
 
-        this.put({
-            endpoint: '/users',
-            callback: this.updateUser.bind(this)
-        })
+    this.put({
+      endpoint: '/users',
+      callback: this.updateUser.bind(this)
+    })
 
-        this.delete({
-            endpoint: '/users',
-            callback: this.deleteUser.bind(this)
-        })
+    this.delete({
+      endpoint: '/users',
+      callback: this.deleteUser.bind(this)
+    })
+  }
+
+  async createUser (req) {
+    const userCreation = await UserService.createUser(req.body)
+
+    if (!userCreation.success) {
+      return this.response(400, {}, {code: userCreation.code})
     }
 
-    async createUser (req) {
-        const userCreation = await UserService.createUser(req.body)
+    this.response(200, userCreation.data)
+  };
 
-        if (!userCreation.success) {
-            return this.response(400, {}, {code: userCreation.code})
-        }
+  async activeUser (req) {
+    const userActivation = await UserService.activeUser(req.body)
 
-        this.response(200, userCreation.data)
-    };
+    if (!userActivation.success) {
+      return this.response(400, {}, {code: userActivation.code})
+    }
 
-    async activeUser (req) {
-        const userActivation = await UserService.activeUser(req.body)
+    this.response(200, {message: 'User is now active'})
+  };
 
-        if (!userActivation.success) {
-            return this.response(400, {}, {code: userActivation.code})
-        }
+  async deleteUser (req) {
+    const userDeletion = await UserService.delete({_id: req.user.id})
 
-        this.response(200, {message: 'User is now active'})
-    };
+    if (!userDeletion) {
+      this.response(400, {}, {code: 'CANNOT_DELETE_USER'})
+    }
 
-    async deleteUser (req) {
-        const userDeletion = await UserService.delete({ _id: req.user.id })
+    this.response(200, {message: `User ${req.user.object.id} is now deleted.`})
+  };
 
-        if (!userDeletion) {
-            this.response(400, {}, { code: "CANNOT_DELETE_USER" })
-        }
+  async updateUser (req, res) {
+    const userUpdate = await UserService.updateOne({_id: req.user.id}, req.body)
 
-        this.response(200, { message: `User ${req.user.object.id} is now deleted.` })
-    };
+    if (!userUpdate) {
+      this.response(400, {}, {code: 'CANNOT_UPDATE_USER'})
+    }
 
-    async updateUser (req, res) {
-        const userUpdate = await UserService.updateOne({ _id: req.user.id}, req.body)
+    this.response(200, {message: `User ${req.user.object.id} was updated.`})
+  };
 
-        if (!userUpdate) {
-            this.response(400, {}, { code: "CANNOT_UPDATE_USER" })
-        }
+  async getUser (req) {
+    console.log(req.params.userId)
+    const user = await UserService.findOneBy({_id: req.params.userId})
 
-        this.response(200, { message: `User ${req.user.object.id} was updated.` })
-    };
+    if (!user) {
+      this.response(400, {}, {code: 'CANNOT_GET_USER'})
+    }
 
-    getUser (req) {
-        this.response(200, req.user.object)
-    };
+    this.response(200, user)
+  };
 
-    async getAllUsers (req) {
-      const users = await UserService.findManyBy({})
+  async getAllUsers (req) {
+    const users = await UserService.findManyBy({})
 
+    if (!users) {
+      this.response(400, {}, {code: 'CANNOT_GET_USERS'})
+    }
 
-      if (!users) {
-        this.response(400, {}, { code: "CANNOT_GET_USERS" })
-      }
-
-      this.response(200, users)
-    };
+    this.response(200, users)
+  };
 
 }
 
