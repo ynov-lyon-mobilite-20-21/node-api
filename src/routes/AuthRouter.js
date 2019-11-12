@@ -21,7 +21,7 @@ class AuthRouter extends Router {
     }
 
     async authentication(req) {
-        const user = await UserService.findOneBy({ mail: req.body.mail });
+        const user = await UserService.findOneBy({ mail: req.body.mail }, ['password']);
 
         const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
         if (!user || !passwordIsValid ) {
