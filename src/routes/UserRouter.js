@@ -36,7 +36,7 @@ class UserRouter extends Router {
     })
 
     this.delete({
-      endpoint: '/users',
+      endpoint: '/users/:userId',
       callback: this.deleteUser.bind(this)
     })
   }
@@ -62,7 +62,7 @@ class UserRouter extends Router {
   };
 
   async deleteUser (req) {
-    const userDeletion = await UserService.delete({_id: req.user.id})
+    const userDeletion = await UserService.delete({_id: req.params.userId})
 
     if (!userDeletion) {
       this.response(400, {}, {code: 'CANNOT_DELETE_USER'})
@@ -82,7 +82,6 @@ class UserRouter extends Router {
   };
 
   async getUser (req) {
-    console.log(req.params.userId)
     const user = await UserService.findOneBy({_id: req.params.userId})
 
     if (!user) {
