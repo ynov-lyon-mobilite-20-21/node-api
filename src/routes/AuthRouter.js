@@ -34,7 +34,7 @@ class AuthRouter extends Router {
         const refreshToken = await RefreshTokenService.createRefreshToken(user.id);
         const token = await AuthService.createTokens(user.id);
 
-        this.response(200, { token, refreshToken: refreshToken.token })
+        this.response(200, { token, refreshToken: refreshToken.token, userId: user.id })
     }
 
     // async refresh(req) {

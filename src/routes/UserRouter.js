@@ -7,30 +7,36 @@ class UserRouter extends Router {
         super()
 
         this.post({
-            endpoint: '/user/',
+            endpoint: '/users/',
             callback: this.createUser.bind(this),
             requiredFields: [{name: 'mail', format: 'email'}]
         })
 
         this.post({
-            endpoint: '/user/active',
+            endpoint: '/users/active',
             callback: this.activeUser.bind(this),
             requiredFields: [{name: 'userId'}, {name: 'activationKey'}, {name: 'password'}]
         })
 
         this.get({
-            endpoint: '/user',
+            endpoint: '/users/getCurrent',
             callback: this.getUser.bind(this),
             authentication: true
         })
 
+        this.get({
+            endpoint: '/users',
+            callback: this.getAllUsers.bind(this),
+            authentication: true
+        })
+
         this.put({
-            endpoint: '/user',
+            endpoint: '/users',
             callback: this.updateUser.bind(this)
         })
 
         this.delete({
-            endpoint: '/user',
+            endpoint: '/users',
             callback: this.deleteUser.bind(this)
         })
     }
@@ -77,6 +83,17 @@ class UserRouter extends Router {
 
     getUser (req) {
         this.response(200, req.user.object)
+    };
+
+    async getAllUsers (req) {
+      const users = await UserService.findManyBy({})
+
+
+      if (!users) {
+        this.response(400, {}, { code: "CANNOT_GET_USERS" })
+      }
+
+      this.response(200, users)
     };
 
 }
