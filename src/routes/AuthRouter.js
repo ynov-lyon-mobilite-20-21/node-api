@@ -2,7 +2,6 @@ const Router = require('./Router');
 const AuthService = require('../services/AuthService');
 const RefreshTokenService = require('../services/RefreshTokenService');
 const UserService = require('../services/UserService');
-const bcrypt = require('bcrypt');
 
 class AuthRouter extends Router {
 
@@ -23,7 +22,7 @@ class AuthRouter extends Router {
     async authentication(req) {
         const user = await UserService.findOneBy({ mail: req.body.mail }, ['password']);
 
-        const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
+        const passwordIsValid = await UserService.comparePassword(req.body.password, user.password);
         if (!user || !passwordIsValid ) {
             return this.response(401, {}, {
                 code: "BAD_CREDENTIALS",

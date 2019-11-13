@@ -44,8 +44,10 @@ class MongooseService {
   };
 
   async updateOne (condition, propertiesToSet) {
+    console.log(propertiesToSet)
     try {
       const update = await this.model.updateOne(condition, {$set: propertiesToSet, $inc: {__v: 1}})
+      console.log(update)
       return update.nModified > 0
     } catch (e) {
       return false

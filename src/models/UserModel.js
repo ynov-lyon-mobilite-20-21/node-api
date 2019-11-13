@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   birthday: {type: 'number'},
   registrationDate: {type: 'number'},
   active: {type: 'boolean', required: true},
+  isAdmin: {type: 'boolean', default: false},
   activationKey: {type: 'string'},
   __v: {type: Number, select: false},
 })

@@ -72,11 +72,19 @@ class UserService extends MongooseService {
   }
 
   async updateOne (condition, propertiesToSet) {
-    const {password, ...user} = propertiesToSet
-    const saltRounds = 15
-    user.password = await bcrypt.hash(password, saltRounds)
+    const {_id, password, ...user} = propertiesToSet
+    user.password = await this.encryptPassword(password)
 
     return super.updateOne(condition, user)
+  }
+
+  async encryptPassword(password) {
+    const saltRounds = 15
+    return await bcrypt.hash(password, saltRounds)
+  }
+
+  async comparePassword(password, storagePassword) {
+    return await bcrypt.compare(password, storagePassword)
   }
 }
 

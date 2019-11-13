@@ -31,13 +31,16 @@ class UserRouter extends Router {
     })
 
     this.put({
-      endpoint: '/users',
-      callback: this.updateUser.bind(this)
+      endpoint: '/users/:userId',
+      callback: this.updateUser.bind(this),
+      authentication: true,
+      requiredFields: [{name: 'password'}]
     })
 
     this.delete({
       endpoint: '/users/:userId',
-      callback: this.deleteUser.bind(this)
+      callback: this.deleteUser.bind(this),
+      authentication: true
     })
   }
 
@@ -73,14 +76,26 @@ class UserRouter extends Router {
     this.response(200, {message: `User ${req.params.userId} is now deleted.`})
   };
 
-  async updateUser (req, res) {
-    const userUpdate = await UserService.updateOne({_id: req.user.id}, req.body)
+  async updateUser (req) {
+    const user = await UserService.findOneBy({_id: req.params.userId}, ['password'])
+    if (!user) {
+      this.response(400, {}, {code: 'USER_DOESNT_EXISTS'})
+      return
+    }
+
+    if(!await UserService.comparePassword(req.body.password, user.password)) {
+      this.response(400, {}, {code: 'INCORRECT_PASSWORD'})
+      return
+    }
+
+    const userUpdate = await UserService.updateOne({_id: req.params.userId}, req.body)
 
     if (!userUpdate) {
       this.response(400, {}, {code: 'CANNOT_UPDATE_USER'})
+      return
     }
 
-    this.response(200, {message: `User ${req.user.object.id} was updated.`})
+    this.response(200, {message: `User ${req.params.userId} was updated.`})
   };
 
   async getUser (req) {
