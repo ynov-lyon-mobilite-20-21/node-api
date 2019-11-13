@@ -22,12 +22,7 @@ class AuthService {
         return
       }
 
-      const {password, userObject} = user
-
-      return cb(null, {
-        object: userObject,
-        password: password
-      })
+      return cb(null, user)
     })
   }
 

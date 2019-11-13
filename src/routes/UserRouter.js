@@ -37,6 +37,12 @@ class UserRouter extends Router {
       requiredFields: [{name: 'password'}]
     })
 
+    this.put({
+      endpoint: '/users/admin/:userId',
+      callback: this.updateUserByAdmin.bind(this),
+      authentication: true
+    })
+
     this.delete({
       endpoint: '/users/:userId',
       callback: this.deleteUser.bind(this),
@@ -85,6 +91,22 @@ class UserRouter extends Router {
 
     if(!await UserService.comparePassword(req.body.password, user.password)) {
       this.response(400, {}, {code: 'INCORRECT_PASSWORD'})
+      return
+    }
+
+    const userUpdate = await UserService.updateOne({_id: req.params.userId}, req.body)
+
+    if (!userUpdate) {
+      this.response(400, {}, {code: 'CANNOT_UPDATE_USER'})
+      return
+    }
+
+    this.response(200, {message: `User ${req.params.userId} was updated.`})
+  };
+
+  async updateUserByAdmin (req) {
+    if (!req.user.isAdmin) {
+      this.response(401, {}, {code: 'NEED_ADMIN_PRIVILEGES'})
       return
     }
 
