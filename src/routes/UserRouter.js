@@ -13,7 +13,7 @@ class UserRouter extends Router {
     })
 
     this.post({
-      endpoint: '/users/active',
+      endpoint: '/users/activation',
       callback: this.activeUser.bind(this),
       requiredFields: [{name: 'userId'}, {name: 'activationKey'}, {name: 'password'}]
     })

@@ -27,7 +27,7 @@ class UserService extends MongooseService {
         params.active = false
 
         const newUser = await this.create(params)
-        const activationLink = `${process.env.CLIENT_HOSTNAME}/user/activation?u=${newUser._id}&k=${newUser.activationKey}`
+        const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${newUser._id}&k=${newUser.activationKey}`
         const mailIsSent = await MailService.registrationMail(newUser.mail, activationLink)
 
         const {_id, mail} = newUser
