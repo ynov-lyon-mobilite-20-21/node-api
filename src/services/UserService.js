@@ -73,7 +73,9 @@ class UserService extends MongooseService {
 
   async updateOne (condition, propertiesToSet) {
     const {_id, password, ...user} = propertiesToSet
-    user.password = await this.encryptPassword(password)
+    if (password) {
+      user.password = await this.encryptPassword(password);
+    }
 
     return super.updateOne(condition, user)
   }
