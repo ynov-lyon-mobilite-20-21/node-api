@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const RefreshTokenService = require('./RefreshTokenService')
-const UserService = require('./UserService')
+const RefreshTokenService = require('./RefreshTokenService');
+const UserService = require('./UserService');
 
 class AuthService {
 
@@ -22,8 +22,8 @@ class AuthService {
                 return;
             }
 
-            const password = String(user.password)
-            user.password = undefined
+            const password = String(user.password);
+            user.password = undefined;
 
             return cb(null, {
                 object: user,

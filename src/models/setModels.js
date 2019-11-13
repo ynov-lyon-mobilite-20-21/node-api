@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+sconst mongoose = require('mongoose')
 
 const userSchema = require('./UserModel')
 const refreshToken = require('./RefreshToken')

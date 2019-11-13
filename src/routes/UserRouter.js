@@ -4,7 +4,7 @@ const UserService = require('../services/UserService')
 class UserRouter extends Router {
 
     constructor () {
-        super()
+        super();
 
         this.post({
             endpoint: '/user/',
