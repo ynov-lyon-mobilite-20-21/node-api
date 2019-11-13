@@ -14,7 +14,7 @@ class UserService extends MongooseService {
 
     try {
       if (userInDb && !userInDb.active) {
-        const activationLink = `${process.env.CLIENT_HOSTNAME}/user/activation?u=${userInDb._id}&k=${userInDb.activationKey}`
+        const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${userInDb._id}&k=${userInDb.activationKey}`
         const mailIsSent = await MailService.registrationMail(userInDb.mail, activationLink)
 
         const {_id, mail} = userInDb
