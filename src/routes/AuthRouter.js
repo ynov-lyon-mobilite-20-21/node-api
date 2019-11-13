@@ -22,8 +22,7 @@ class AuthRouter extends Router {
     async authentication(req) {
         const user = await UserService.findOneBy({ mail: req.body.mail }, ['password']);
 
-        const passwordIsValid = await UserService.comparePassword(req.body.password, user.password);
-        if (!user || !passwordIsValid ) {
+        if (!user || !await UserService.comparePassword(req.body.password, user.password) ) {
             return this.response(401, {}, {
                 code: "BAD_CREDENTIALS",
                 message: "Invalid password or mail"
