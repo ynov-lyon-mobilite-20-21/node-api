@@ -24,6 +24,7 @@ app.use(swaggerUi.serve);
 passport.use( new BearerStrategy(AuthService.verifyToken) );
 app.use('/api', require('./routes/AuthRouter').getRouter());
 app.use('/api', require('./routes/UserRouter').getRouter());
+app.use('/api', require('./routes/ProductRouter').getRouter());
 app.use(require('./routes/SwaggerRouter').getRouter());
 
 const port = process.env.PORT;

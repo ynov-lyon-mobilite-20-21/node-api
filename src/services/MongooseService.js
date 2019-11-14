@@ -23,8 +23,8 @@ class MongooseService {
     }
   }
 
-  async create (userData) {
-    const newObject = new this.model(userData)
+  async create (data) {
+    const newObject = new this.model(data)
 
     try {
       await newObject.validate()
