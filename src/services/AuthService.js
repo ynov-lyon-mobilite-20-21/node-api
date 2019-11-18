@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const RefreshTokenService = require('./RefreshTokenService')
 const UserService = require('./UserService')
 
 class AuthService {
@@ -15,7 +14,7 @@ class AuthService {
         return
       }
 
-      let user = await UserService.findOneBy({_id: decoded.user})
+      const user = await UserService.findOneBy({_id: decoded.user})
 
       if (!user) {
         cb(null, false)

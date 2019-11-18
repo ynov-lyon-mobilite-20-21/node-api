@@ -1,7 +1,7 @@
 const Router = require('./Router');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load(`${__dirname}/../swagger.yaml`)
+const swaggerDocument = YAML.load(`${__dirname}/../swagger.yaml`);
 
 
 class SwaggerRouter extends Router{

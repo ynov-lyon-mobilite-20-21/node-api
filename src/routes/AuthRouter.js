@@ -12,7 +12,7 @@ class AuthRouter extends Router {
             endpoint: '/auth',
             callback: this.authentication.bind(this),
             requiredFields: [ { name: 'mail', format: 'email' }, { name: 'password' } ]
-        })
+        });
 
         this.post({
             endpoint: '/auth/refresh'

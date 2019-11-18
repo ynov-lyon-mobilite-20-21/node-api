@@ -72,7 +72,6 @@ class UserRouter extends Router {
 
   async deleteUser (req) {
     const userDeletion = await UserService.delete({_id: req.params.userId})
-    console.log(userDeletion)
 
     if (!userDeletion) {
       this.response(400, {}, {code: 'CANNOT_DELETE_USER'})

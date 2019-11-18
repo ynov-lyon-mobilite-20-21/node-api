@@ -13,18 +13,19 @@ if (process.env.NODE_ENV !== 'production') {
 
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
     .then( () => console.log('Connected to MongoDB') )
-    .catch( (err) => console.log(err) )
+    .catch( (err) => console.log(err) );
 setModels();
 
 const AuthService = require('./services/AuthService');
 
-app.use(cors())
-app.use(express.json())
-app.use(swaggerUi.serve)
-passport.use( new BearerStrategy(AuthService.verifyToken) )
-app.use('/api', require('./routes/AuthRouter').getRouter())
-app.use('/api', require('./routes/UserRouter').getRouter())
-app.use(require('./routes/SwaggerRouter').getRouter())
+app.use(cors());
+app.use(express.json());
+app.use(swaggerUi.serve);
+passport.use( new BearerStrategy(AuthService.verifyToken) );
+app.use('/api', require('./routes/AuthRouter').getRouter());
+app.use('/api', require('./routes/UserRouter').getRouter());
+app.use('/api', require('./routes/ProductRouter').getRouter());
+app.use(require('./routes/SwaggerRouter').getRouter());
 
 const port = process.env.PORT;
 app.listen(port, () => {
