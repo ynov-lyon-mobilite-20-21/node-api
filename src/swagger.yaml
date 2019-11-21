@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Divebook
-  description: "API for getting the current weather information."
-  version: 1.0.0
+  title: Selfbuy
+  description: ""
+  version: 1.0.1
 
 produces:
   - application/json
@@ -51,13 +51,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responseSchemas/UserToken'
-  /user:
+  /me:
     get:
-      summary: Get current user object
+      summary: Get current user
       security:
-        - bearerAuth
+        - bearerAuth: []
       tags:
         - User
+      responses:
+        200:
+          description:
+            $ref: '#/components/responses/200/description'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+  /users:
+    get:
+      summary: Get all users
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get
       responses:
         200:
           description:
@@ -90,8 +116,27 @@ paths:
                 $ref: '#/components/responseSchemas/UserCreation'
         400:
           $ref: '#/components/responses/400'
+  /users/{userId}:
+    get:
+      summary: Get user by id
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      responses:
+        200:
+          description:
+            $ref: '#/components/responses/200/description'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
     delete:
-      summary: Delete current user
+      summary: Delete user by id
       tags:
         - User
       security:
@@ -104,7 +149,7 @@ paths:
         400:
           $ref: '#/components/responses/400'
     put:
-      summary: Update current user
+      summary: Update user by id
       security:
         - bearerAuth
       tags:
