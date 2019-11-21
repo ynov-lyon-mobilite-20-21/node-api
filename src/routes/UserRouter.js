@@ -25,6 +25,12 @@ class UserRouter extends Router {
     })
 
     this.get({
+      endpoint: '/me',
+      callback: this.getMe.bind(this),
+      authentication: true
+    })
+
+    this.get({
       endpoint: '/users',
       callback: this.getAllUsers.bind(this),
       authentication: true
@@ -127,6 +133,10 @@ class UserRouter extends Router {
     }
 
     this.response(200, user)
+  };
+
+  async getMe (req) {
+    this.response(200, req.user)
   };
 
   async getAllUsers (req) {
