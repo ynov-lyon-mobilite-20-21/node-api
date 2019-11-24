@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const refreshTokenSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema({
     name: { type: 'string', required: true },
     price: { type: 'number', required: true },
     description: { type: 'string' },
@@ -9,4 +9,4 @@ const refreshTokenSchema = new mongoose.Schema({
     __v: {type: Number, select: false},
 })
 
-module.exports = refreshTokenSchema
+module.exports = productSchema
