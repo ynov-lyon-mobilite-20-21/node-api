@@ -10,7 +10,7 @@ class ProductRouter extends Router {
             endpoint: '/products',
             authentication: true,
             callback: this.createProduct.bind(this),
-            requiredFields: [{ name: 'price', format: 'number' }, { name: 'name' }, { name: 'description' }, { name: "images", format: "array" }]
+            requiredFields: [{ name: 'price', format: 'number' }, { name: 'name' }, { name: 'description' }, { name: 'category' }, { name: "images", format: "array" }]
         })
 
         this.get({
@@ -27,7 +27,7 @@ class ProductRouter extends Router {
             endpoint: '/products/:id',
             authentication: true,
             callback: this.updateUser.bind(this),
-            requiredFields: [{ name: 'price', format: 'number' }, { name: 'name' }, { name: 'description' }, { name: "images", format: "array" }]
+            requiredFields: [{ name: 'price', format: 'number' }, { name: 'name' }, { name: 'description' }, { name: 'category' }, { name: "images", format: "array" }]
         })
 
         this.delete({
