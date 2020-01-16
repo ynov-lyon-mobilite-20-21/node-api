@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const BearerStrategy = require("passport-http-bearer").Strategy;
 const setModels = require('./models/setModels');
 const morgan = require('morgan')
+const morganBody = require('morgan-body')
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -22,6 +23,7 @@ const AuthService = require('./services/AuthService');
 app.use(cors());
 app.use(morgan(':method :url :status - :response-time ms - CONTENT-TYPE: :req[Content-Type] - ACCEPT: :req[Accept]'))
 app.use(express.json());
+morganBody(app);
 app.use(swaggerUi.serve);
 passport.use( new BearerStrategy(AuthService.verifyToken) );
 app.use('/api', require('./routes/AuthRouter').getRouter());
