@@ -61,7 +61,7 @@ class ProductRouter extends Router {
     };
 
     async createProduct(req) {
-        const productCreation = await ProductService.create(req.body);
+        const productCreation = await ProductService.createProduct(req.body);
 
         if (!productCreation) {
             return this.response(400, {}, {code: productCreation.code})

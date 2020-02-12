@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
     address: { type: 'string' },
     postalCode: { type: 'string' },
     city: { type: 'string' },
+    stripeId: { type: 'string', select: false },
+    stripePlanId: { type: 'string', select: false },
     __v: {type: Number, select: false},
 })
 

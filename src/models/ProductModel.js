@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
     description: { type: 'string' },
     category: { type: 'string' },
     images: { type: 'array' },
+    stripeId: { type: 'string', select: false },
     __v: {type: Number, select: false},
 })
 

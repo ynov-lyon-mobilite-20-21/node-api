@@ -1,93 +1,98 @@
+const { STRIPE_API_KEY } = process.env;
 const Crypto = require('crypto')
 const MongooseService = require('./MongooseService')
 const MailService = require('./MailService')
 const bcrypt = require('bcrypt')
+const stripe = require('stripe')(STRIPE_API_KEY)
 
 class UserService extends MongooseService {
 
-  constructor () {
-    super('User')
-  }
-
-  async createUser (params) {
-    const userInDb = await this.findOneBy({mail: params.mail})
-
-    try {
-      if (userInDb && !userInDb.active) {
-        const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${userInDb._id}&k=${userInDb.activationKey}`
-        const mailIsSent = await MailService.registrationMail(userInDb.mail, activationLink)
-
-        const {_id, mail} = userInDb
-
-        return {success: true, data: {user: {_id, mail}, userExist: true, mailIsSent}}
-      } else if (userInDb && userInDb.active) {
-        return {success: false, code: 'MAIL_ALREADY_USING'}
-      } else {
-        params.activationKey = Crypto.randomBytes(50).toString('hex')
-        params.active = false
-
-        const newUser = await this.create(params)
-        const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${newUser._id}&k=${newUser.activationKey}`
-        const mailIsSent = await MailService.registrationMail(newUser.mail, activationLink)
-
-        const {_id, mail} = newUser
-
-        return {success: true, data: {user: {_id, mail}, userExist: false, mailIsSent}}
-      }
-    } catch (e) {
-      console.log(e)
-      return false
+    constructor () {
+        super('User')
     }
 
-  }
+    async createUser (params) {
+        const userInDb = await this.findOneBy({mail: params.mail})
 
-  async activeUser ({userId, activationKey, password}) {
-    const user = await this.findOneBy({_id: userId})
+        try {
+            if (userInDb && !userInDb.active) {
+                const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${userInDb._id}&k=${userInDb.activationKey}`
+                const mailIsSent = await MailService.registrationMail(userInDb.mail, activationLink)
 
-    try {
-      if (!user) {
-        return {success: false, code: 'USER_DONT_EXISTS'}
-      }
+                const {_id, mail} = userInDb
 
-      if (user.active) {
-        return {success: false, code: 'USER_ALREADY_ACTIVE'}
-      }
+                return {success: true, data: {user: {_id, mail}, userExist: true, mailIsSent}}
+            } else if (userInDb && userInDb.active) {
+                return {success: false, code: 'MAIL_ALREADY_USING'}
+            } else {
+                params.activationKey = Crypto.randomBytes(50).toString('hex')
+                params.active = false
 
-      if (user.activationKey !== activationKey) {
-        return {success: false, code: 'INVALID_ACTIVATION_KEY'}
-      }
+                const newUser = await this.create(params)
+                const activationLink = `${process.env.CLIENT_HOSTNAME}/users/activation?u=${newUser._id}&k=${newUser.activationKey}`
+                const mailIsSent = await MailService.registrationMail(newUser.mail, activationLink)
 
-      await this.updateOne({_id: user.id}, {
-        password: password,
-        active: true,
-        activationKey: null,
-        registrationDate: Date.now()
-      })
+                const {_id, mail} = newUser
 
-      return {success: true}
-    } catch (e) {
-      console.log(e)
-      return {success: false, code: 'UNKNOWN_ERROR'}
-    }
-  }
+                return {success: true, data: {user: {_id, mail}, userExist: false, mailIsSent}}
+            }
+        } catch (e) {
+            console.log(e)
+            return false
+        }
 
-  async updateOne (condition, propertiesToSet) {
-    const {_id, password, ...user} = propertiesToSet
-    if (password) {
-      user.password = await this.encryptPassword(password);
     }
 
-    return super.updateOne(condition, user)
-  }
+    async activeUser ({userId, activationKey, password}) {
+        const user = await this.findOneBy({_id: userId})
 
-  async encryptPassword(password) {
-    const saltRounds = 15
-    return await bcrypt.hash(password, saltRounds)
-  }
+        try {
+            if (!user) {
+                return {success: false, code: 'USER_DONT_EXISTS'}
+            }
 
-  async comparePassword(password, storagePassword) {
-    return await bcrypt.compare(password, storagePassword)
-  }
+            if (user.active) {
+                return {success: false, code: 'USER_ALREADY_ACTIVE'}
+            }
+
+            if (user.activationKey !== activationKey) {
+                return {success: false, code: 'INVALID_ACTIVATION_KEY'}
+            }
+
+            const { id: stripeId } = await stripe.customers.create({ email: user.mail })
+
+            await this.updateOne({_id: user.id}, {
+                password: password,
+                active: true,
+                activationKey: null,
+                registrationDate: Date.now(),
+                stripeId,
+            })
+
+            return {success: true}
+        } catch (e) {
+            console.log(e)
+            return {success: false, code: 'UNKNOWN_ERROR'}
+        }
+    }
+
+    async updateOne (condition, propertiesToSet) {
+        const {_id, password, ...user} = propertiesToSet
+        if (password) {
+            user.password = await this.encryptPassword(password)
+        }
+
+        return super.updateOne(condition, user)
+    }
+
+    async encryptPassword (password) {
+        const saltRounds = 15
+        return await bcrypt.hash(password, saltRounds)
+    }
+
+    async comparePassword (password, storagePassword) {
+        return await bcrypt.compare(password, storagePassword)
+    }
 }
 
 module.exports = new UserService()
