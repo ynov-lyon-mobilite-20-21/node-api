@@ -1,6 +1,7 @@
 /*  eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { Request, Response } from 'express';
+import moment from 'moment';
 import { findOneBy } from '../services/MongooseService';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { User, UserModel } from '../models/UserModel';
@@ -32,7 +33,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   if (
     !refreshTokenObj
         || !refreshTokenObj!.active
-        || refreshTokenObj!.expirationDate < Date.now()
+        || refreshTokenObj!.expirationDate < moment().unix()
   ) {
     return res.status(401).json({ code: 'CANT_REFRESH_TOKEN' });
   }

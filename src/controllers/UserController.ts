@@ -2,6 +2,7 @@
 
 import { Response, Request } from 'express';
 import Crypto from 'crypto';
+import moment from 'moment';
 import {
   findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
@@ -81,7 +82,7 @@ export const userActivation = async (req: Request, res: Response) => {
       password: encryptedPassword,
       active: true,
       activationKey: null,
-      registrationDate: Date.now(),
+      registrationDate: moment().unix(),
     // stripeId,
     },
   });
