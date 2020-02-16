@@ -6,8 +6,10 @@
   "author": "Ynov Ydays",
   "license": "MIT",
   "dependencies": {
+    "@types/cron": "^1.7.1",
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

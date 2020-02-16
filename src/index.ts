@@ -3,6 +3,8 @@ import express, { Application, json } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 
+import RefreshTokenCron from './crons/refresh-token-cron';
+
 const app: Application = express();
 const { NODE_ENV } = process.env;
 
@@ -18,6 +20,7 @@ mongoose.connect(DB_URL!!, { useNewUrlParser: true, useCreateIndex: true, useUni
   .then(() => {
     // eslint-disable-next-line no-console
     console.log('Connected to MongoDB');
+    RefreshTokenCron.start();
   })
 // eslint-disable-next-line no-console
   .catch((err: Error) => console.log(err));
