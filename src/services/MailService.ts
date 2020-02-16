@@ -13,7 +13,7 @@ const mailer = NodeMailer.createTransport({
 });
 
 const getMailTemplate = async (template: string, replacements: object): Promise<string | boolean> => {
-  const html = await fs.readFileSync(`${__dirname}/../templates/mails/${template}.html`, { encoding: 'utf-8' });
+  const html = await fs.readFileSync(`${__dirname}/../../templates/mails/${template}.html`, { encoding: 'utf-8' });
 
   return handlebars.compile(html)(replacements);
 };
