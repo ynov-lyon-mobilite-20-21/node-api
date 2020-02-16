@@ -38,7 +38,7 @@ export const findOneBy = async <T extends Document>({ model: ModelObject, condit
 
 export const deleteOnyBy = async <T extends Document>({ model: ModelObject, condition }: ByParams<T>): Promise<boolean> => {
   try {
-    const deletion = await ModelObject.remove(condition);
+    const deletion = await ModelObject.deleteOne(condition);
     return deletion.deletedCount! > 0;
   } catch (e) {
     // eslint-disable-next-line no-console
