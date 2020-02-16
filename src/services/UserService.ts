@@ -43,9 +43,8 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     return;
   }
 
-  const token = '';
-
-  jwt.verify(token, SECRET_KEY!!, async (err, decoded) => {
+  const bearer = authorization.replace(/^Bearer\s/, '');
+  jwt.verify(bearer, SECRET_KEY!!, async (err, decoded) => {
     if (err || !decoded) {
       res.status(401).json({ code: 'INVALID_TOKEN' });
       return;
