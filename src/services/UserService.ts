@@ -3,8 +3,8 @@ import bCrypt from 'bcrypt';
 import cryptoJs from 'crypto-js';
 import moment from 'moment';
 import { Response, Request, NextFunction } from 'express';
-import { User, UserModel } from '../Models/UserModel';
-import { RefreshToken, RefreshTokenModel } from '../Models/RefreshTokenModel';
+import { User, UserModel } from '../models/UserModel';
+import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { findOneBy, saveData } from './MongooseService';
 
 const { SECRET_KEY, JWT_TOKEN_EXPIRATION_TIME } = process.env;

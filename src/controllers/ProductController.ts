@@ -3,8 +3,8 @@
 import { Request, Response } from 'express';
 import {
   deleteOnyBy, findManyBy, findOneBy, saveData,
-} from '../Services/MongooseService';
-import { Product, ProductModel } from '../Models/ProductModel';
+} from '../services/MongooseService';
+import { Product, ProductModel } from '../models/ProductModel';
 
 
 export const postProduct = async (req: Request, res: Response) => {

@@ -1,10 +1,10 @@
 /*  eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { Request, Response } from 'express';
-import { findOneBy } from '../Services/MongooseService';
-import { RefreshToken, RefreshTokenModel } from '../Models/RefreshTokenModel';
-import { User, UserModel } from '../Models/UserModel';
-import { createRefreshToken, createToken } from '../Services/UserService';
+import { findOneBy } from '../services/MongooseService';
+import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
+import { User, UserModel } from '../models/UserModel';
+import { createRefreshToken, createToken } from '../services/UserService';
 
 export const userAuthentication = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
@@ -12,7 +12,7 @@ export const userAuthentication = async (req: Request, res: Response) => {
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
 
   if (!user || !user.active || user.password !== password) {
-    return res.status(404).json({ code: 'UNDEFINED_USER' });
+    return res.status(401).json({ code: 'AUTHENTICATION_ERROR' });
   }
 
   const newToken = await createToken(user);

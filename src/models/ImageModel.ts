@@ -8,8 +8,8 @@ const imageSchema = new Schema({
 });
 
 export interface Image extends Document {
-    _id: string;
-    url: string;
+  _id: string;
+  url: string;
 }
 
 export const ImageModel: Model<Image> = model<Image>('Image', imageSchema);

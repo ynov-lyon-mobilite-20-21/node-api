@@ -13,13 +13,13 @@ const productSchema = new Schema({
 });
 
 export interface Product extends Document {
-    _id: string;
-    name: string;
-    price: number;
-    description: string;
-    category: string;
-    images: Array<string>;
-    stripeId?: string;
+  _id: string;
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  images: Array<string>;
+  stripeId?: string;
 }
 
 export const ProductModel: Model<Product> = model<Product>('Product', productSchema);

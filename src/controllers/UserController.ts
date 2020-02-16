@@ -4,9 +4,9 @@ import { Response, Request } from 'express';
 import Crypto from 'crypto';
 import {
   findManyBy, findOneBy, saveData, updateOneBy,
-} from '../Services/MongooseService';
-import { User, UserModel } from '../Models/UserModel';
-import { sendRegistrationMail } from '../Services/MailService';
+} from '../services/MongooseService';
+import { User, UserModel } from '../models/UserModel';
+import { sendRegistrationMail } from '../services/MailService';
 
 const { CLIENT_HOSTNAME } = process.env;
 

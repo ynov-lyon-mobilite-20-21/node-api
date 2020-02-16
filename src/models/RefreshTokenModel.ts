@@ -11,11 +11,11 @@ const refreshTokenSchema = new Schema({
 });
 
 export interface RefreshToken extends Document {
-    _id: string;
-    token: string;
-    expirationDate: number;
-    userId: string;
-    active: boolean;
+  _id: string;
+  token: string;
+  expirationDate: number;
+  userId: string;
+  active: boolean;
 }
 
 export const RefreshTokenModel: Model<RefreshToken> = model<RefreshToken>('RefreshToken', refreshTokenSchema);

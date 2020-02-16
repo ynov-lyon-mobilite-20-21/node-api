@@ -20,20 +20,20 @@ const UserSchema = new Schema({
 });
 
 export interface User extends Document {
-    _id: string;
-    mail: string;
-    password?: string;
-    firstName: string;
-    lastName: string;
-    registrationDate?: number;
-    active: boolean;
-    isAdmin: boolean;
-    activationKey?: string;
-    address: string;
-    postalCode: string;
-    city: string;
-    stripeId: string;
-    stripePlanId: string;
+  _id: string;
+  mail: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  registrationDate?: number;
+  active: boolean;
+  isAdmin: boolean;
+  activationKey?: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  stripeId: string;
+  stripePlanId: string;
 }
 
 export const UserModel: Model<User> = model<User>('User', UserSchema);
