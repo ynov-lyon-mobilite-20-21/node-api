@@ -7,6 +7,7 @@ import {
 } from '../services/MongooseService';
 import { User, UserModel } from '../models/UserModel';
 import { sendRegistrationMail } from '../services/MailService';
+import { encryptPassword } from '../services/UserService';
 
 const { CLIENT_HOSTNAME } = process.env;
 
@@ -72,11 +73,12 @@ export const userActivation = async (req: Request, res: Response) => {
 
   // const { id: stripeId } = await stripe.customers.create({ email: user.mail })
 
+  const encryptedPassword = await encryptPassword(password);
   updateOneBy<User>({
     model: UserModel,
     condition: { _id: userId },
     set: {
-      password,
+      password: encryptedPassword,
       active: true,
       activationKey: null,
       registrationDate: Date.now(),
