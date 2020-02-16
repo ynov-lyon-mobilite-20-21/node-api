@@ -4,14 +4,18 @@ import { Request, Response } from 'express';
 import { findOneBy } from '../services/MongooseService';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { User, UserModel } from '../models/UserModel';
-import { createRefreshToken, createToken } from '../services/UserService';
+import { comparePassword, createRefreshToken, createToken } from '../services/UserService';
 
 export const userAuthentication = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
+  if (!user || !user.active) {
+    return res.status(401).json({ code: 'AUTHENTICATION_ERROR' });
+  }
 
-  if (!user || !user.active || user.password !== password) {
+  const passwordIsCorrect = await comparePassword({ password, storagePassword: user.password! });
+  if (!passwordIsCorrect) {
     return res.status(401).json({ code: 'AUTHENTICATION_ERROR' });
   }
 
