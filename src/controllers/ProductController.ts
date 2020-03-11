@@ -25,8 +25,8 @@ export const postProduct = async (req: Request, res: Response) => {
 };
 
 export const getOneProductById = async (req: Request, res: Response) => {
-  const { _id } = req.params;
-  const product = await findOneBy<Product>({ model: ProductModel, condition: { _id } });
+  const { id } = req.params;
+  const product = await findOneBy<Product>({ model: ProductModel, condition: { _id: id } });
 
   if (!product) {
     return res.status(404).send({ code: 'INVALID_PRODUCT_ID' });
