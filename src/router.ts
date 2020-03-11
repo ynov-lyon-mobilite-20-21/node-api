@@ -11,6 +11,8 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 
+import { linkUserCard } from './controllers/StripeController';
+
 const exRouter: Router = Router();
 
 /*   USERS   */
@@ -39,4 +41,6 @@ exRouter.get('/images/:id', getOneImageById);
 exRouter.get('/images', getAllImages);
 exRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
 
+/*   STRIPE   */
+exRouter.post('/stripe/users/card', userMiddlewares.isAuthenticated, linkUserCard);
 export default (): Router => exRouter;

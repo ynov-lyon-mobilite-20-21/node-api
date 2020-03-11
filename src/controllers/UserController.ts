@@ -72,9 +72,19 @@ export const userActivation = async (req: Request, res: Response) => {
     return res.status(400).json({ code: 'UNKNOWN_ERROR' });
   }
 
-  // const { id: stripeId } = await stripe.customers.create({ email: user.mail })
+  const customer = await stripe.customers.create({
+    email: user.mail,
+  });
+
+  if (!customer) {
+    // TODO GERER L'ERREUR
+    return;
+  }
+
+  const stripeId = customer!.id;
 
   const encryptedPassword = await encryptPassword(password);
+
   updateOneBy<User>({
     model: UserModel,
     condition: { _id: userId },
@@ -83,7 +93,7 @@ export const userActivation = async (req: Request, res: Response) => {
       active: true,
       activationKey: null,
       registrationDate: moment().unix(),
-    // stripeId,
+      stripeId,
     },
   });
 
