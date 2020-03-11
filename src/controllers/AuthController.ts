@@ -14,7 +14,7 @@ export const userAuthentication = async (req: Request, res: Response) => {
   if (!user || !user.active) {
     return res.status(401).json({
       data: {},
-      error: { code: 'AUTHENTICATION_ERROR' },
+      error: { code: 'BAD_CREDENTIALS' },
     });
   }
 
@@ -22,7 +22,7 @@ export const userAuthentication = async (req: Request, res: Response) => {
   if (!passwordIsCorrect) {
     return res.status(401).json({
       data: {},
-      error: { code: 'AUTHENTICATION_ERROR' },
+      error: { code: 'BAD_CREDENTIALS' },
     });
   }
 
