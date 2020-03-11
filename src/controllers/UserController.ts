@@ -68,10 +68,17 @@ export const getUsers = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const users = await findManyBy<User>({ model: UserModel, condition: { _id: id } });
+  const user = await findOneBy<User>({ model: UserModel, condition: { _id: id } });
+
+  if (!user) {
+    return res.status(200).json({
+      data: {},
+      error: { code: 'CANNOT_GET_USER' },
+    });
+  }
 
   res.status(200).json({
-    data: users,
+    data: user,
     error: {},
   });
 };
@@ -131,7 +138,7 @@ export const updateUser = async (req: Request, res: Response) => {
   if (!userUpdate) {
     return res.status(400).json({
       data: {},
-      error: { code: 'UNKNOWN_ERROR' },
+      error: { code: 'CANNOT_UPDATE_USER' },
     });
   }
 
