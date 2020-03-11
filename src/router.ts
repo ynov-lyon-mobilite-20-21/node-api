@@ -35,8 +35,8 @@ exRouter.delete('/products/:id', [userMiddlewares.isAuthenticated, userMiddlewar
 
 /*   IMAGES   */
 exRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
-exRouter.get('/images/id', getOneImageById);
+exRouter.get('/images/:id', getOneImageById);
 exRouter.get('/images', getAllImages);
-exRouter.delete('/images/id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
+exRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
 
 export default (): Router => exRouter;
