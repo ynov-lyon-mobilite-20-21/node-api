@@ -45,7 +45,9 @@ export const createPaymentIntent = async (stripeCustomerId: string, stripeSource
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       customer: stripeCustomerId,
+      payment_method: stripeSourceId,
       currency: 'eur',
+      confirm: true,
       use_stripe_sdk: true,
     });
 

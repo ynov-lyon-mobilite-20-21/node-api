@@ -11,7 +11,7 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 
-import {linkUserCard, pay} from './controllers/StripeController';
+import { linkUserCard, pay } from './controllers/StripeController';
 
 const exRouter: Router = Router();
 
@@ -24,6 +24,7 @@ exRouter.post('/users/activation', userActivation);
 exRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
 exRouter.put('/users/admin/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateUser);
 exRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
+// exRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
 
 /*   AUTH   */
 exRouter.post('/auth', userAuthentication);
