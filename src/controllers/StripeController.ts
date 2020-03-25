@@ -1,31 +1,27 @@
 import { Request, Response } from 'express';
-import Stripe from 'stripe';
 import { User } from '../models/UserModel';
-
-
-const { STRIPE_API_KEY } = process.env;
-const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
-
+import { linkCardToCustomer } from '../services/StripeService';
 
 export const linkUserCard = async (req: Request, res: Response): Promise<void> => {
   // @ts-ignore
   const { stripeId } = req.user as User;
+  const { stripeToken } = req.body;
 
-  try {
-    if (!stripeId) {
-      // eslint-disable-next-line no-throw-literal
-      throw 'UNKNOWN_STRIPE_ID';
-    }
+  if (!stripeId) {
+    // eslint-disable-next-line no-throw-literal
+    throw 'UNKNOWN_STRIPE_ID';
+  }
 
-    await stripe.customers.createSource(stripeId, {
-      source: req.body.stripeToken,
-    });
+  const linkingCardRequest = await linkCardToCustomer(stripeId, stripeToken);
 
-    res.status(204).send();
-  } catch (e) {
+  if (!linkingCardRequest) {
     res.status(400).send({
-      errors: {},
+      errors: { code: 'UNKNOWN_ERROR' },
       data: {},
     });
+
+    return;
   }
+
+  res.status(204).send();
 };

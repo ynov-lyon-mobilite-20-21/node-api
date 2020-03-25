@@ -23,8 +23,8 @@ export const linkCardToCustomer = async (stripeCustomerId: string, stripeToken: 
     });
     return true;
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.log(e);
-    return null;
+    // eslint-disable-next-line no-console
+    return false;
   }
 };
