@@ -53,7 +53,11 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     // @ts-ignore
     const { _id } = decoded;
 
-    const user = await findOneBy<User>({ model: UserModel, condition: { _id }, hiddenPropertiesToSelect: ['stripeId'] });
+    const user = await findOneBy<User>({
+      model: UserModel,
+      condition: { _id },
+      hiddenPropertiesToSelect: ['stripeId', 'stripeSourceId'],
+    });
 
     if (!user) {
       res.status(401).json({ code: 'INVALID_TOKEN' });

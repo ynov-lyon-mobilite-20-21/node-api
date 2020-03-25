@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   postalCode: { type: 'string' },
   city: { type: 'string' },
   stripeId: { type: 'string', select: false },
-  stripePlanId: { type: 'string', select: false },
+  stripeSourceId: { type: 'string', select: false },
   __v: { type: Number, select: false },
 });
 
@@ -33,7 +33,7 @@ export interface User extends Document {
   postalCode: string;
   city: string;
   stripeId: string;
-  stripePlanId: string;
+  stripeSourceId: string;
 }
 
 export const UserModel: Model<User> = model<User>('User', UserSchema);
