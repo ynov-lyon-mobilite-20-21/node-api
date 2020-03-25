@@ -23,31 +23,25 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const userInDb = await findOneBy<User>({ model: UserModel, condition: { mail } });
+  let user = await findOneBy<User>({ model: UserModel, condition: { mail } });
 
-  if (userInDb && userInDb.active) {
+  if (user && user.active) {
     res.status(400).json({
       data: {},
-      error: { code: 'MAIL_ALREADY_USED' },
-    });
-
-    return;
-  } if (userInDb) {
-    const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${userInDb._id}&k=${userInDb.activationKey}`;
-
-    const mailIsSent = await sendRegistrationMail(userInDb.mail, activationLink);
-
-    res.status(200).json({
-      data: { mailIsSent, userExist: true },
-      error: {},
+      error: { code: 'USER_EXISTS' },
     });
 
     return;
   }
 
-  const activationKey = Crypto.randomBytes(50).toString('hex');
+  if (!user) {
+    const activationKey = Crypto.randomBytes(50).toString('hex');
 
-  const user = await saveData<User>({ model: UserModel, params: { activationKey, mail, active: false } });
+    user = await saveData<User>({ model: UserModel, params: { activationKey, mail, active: false } });
+  }
+
+  const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
+  await sendRegistrationMail(user.mail, activationLink);
 
   if (!user) {
     res.status(400).json({
@@ -58,10 +52,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  res.status(200).json({
-    data: user,
-    error: {},
-  });
+  res.status(204).json();
 };
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
