@@ -14,7 +14,10 @@ export const postProduct = async (req: Request, res: Response) => {
     return res.status(400).json({ code: 'UNKNOWN_ERROR' });
   }
 
-  res.status(200).json(product);
+  res.status(200).json({
+    data: product,
+    error: {},
+  });
 
   // const test = await stripe.plans.create({
   //     amount: price * 100,
@@ -29,10 +32,16 @@ export const getOneProductById = async (req: Request, res: Response) => {
   const product = await findOneBy<Product>({ model: ProductModel, condition: { _id: id } });
 
   if (!product) {
-    return res.status(404).send({ code: 'INVALID_PRODUCT_ID' });
+    return res.status(404).send({
+      data: {},
+      error: { code: 'INVALID_PRODUCT_ID' },
+    });
   }
 
-  res.status(200).json(product);
+  res.status(200).json({
+    data: product,
+    error: {},
+  });
 };
 
 export const deleteProductById = async (req: Request, res: Response) => {
@@ -40,7 +49,10 @@ export const deleteProductById = async (req: Request, res: Response) => {
   const product = await deleteOnyBy<Product>({ model: ProductModel, condition: { _id } });
 
   if (!product) {
-    return res.status(400).send({ code: 'UNKNOWN_ERROR' });
+    return res.status(400).send({
+      data: {},
+      error: { code: 'UNKNOWN_ERROR' },
+    });
   }
 
   res.status(204).send();
@@ -49,5 +61,8 @@ export const deleteProductById = async (req: Request, res: Response) => {
 export const getAllProducts = async (req: Request, res: Response) => {
   const products = await findManyBy<Product>({ model: ProductModel, condition: {} });
 
-  res.status(200).json(products);
+  res.status(200).json({
+    data: products,
+    error: {},
+  });
 };

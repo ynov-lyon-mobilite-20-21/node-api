@@ -12,18 +12,27 @@ export const userAuthentication = async (req: Request, res: Response) => {
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
   if (!user || !user.active) {
-    return res.status(401).json({ code: 'AUTHENTICATION_ERROR' });
+    return res.status(401).json({
+      data: {},
+      error: { code: 'BAD_CREDENTIALS' },
+    });
   }
 
   const passwordIsCorrect = await comparePassword({ password, storagePassword: user.password! });
   if (!passwordIsCorrect) {
-    return res.status(401).json({ code: 'AUTHENTICATION_ERROR' });
+    return res.status(401).json({
+      data: {},
+      error: { code: 'BAD_CREDENTIALS' },
+    });
   }
 
   const newToken = await createToken(user);
   const newRefreshToken = await createRefreshToken(user);
 
-  res.status(200).json({ token: newToken, refreshToken: newRefreshToken.token });
+  res.status(200).json({
+    data: { token: newToken, refreshToken: newRefreshToken.token },
+    error: {},
+  });
 };
 
 export const refreshUserToken = async (req: Request, res: Response) => {
@@ -35,17 +44,26 @@ export const refreshUserToken = async (req: Request, res: Response) => {
         || !refreshTokenObj!.active
         || refreshTokenObj!.expirationDate < moment().unix()
   ) {
-    return res.status(401).json({ code: 'CANT_REFRESH_TOKEN' });
+    return res.status(401).json({
+      data: {},
+      error: { code: 'CANT_REFRESH_TOKEN' },
+    });
   }
 
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: refreshTokenObj.userId } });
 
   if (!user) {
-    return res.status(404).json({ code: 'USER_DOESNT_EXIST' });
+    return res.status(404).json({
+      data: {},
+      error: { code: 'USER_DOESNT_EXIST' },
+    });
   }
 
   const newToken = await createToken(user);
   const newRefreshToken = await createRefreshToken(user);
 
-  res.status(200).json({ token: newToken, refreshToken: newRefreshToken.token });
+  res.status(200).json({
+    data: { token: newToken, refreshToken: newRefreshToken.token },
+    error: {},
+  });
 };
