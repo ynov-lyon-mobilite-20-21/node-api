@@ -1,14 +1,13 @@
 /*  eslint-disable @typescript-eslint/explicit-function-return-type */
 
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import Crypto from 'crypto';
 import moment from 'moment';
-import {
-  findManyBy, findOneBy, saveData, updateOneBy,
-} from '../services/MongooseService';
+import { findManyBy, findOneBy, saveData, updateOneBy, } from '../services/MongooseService';
 import { User, UserModel } from '../models/UserModel';
 import { sendRegistrationMail } from '../services/MailService';
 import { encryptPassword } from '../services/UserService';
+import { createStripeCustomer } from "../services/StripeService";
 
 const { CLIENT_HOSTNAME } = process.env;
 
@@ -23,7 +22,8 @@ export const postUser = async (req: Request, res: Response) => {
 
   if (userInDb && userInDb.active) {
     return res.status(400).json({ code: 'MAIL_ALREADY_USED' });
-  } if (userInDb) {
+  }
+  if (userInDb) {
     const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${userInDb._id}&k=${userInDb.activationKey}`;
 
     const mailIsSent = await sendRegistrationMail(userInDb.mail, activationLink);
@@ -72,16 +72,16 @@ export const userActivation = async (req: Request, res: Response) => {
     return res.status(400).json({ code: 'UNKNOWN_ERROR' });
   }
 
-  const customer = await stripe.customers.create({
-    email: user.mail,
-  });
+  const customer = createStripeCustomer(user);
 
   if (!customer) {
     // TODO GERER L'ERREUR
     return;
   }
 
-  const stripeId = customer!.id;
+  // @ts-ignore
+  const { id } = customer;
+  const stripeId = id;
 
   const encryptedPassword = await encryptPassword(password);
 

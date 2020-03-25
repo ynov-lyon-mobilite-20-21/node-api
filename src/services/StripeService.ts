@@ -16,7 +16,7 @@ export const createStripeCustomer = async (user: User): Promise<Stripe.Customer 
   }
 };
 
-export const linkCardToCustomer = async (stripeCustomerId: string, stripeToken: string): Promise<boolean> => {
+export const linkCardToCustomer = async (stripeCustomerId: string, stripeToken: string): Promise<boolean | null> => {
   try {
     await stripe.customers.createSource(stripeCustomerId, {
       source: stripeToken,

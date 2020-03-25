@@ -8,6 +8,8 @@ const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
 
 
 export const linkUserCard = async (req: Request, res: Response): Promise<boolean> => {
+
+  console.log(req.body);
   // @ts-ignore
   const { stripeId } = req.user as User;
   if (!stripeId) {
@@ -18,7 +20,7 @@ export const linkUserCard = async (req: Request, res: Response): Promise<boolean
     await stripe.customers.createSource(stripeId, {
       source: req.body.stripeToken,
     });
-    return true;
+    res.status(204).send();
   } catch (e) {
     return false;
   }
