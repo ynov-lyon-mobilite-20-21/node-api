@@ -89,7 +89,7 @@ const userInParamsIsCurrentUser = async (req: Request, res: Response, next: Next
   // @ts-ignore
   const { _id } = req.user as User;
 
-  if (userId !== _id) {
+  if (String(userId) !== String(_id)) {
     return res.status(401).json({ code: 'UNAUTHORIZED_ACTION' });
   }
 
