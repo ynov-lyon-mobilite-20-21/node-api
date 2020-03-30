@@ -108,7 +108,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  const customer = createStripeCustomer(user);
+  const customer = await createStripeCustomer(user);
 
   if (!customer) {
     // TODO GERER L'ERREUR
