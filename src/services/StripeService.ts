@@ -1,9 +1,11 @@
 /*  eslint-disable @typescript-eslint/camelcase   */
 
 import Stripe from 'stripe';
-import { User, UserModel } from '../models/UserModel';
-import { saveData, updateOneBy } from './MongooseService';
-import {BasketItem, Payment, PaymentModel} from '../models/PaymentModel';
+
+import { User } from '../models/UserModel';
+import { findManyBy, saveData } from './MongooseService';
+import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
+import { Card, CardModel } from '../models/CardtModel';
 
 const { STRIPE_API_KEY } = process.env;
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
@@ -20,19 +22,38 @@ export const createStripeCustomer = async (user: User): Promise<Stripe.Customer 
   }
 };
 
-export const linkCardToCustomer = async (stripeCustomerId: string, stripeToken: string): Promise<boolean> => {
+export const linkCardToCustomer = async (user: User, stripeToken: string): Promise<object | boolean> => {
   try {
-    const { id: sourceId } = await stripe.customers.createSource(stripeCustomerId, {
+    const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
+
+    const {
+      id: sourceId, exp_month: expMonth, exp_year: expYear, last4, name,
+    } = await stripe.customers.createSource(user.stripeId, {
       source: stripeToken,
+    }) as Stripe.Card;
+
+    const card = await saveData<Card>({
+      model: CardModel,
+      params: {
+        stripeId: sourceId,
+        userId: user._id,
+        isDefaultCard: cards.length < 1,
+        expMonth,
+        expYear,
+        last4,
+        name,
+      },
     });
 
-    await updateOneBy<User>({
-      condition: { stripeId: stripeCustomerId },
-      set: { stripeSourceId: sourceId },
-      model: UserModel,
-    });
-
-    return true;
+    return {
+      _id: card._id,
+      userId: user._id,
+      isDefaultCard: cards.length < 1,
+      expMonth,
+      expYear,
+      last4,
+      name,
+    };
   } catch (e) {
     console.log(e);
     // eslint-disable-next-line no-console
@@ -40,12 +61,12 @@ export const linkCardToCustomer = async (stripeCustomerId: string, stripeToken: 
   }
 };
 
-export const createPaymentIntent = async (stripeCustomerId: string, stripeSourceId: string, basket: BasketItem[], amount: number): Promise<Stripe.PaymentIntent | null> => {
+export const createPaymentIntent = async (user: User, card: Card, basket: BasketItem[], amount: number): Promise<Stripe.PaymentIntent | null> => {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      customer: stripeCustomerId,
-      payment_method: stripeSourceId,
+      customer: user.stripeId,
+      payment_method: card.stripeId,
       currency: 'eur',
       confirm: true,
       use_stripe_sdk: true,

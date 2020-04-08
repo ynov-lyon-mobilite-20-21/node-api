@@ -33,7 +33,6 @@ export interface User extends Document {
   postalCode: string;
   city: string;
   stripeId: string;
-  stripeSourceId: string;
 }
 
 export const UserModel: Model<User> = model<User>('User', UserSchema);

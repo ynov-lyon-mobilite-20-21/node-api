@@ -56,7 +56,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     const user = await findOneBy<User>({
       model: UserModel,
       condition: { _id },
-      hiddenPropertiesToSelect: ['stripeId', 'stripeSourceId'],
+      hiddenPropertiesToSelect: ['stripeId'],
     });
 
     if (!user) {

@@ -3,18 +3,14 @@ import { User } from '../models/UserModel';
 import { createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
 import { getBasketAmount } from '../services/ProductsService';
+import { findManyBy, findOneBy } from '../services/MongooseService';
+import { Card, CardModel } from '../models/CardtModel';
 
 export const linkUserCard = async (req: Request, res: Response): Promise<void> => {
-  // @ts-ignore
-  const { stripeId } = req.user as User;
   const { stripeToken } = req.body;
 
-  if (!stripeId) {
-    // eslint-disable-next-line no-throw-literal
-    throw 'UNKNOWN_STRIPE_ID';
-  }
-
-  const linkingCardRequest = await linkCardToCustomer(stripeId, stripeToken);
+  // @ts-ignore
+  const linkingCardRequest = await linkCardToCustomer(req.user, stripeToken);
 
   if (!linkingCardRequest) {
     res.status(400).send({
@@ -25,12 +21,15 @@ export const linkUserCard = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  res.status(204).send();
+  res.status(200).json({
+    data: linkingCardRequest,
+    errors: {},
+  });
 };
 
 export const pay = async (req: Request, res: Response): Promise<void> => {
   // @ts-ignore
-  const { stripeId, stripeSourceId } = req.user as User;
+  const user: User = req.user;
 
   if (!req.body.products) {
     res.status(400).json({
@@ -57,17 +56,35 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (!stripeSourceId) {
+  let card;
+
+  if (!req.body.cardId) {
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { userId: user._id, isDefaultCard: true },
+      hiddenPropertiesToSelect: ['stripeId'],
+    });
+  } else {
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { _id: req.body.cardId, userId: user._id },
+      hiddenPropertiesToSelect: ['stripeId'],
+    });
+  }
+
+  if (!card) {
     res.status(400).json({
       data: {},
-      errors: { code: 'NO_CREDIT_CARD' },
+      errors: {
+        code: 'NO_AVAILABLE_CARDS',
+      },
     });
 
     return;
   }
 
   const amount = await getBasketAmount(basket);
-  const paymentIntent = await createPaymentIntent(stripeId, stripeSourceId, basket, amount);
+  const paymentIntent = await createPaymentIntent(user, card, basket, amount);
 
   if (!paymentIntent) {
     res.status(400).json({
@@ -85,6 +102,18 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       paymentIntentId,
       clientSecret,
     },
+    errors: {},
+  });
+};
+
+export const getUserCards = async (req: Request, res: Response): Promise<void> => {
+  // @ts-ignore
+  const { _id } = req.user as User;
+
+  const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: _id } });
+
+  res.status(200).json({
+    data: cards,
     errors: {},
   });
 };

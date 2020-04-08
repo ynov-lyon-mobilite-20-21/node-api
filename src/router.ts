@@ -11,39 +11,42 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 
-import { linkUserCard, pay } from './controllers/StripeController';
+import { getUserCards, linkUserCard, pay } from './controllers/StripeController';
 
-const exRouter: Router = Router();
+const appRouter: Router = Router();
 
 /*   USERS   */
-exRouter.post('/users', postUser);
-exRouter.get('/users', userMiddlewares.isAuthenticated, getUsers);
-exRouter.get('/users/:id', userMiddlewares.isAuthenticated, getUserById);
-exRouter.post('/users/active', userActivation);
-exRouter.post('/users/activation', userActivation);
-exRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
-exRouter.put('/users/admin/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateUser);
-exRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
-// exRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
+appRouter.post('/users', postUser);
+appRouter.get('/users', userMiddlewares.isAuthenticated, getUsers);
+appRouter.get('/users/:id', userMiddlewares.isAuthenticated, getUserById);
+appRouter.post('/users/active', userActivation);
+appRouter.post('/users/activation', userActivation);
+appRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
+appRouter.put('/users/admin/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateUser);
+appRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
+// appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
 
 /*   AUTH   */
-exRouter.post('/auth', userAuthentication);
-exRouter.post('/auth/refresh', refreshUserToken);
+appRouter.post('/auth', userAuthentication);
+appRouter.post('/auth/refresh', refreshUserToken);
 
 /*   PRODUCTS   */
-exRouter.post('/products', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postProduct);
-exRouter.get('/products/:id', getOneProductById);
-exRouter.get('/products', getAllProducts);
-exRouter.delete('/products/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteProductById);
+appRouter.post('/products', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postProduct);
+appRouter.get('/products/:id', getOneProductById);
+appRouter.get('/products', getAllProducts);
+appRouter.delete('/products/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteProductById);
 
 /*   IMAGES   */
-exRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
-exRouter.get('/images/:id', getOneImageById);
-exRouter.get('/images', getAllImages);
-exRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
+appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
+appRouter.get('/images/:id', getOneImageById);
+appRouter.get('/images', getAllImages);
+appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
+
+/*  CARDS */
+appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
+appRouter.post('/cards', userMiddlewares.isAuthenticated, linkUserCard);
 
 /*   STRIPE   */
-exRouter.post('/stripe/users/card', userMiddlewares.isAuthenticated, linkUserCard);
-exRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
+appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
 
-export default (): Router => exRouter;
+export default (): Router => appRouter;
