@@ -87,7 +87,12 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
 const userInParamsIsCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
   // @ts-ignore
-  const { _id } = req.user as User;
+  const { _id, isAdmin: userIsAdmin } = req.user as User;
+
+  if (userIsAdmin) {
+    next();
+    return;
+  }
 
   if (String(userId) !== String(_id)) {
     return res.status(401).json({ code: 'UNAUTHORIZED_ACTION' });

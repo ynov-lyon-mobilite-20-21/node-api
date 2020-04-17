@@ -23,7 +23,6 @@ appRouter.get('/users/:id', userMiddlewares.isAuthenticated, getUserById);
 appRouter.post('/users/active', userActivation);
 appRouter.post('/users/activation', userActivation);
 appRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
-appRouter.put('/users/admin/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateUser);
 appRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
 appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], deleteUser);
 
