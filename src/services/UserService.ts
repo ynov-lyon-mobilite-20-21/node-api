@@ -60,7 +60,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     });
 
     if (!user) {
-      res.status(401).json({ code: 'INVALID_TOKEN' });
+      res.status(401).json({ errors: { code: 'INVALID_TOKEN' }, data: {} });
       return;
     }
 
@@ -77,7 +77,7 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const user = await findOneBy<User>({ model: UserModel, condition: { _id } });
 
   if (!user?.isAdmin) {
-    return res.status(401).json({ code: 'UNAUTHORIZED_ACTION' });
+    return res.status(401).json({ errors: { code: 'UNAUTHORIZED_ACTION' }, data: {} });
   }
 
   next();
@@ -95,7 +95,7 @@ const userInParamsIsCurrentUser = async (req: Request, res: Response, next: Next
   }
 
   if (String(userId) !== String(_id)) {
-    return res.status(401).json({ code: 'UNAUTHORIZED_ACTION' });
+    return res.status(401).json({ errors: { code: 'UNAUTHORIZED_ACTION' }, data: {} });
   }
 
   next();
