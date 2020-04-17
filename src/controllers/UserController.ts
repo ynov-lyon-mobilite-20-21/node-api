@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Crypto from 'crypto';
 import moment from 'moment';
 import {
+  deleteOnyBy,
   findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { User, UserModel } from '../models/UserModel';
@@ -154,6 +155,21 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     });
 
     return;
+  }
+
+  res.status(204).send();
+};
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId } = req.params;
+
+  const deletion = await deleteOnyBy({ model: UserModel, condition: { _id: userId } });
+
+  if (!deletion) {
+    res.status(400).json({
+      data: {},
+      errors: { code: 'CANT_DELETE_USER' },
+    });
   }
 
   res.status(204).send();

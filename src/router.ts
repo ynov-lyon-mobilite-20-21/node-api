@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  deleteUser,
   getMe, getUserById, getUsers, postUser, updateUser, userActivation,
 } from './controllers/UserController';
 import { userMiddlewares } from './services/UserService';
@@ -24,7 +25,7 @@ appRouter.post('/users/activation', userActivation);
 appRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
 appRouter.put('/users/admin/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateUser);
 appRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
-// appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
+appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], deleteUser);
 
 /*   AUTH   */
 appRouter.post('/auth', userAuthentication);
