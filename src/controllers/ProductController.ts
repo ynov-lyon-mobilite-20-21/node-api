@@ -45,9 +45,9 @@ export const getOneProductById = async (req: Request, res: Response) => {
 };
 
 export const deleteProductById = async (req: Request, res: Response) => {
-  const { _id } = req.params;
-  const product = await deleteOnyBy<Product>({ model: ProductModel, condition: { _id } });
-  console.log(product);
+  const { id } = req.params;
+
+  const product = await deleteOnyBy<Product>({ model: ProductModel, condition: { _id: id } });
 
   if (!product) {
     return res.status(400).send({
