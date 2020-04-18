@@ -3,7 +3,9 @@ import { User } from '../models/UserModel';
 import { createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
 import { getBasketAmount } from '../services/ProductsService';
-import { deleteOnyBy, findManyBy, findOneBy } from '../services/MongooseService';
+import {
+  deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
+} from '../services/MongooseService';
 import { Card, CardModel } from '../models/CardtModel';
 
 export const linkUserCard = async (req: Request, res: Response): Promise<void> => {
@@ -129,6 +131,24 @@ export const removeCard = async (req: Request, res: Response): Promise<void> => 
   const deletion = await deleteOnyBy<Card>({ model: CardModel, condition: { _id: cardId } });
 
   if (!deletion) {
+    res.status(400).json({ data: {}, errors: { code: 'UNKNOWN_ERROR' } });
+  }
+
+  res.status(204).send();
+};
+
+export const setDefaultCard = async (req: Request, res: Response): Promise<void> => {
+  const { cardId } = req.params;
+
+  if (!cardId) {
+    res.status(400).json({ data: {}, errors: { code: 'REQUIRED_CARD_ID_PARAMETER' } });
+    return;
+  }
+
+  await updateManyBy<Card>({ model: CardModel, condition: {}, set: { isDefaultCard: false } });
+  const update = await updateOneBy<Card>({ model: CardModel, condition: { _id: cardId }, set: { isDefaultCard: true } });
+
+  if (!update) {
     res.status(400).json({ data: {}, errors: { code: 'UNKNOWN_ERROR' } });
   }
 

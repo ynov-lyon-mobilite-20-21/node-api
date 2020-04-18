@@ -58,6 +58,17 @@ export const updateOneBy = async <T extends Document>({ model: ModelObject, cond
   }
 };
 
+export const updateManyBy = async <T extends Document>({ model: ModelObject, condition, set }: UpdateByParams<T>): Promise<boolean> => {
+  try {
+    const update = await ModelObject.updateMany(condition, { $set: set, $inc: { __v: 1 } });
+    return update.nModified > 0;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+    return false;
+  }
+};
+
 export const findManyBy = async <T extends Document>({ model: ModelObject, condition, hiddenPropertiesToSelect }: FindByParams<T>): Promise<T[]> => {
   try {
     return ModelObject.find(condition)

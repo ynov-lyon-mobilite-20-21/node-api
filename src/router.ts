@@ -12,7 +12,7 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 
-import {getUserCards, linkUserCard, pay, removeCard} from './controllers/StripeController';
+import {getUserCards, linkUserCard, pay, removeCard, setDefaultCard} from './controllers/StripeController';
 
 const appRouter: Router = Router();
 
@@ -46,6 +46,7 @@ appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddleware
 appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
 appRouter.post('/cards', userMiddlewares.isAuthenticated, linkUserCard);
 appRouter.delete('/cards/:cardId', userMiddlewares.isAuthenticated, removeCard);
+appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefaultCard);
 
 /*   STRIPE   */
 appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
