@@ -3,7 +3,7 @@ import { User } from '../models/UserModel';
 import { createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
 import { getBasketAmount } from '../services/ProductsService';
-import { findManyBy, findOneBy } from '../services/MongooseService';
+import { deleteOnyBy, findManyBy, findOneBy } from '../services/MongooseService';
 import { Card, CardModel } from '../models/CardtModel';
 
 export const linkUserCard = async (req: Request, res: Response): Promise<void> => {
@@ -29,7 +29,7 @@ export const linkUserCard = async (req: Request, res: Response): Promise<void> =
 
 export const pay = async (req: Request, res: Response): Promise<void> => {
   // @ts-ignore
-  const user: User = req.user;
+  const { user } = req;
 
   if (!req.body.products) {
     res.status(400).json({
@@ -116,4 +116,21 @@ export const getUserCards = async (req: Request, res: Response): Promise<void> =
     data: cards,
     errors: {},
   });
+};
+
+export const removeCard = async (req: Request, res: Response): Promise<void> => {
+  const { cardId } = req.params;
+
+  if (!cardId) {
+    res.status(400).json({ data: {}, errors: { code: 'REQUIRED_CARD_ID_PARAMETER' } });
+    return;
+  }
+
+  const deletion = await deleteOnyBy<Card>({ model: CardModel, condition: { _id: cardId } });
+
+  if (!deletion) {
+    res.status(400).json({ data: {}, errors: { code: 'UNKNOWN_ERROR' } });
+  }
+
+  res.status(204).send();
 };
