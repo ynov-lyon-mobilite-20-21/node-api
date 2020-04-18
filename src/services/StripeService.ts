@@ -27,7 +27,7 @@ export const linkCardToCustomer = async (user: User, stripeToken: string): Promi
     const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
     const {
-      id: sourceId, exp_month: expMonth, exp_year: expYear, last4, name,
+      id: sourceId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
     } = await stripe.customers.createSource(user.stripeId, {
       source: stripeToken,
     }) as Stripe.Card;
@@ -42,6 +42,7 @@ export const linkCardToCustomer = async (user: User, stripeToken: string): Promi
         expYear,
         last4,
         name,
+        brand,
       },
     });
 
@@ -53,6 +54,7 @@ export const linkCardToCustomer = async (user: User, stripeToken: string): Promi
       expYear,
       last4,
       name,
+      brand,
     };
   } catch (e) {
     console.log(e);

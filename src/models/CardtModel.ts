@@ -10,6 +10,7 @@ const CardSchema = new Schema({
   expYear: { type: 'number', require: true },
   isDefaultCard: { type: 'boolean', require: true, default: false },
   stripeId: { type: 'string', select: false, unique: true },
+  brand: { type: 'string' },
   __v: { type: Number, select: false },
 });
 
@@ -22,6 +23,7 @@ export interface Card extends Document {
   expYear: number;
   stripeId?: string;
   isDefaultCard: boolean;
+  brand: string;
 }
 
 export const CardModel: Model<Card> = model<Card>('Card', CardSchema);
