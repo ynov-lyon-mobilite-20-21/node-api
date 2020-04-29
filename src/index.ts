@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import express, { Application, json } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import morganBody from 'morgan-body';
 
 import RefreshTokenCron from './crons/refresh-token-cron';
 
@@ -30,6 +31,7 @@ const router = require('./router').default;
 
 app.use(cors());
 app.use(morgan(':method :url :status - :response-time ms - CONTENT-TYPE: :req[Content-Type] - ACCEPT: :req[Accept]'));
+morganBody(app);
 app.use(json());
 app.use('/api', router());
 

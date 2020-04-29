@@ -19,6 +19,7 @@
     "moment": "^2.24.0",
     "mongoose": "^5.8.9",
     "morgan": "^1.9.1",
+    "morgan-body": "^2.4.8",
     "nodemailer": "^6.4.2",
     "stripe": "^8.29.0",
     "ts-mongoose": "^0.0.21"
