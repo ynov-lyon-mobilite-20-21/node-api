@@ -2,10 +2,13 @@
 
 import Stripe from 'stripe';
 
+
 import { User } from '../models/UserModel';
 import { findManyBy, saveData } from './MongooseService';
 import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
 import { Card, CardModel } from '../models/CardtModel';
+
+import PaymentIntents = Stripe.resources.PaymentIntents;
 
 const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
@@ -70,7 +73,7 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
       customer: user.stripeId,
       payment_method: card.stripeId,
       currency: 'eur',
-      confirm: true,
+      // confirm: true,
       return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`,
       use_stripe_sdk: true,
     });
@@ -90,4 +93,8 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
     console.log(e);
     return null;
   }
+};
+
+export const confirmPaymentIntent = (paymentIntent: PaymentIntents): void => {
+  stripe.paymentIntents.confirm(paymentIntent.id).then(console.log).catch(console.error);
 };
