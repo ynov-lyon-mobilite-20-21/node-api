@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../models/UserModel';
-import {confirmPaymentIntent, createPaymentIntent, linkCardToCustomer} from '../services/StripeService';
+import { confirmPaymentIntent, createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
 import { getBasketAmount } from '../services/ProductsService';
 import {
@@ -87,7 +87,6 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   const amount = await getBasketAmount(basket);
   const paymentIntent = await createPaymentIntent(user, card, basket, amount);
-  confirmPaymentIntent(paymentIntent);
 
   if (!paymentIntent) {
     res.status(400).json({
@@ -97,6 +96,8 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
     return;
   }
+
+  confirmPaymentIntent(paymentIntent);
 
   const { id: paymentIntentId, client_secret: clientSecret } = paymentIntent;
 
