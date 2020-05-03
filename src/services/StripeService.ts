@@ -7,7 +7,7 @@ import { findManyBy, saveData } from './MongooseService';
 import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
 import { Card, CardModel } from '../models/CardtModel';
 
-const { STRIPE_API_KEY } = process.env;
+const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
 
 export const createStripeCustomer = async (user: User): Promise<Stripe.Customer | null> => {
@@ -71,6 +71,7 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
       payment_method: card.stripeId,
       currency: 'eur',
       confirm: true,
+      return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`,
       use_stripe_sdk: true,
     });
 
