@@ -97,17 +97,20 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  confirmPaymentIntent(paymentIntent);
+  try {
+    const confirmation = await confirmPaymentIntent(paymentIntent);
+    console.log(confirmation);
+  } finally {
+    const { id: paymentIntentId, client_secret: clientSecret } = paymentIntent;
 
-  const { id: paymentIntentId, client_secret: clientSecret } = paymentIntent;
-
-  res.status(200).json({
-    data: {
-      paymentIntentId,
-      clientSecret,
-    },
-    errors: {},
-  });
+    res.status(200).json({
+      data: {
+        paymentIntentId,
+        clientSecret,
+      },
+      errors: {},
+    });
+  }
 };
 
 export const getUserCards = async (req: Request, res: Response): Promise<void> => {

@@ -72,7 +72,6 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
       payment_method: card.stripeId,
       currency: 'eur',
       // confirm: true,
-      return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`,
       use_stripe_sdk: true,
     });
 
@@ -93,6 +92,6 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
   }
 };
 
-export const confirmPaymentIntent = (paymentIntent: Stripe.PaymentIntent): void => {
-  stripe.paymentIntents.confirm(paymentIntent.id).then(console.log).catch(console.error);
-};
+export const confirmPaymentIntent = (paymentIntent: Stripe.PaymentIntent): Promise<Stripe.PaymentIntent> => stripe.paymentIntents.confirm(paymentIntent.id, {
+  return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`,
+});
