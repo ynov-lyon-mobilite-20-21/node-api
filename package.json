@@ -8,7 +8,7 @@
   "dependencies": {
     "@types/cron": "^1.7.1",
     "@types/stripe": "^7.13.22",
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "cron": "^1.8.2",
     "crypto-js": "^4.0.0",
