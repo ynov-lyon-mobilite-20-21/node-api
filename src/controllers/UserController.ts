@@ -110,20 +110,21 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  const customer = await createStripeCustomer(user);
-
-  if (!customer) {
-    // TODO GERER L'ERREUR
-    return;
-  }
+  // const customer = await createStripeCustomer(user);
+  //
+  // if (!customer) {
+  //   // TODO GERER L'ERREUR
+  //   return;
+  // }
 
   // @ts-ignore
-  const { id } = customer;
-  const stripeId = id;
+  // const { id } = customer;
+  // const stripeId = id;
+  const stripeId = null;
 
   const encryptedPassword = await encryptPassword(password);
 
-  updateOneBy<User>({
+  await updateOneBy<User>({
     model: UserModel,
     condition: { _id: userId },
     set: {
