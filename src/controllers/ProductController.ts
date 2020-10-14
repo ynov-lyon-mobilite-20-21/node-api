@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /*  eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { Request, Response } from 'express';
@@ -5,7 +6,6 @@ import {
   deleteOnyBy, findManyBy, findOneBy, saveData,
 } from '../services/MongooseService';
 import { Product, ProductModel } from '../models/ProductModel';
-
 
 export const postProduct = async (req: Request, res: Response) => {
   const product = saveData<Product>({ model: ProductModel, params: req.body });

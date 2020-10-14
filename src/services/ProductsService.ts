@@ -5,6 +5,7 @@ import { Product, ProductModel } from '../models/ProductModel';
 export const getBasketAmount = async (basket: BasketItem[]): Promise<number> => {
   let amount = 0;
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const productRequests = basket.map((productObject) => findOneBy<Product>({ model: ProductModel, condition: { _id: productObject.productId } }));
   const products = await Promise.all(productRequests) as Product[];

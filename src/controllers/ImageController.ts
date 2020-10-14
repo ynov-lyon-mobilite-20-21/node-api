@@ -1,11 +1,11 @@
-/*  eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import { Request, Response } from 'express';
 import {
   deleteOnyBy, findManyBy, findOneBy, saveData,
 } from '../services/MongooseService';
 import { Image, ImageModel } from '../models/ImageModel';
-
 
 export const postImage = async (req: Request, res: Response) => {
   const image = saveData<Image>({ model: ImageModel, params: req.body });

@@ -12,6 +12,7 @@ const mailer = NodeMailer.createTransport({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 const getMailTemplate = async (template: string, replacements: object): Promise<string | boolean> => {
   const html = await fs.readFileSync(`${__dirname}/../../templates/mails/${template}.html`, { encoding: 'utf-8' });
 

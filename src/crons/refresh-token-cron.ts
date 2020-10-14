@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { CronJob } from 'cron';
 import moment from 'moment';
 import { deleteOnyBy, findManyBy } from '../services/MongooseService';

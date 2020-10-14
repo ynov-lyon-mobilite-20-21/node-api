@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import jwt from 'jsonwebtoken';
 import bCrypt from 'bcrypt';
 import cryptoJs from 'crypto-js';
@@ -34,7 +37,6 @@ export const createRefreshToken = async ({ _id }: User): Promise<RefreshToken> =
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
@@ -44,7 +46,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
   }
 
   const bearer = authorization.replace(/^Bearer\s/, '');
-  jwt.verify(bearer, SECRET_KEY!!, async (err, decoded) => {
+  jwt.verify(bearer, SECRET_KEY!, async (err, decoded) => {
     if (err || !decoded) {
       res.status(401).json({ code: 'INVALID_TOKEN' });
       return;
@@ -70,7 +72,6 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   // @ts-ignore
   const { _id } = req.user as User;
@@ -83,7 +84,6 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const userInParamsIsCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
   // @ts-ignore

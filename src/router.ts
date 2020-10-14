@@ -12,7 +12,9 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 
-import {getUserCards, linkUserCard, pay, removeCard, setDefaultCard} from './controllers/StripeController';
+import {
+  getUserCards, linkUserCard, pay, removeCard, setDefaultCard,
+} from './controllers/StripeController';
 
 const appRouter: Router = Router();
 

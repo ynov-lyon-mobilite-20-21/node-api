@@ -1,7 +1,7 @@
-/*  eslint-disable @typescript-eslint/camelcase   */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/camelcase */
 
 import Stripe from 'stripe';
-
 
 import { User } from '../models/UserModel';
 import { findManyBy, saveData } from './MongooseService';
@@ -9,6 +9,8 @@ import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
 import { Card, CardModel } from '../models/CardtModel';
 
 const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
 
 export const createStripeCustomer = async (user: User): Promise<Stripe.Customer | null> => {
@@ -58,8 +60,8 @@ export const linkCardToCustomer = async (user: User, stripeToken: string): Promi
       brand,
     };
   } catch (e) {
-    console.log(e);
     // eslint-disable-next-line no-console
+    console.log(e);
     return false;
   }
 };
@@ -87,6 +89,7 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
 
     return paymentIntent;
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e);
     return null;
   }

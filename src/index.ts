@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import mongoose from 'mongoose';
 import express, { Application, json } from 'express';
 import cors from 'cors';
@@ -17,7 +18,7 @@ if (NODE_ENV !== 'production') {
 const { DB_URL, PORT } = process.env;
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion,max-len
-mongoose.connect(DB_URL!!, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
+mongoose.connect(DB_URL!, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
   .then(() => {
     // eslint-disable-next-line no-console
     console.log('Connected to MongoDB');

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import { User } from '../models/UserModel';
 import { confirmPaymentIntent, createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
@@ -99,6 +100,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const confirmation = await confirmPaymentIntent(paymentIntent);
+    // eslint-disable-next-line no-console
     console.log(confirmation);
   } finally {
     const { id: paymentIntentId, client_secret: clientSecret } = paymentIntent;
