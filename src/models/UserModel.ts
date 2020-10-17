@@ -1,5 +1,5 @@
 import {
-  Schema, Document, Model, model,
+  Document, Model, model, Schema,
 } from 'mongoose';
 
 const UserSchema = new Schema({
@@ -7,13 +7,11 @@ const UserSchema = new Schema({
   password: { type: 'string', select: false },
   firstName: { type: 'string' },
   lastName: { type: 'string' },
+  classroom: { type: 'string' },
+  pictureUrl: { type: 'string' },
   registrationDate: { type: 'number' },
   active: { type: 'boolean', required: true },
-  isAdmin: { type: 'boolean', default: false },
   activationKey: { type: 'string' },
-  address: { type: 'string' },
-  postalCode: { type: 'string' },
-  city: { type: 'string' },
   stripeId: { type: 'string', select: false },
   stripeSourceId: { type: 'string', select: false },
   __v: { type: Number, select: false },
@@ -25,13 +23,12 @@ export interface User extends Document {
   password?: string;
   firstName: string;
   lastName: string;
+  classroom: string;
+  pictureUrl: string;
   registrationDate?: number;
   active: boolean;
   isAdmin: boolean;
   activationKey?: string;
-  address: string;
-  postalCode: string;
-  city: string;
   stripeId: string;
 }
 
