@@ -110,17 +110,16 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  // const customer = await createStripeCustomer(user);
-  //
-  // if (!customer) {
-  //   // TODO GERER L'ERREUR
-  //   return;
-  // }
+  const customer = await createStripeCustomer(user);
 
-  // @ts-ignore
-  // const { id } = customer;
-  // const stripeId = id;
-  const stripeId = null;
+  if (!customer) {
+    // TODO GERER L'ERREUR
+    return;
+  }
+
+  const { id } = customer;
+  const stripeId = id;
+  // const stripeId = null;
 
   const encryptedPassword = await encryptPassword(password);
 
