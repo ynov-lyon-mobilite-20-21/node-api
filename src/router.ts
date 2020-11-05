@@ -17,6 +17,9 @@ import {
 import {
   getUserCards, linkUserCard, pay, removeCard, setDefaultCard,
 } from './controllers/StripeController';
+import {
+  createEvent, deleteEventById, getEventById, getEvents, updateEventById,
+} from './controllers/EventController';
 
 const appRouter: Router = Router();
 
@@ -35,12 +38,6 @@ appRouter.post('/auth', userAuthentication);
 appRouter.post('/auth/refresh', refreshUserToken);
 appRouter.post('/logout', logout);
 
-/*   IMAGES   */
-appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
-appRouter.get('/images/:id', getOneImageById);
-appRouter.get('/images', getAllImages);
-appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
-
 /*  CARDS */
 appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
 appRouter.post('/cards', userMiddlewares.isAuthenticated, linkUserCard);
@@ -49,5 +46,18 @@ appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefa
 
 /*   STRIPE   */
 appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
+
+/*   EVENTS   */
+appRouter.post('/events', createEvent);
+appRouter.get('/events', [userMiddlewares.isAuthenticated], getEvents);
+appRouter.get('/event/:id', [userMiddlewares.isAuthenticated], getEventById);
+appRouter.put('/event/:id', [userMiddlewares.isAuthenticated], updateEventById);
+appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated], deleteEventById);
+
+/*   IMAGES   */
+appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
+appRouter.get('/images/:id', getOneImageById);
+appRouter.get('/images', getAllImages);
+appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
 
 export default (): Router => appRouter;
