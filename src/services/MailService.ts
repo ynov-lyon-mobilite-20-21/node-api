@@ -32,14 +32,15 @@ const send = async (mail: SendMailOptions): Promise<boolean> => new Promise((res
 
 export const sendRegistrationMail = async (to: string, activationLink: string): Promise<boolean> => {
   try {
-    const html = await getMailTemplate('registrationMail', { activationLink });
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    const html = await getMailTemplate('registrationMail', { activationLink, project_name: process.env.PROJECT_NAME });
 
     if (!html) {
       return false;
     }
 
     const mail: SendMailOptions = {
-      subject: 'Inscription à SelfBuy',
+      subject: `Validation créatiion de compte - ${process.env.PROJECT_NAME}`,
       from: process.env.GMAIL_ADDRESS,
       html: html as string,
       to,

@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { User } from '../models/UserModel';
 import { confirmPaymentIntent, createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
-import { getBasketAmount } from '../services/ProductsService';
 import {
   deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
@@ -86,7 +85,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const amount = await getBasketAmount(basket);
+  const amount = 0;
   const paymentIntent = await createPaymentIntent(user, card, basket, amount);
 
   if (!paymentIntent) {
