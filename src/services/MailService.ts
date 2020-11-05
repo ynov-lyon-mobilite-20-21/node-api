@@ -33,7 +33,7 @@ const send = async (mail: SendMailOptions): Promise<boolean> => new Promise((res
 export const sendRegistrationMail = async (to: string, activationLink: string): Promise<boolean> => {
   try {
     // eslint-disable-next-line @typescript-eslint/camelcase
-    const html = await getMailTemplate('registrationMail', { activationLink, project_name: process.env.PROJECT_NAME});
+    const html = await getMailTemplate('registrationMail', { activationLink, project_name: process.env.PROJECT_NAME });
 
     if (!html) {
       return false;
