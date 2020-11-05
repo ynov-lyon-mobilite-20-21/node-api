@@ -14,12 +14,54 @@ import { createStripeCustomer } from '../services/StripeService';
 const { CLIENT_HOSTNAME } = process.env;
 
 export const postUser = async (req: Request, res: Response): Promise<void> => {
-  const { mail } = req.body;
+  const {
+    mail, password, firstName, lastName, classroom, pictureUrl,
+  } = req.body;
 
   if (!mail) {
     res.status(400).json({
       data: {},
       error: { code: 'EMAIL_REQUIRED' },
+    });
+
+    return;
+  }
+  if (!password) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'PASSWORD_REQUIRED' },
+    });
+
+    return;
+  }
+  if (!firstName) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'FIRSTNAME_REQUIRED' },
+    });
+
+    return;
+  }
+  if (!lastName) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'LASTNAME_REQUIRED' },
+    });
+
+    return;
+  }
+  if (!classroom) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'CLASSROOM_REQUIRED' },
+    });
+
+    return;
+  }
+  if (!pictureUrl) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'PICTUREURL_REQUIRED' },
     });
 
     return;
@@ -30,31 +72,63 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
   if (user && user.active) {
     res.status(400).json({
       data: {},
-      error: { code: 'USER_EXISTS' },
+      error: { code: 'USER_ALREADY_EXISTS' },
     });
+
+    return;
+  }
+
+  if (user && !user.active) {
+    res.status(400).json({
+      data: {},
+      error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
+    });
+
+    const newActivationKey = Crypto.randomBytes(50).toString('hex');
+    await updateOneBy<User>({ model: UserModel, condition: { mail: user.mail }, set: { activationKey: newActivationKey } });
+    const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
+    await sendRegistrationMail(user.mail, activationLink);
 
     return;
   }
 
   if (!user) {
     const activationKey = Crypto.randomBytes(50).toString('hex');
+    const encryptedPassword = await encryptPassword(password);
 
-    user = await saveData<User>({ model: UserModel, params: { activationKey, mail, active: false } });
-  }
+    user = await saveData<User>({
+      model: UserModel,
+      params: {
+        mail, password: encryptedPassword, firstName, lastName, classroom, pictureUrl, activationKey, active: false,
+      },
+    });
 
-  const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
-  await sendRegistrationMail(user.mail, activationLink);
+    const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
+    await sendRegistrationMail(user.mail, activationLink);
 
-  if (!user) {
-    res.status(400).json({
-      data: {},
-      error: { code: 'UNKNOWN_ERROR' },
+    if (!user) {
+      res.status(400).json({
+        data: {},
+        error: { code: 'UNKNOWN_ERROR', message: 'An error has occured while user creation in database' },
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      data: {
+        code: 'OK',
+        message: 'Account created successfully',
+      },
     });
 
     return;
   }
 
-  res.status(204).json();
+  res.status(400).json({
+    data: {},
+    error: { code: 'UNKNOWN_ERROR' },
+  });
 };
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
