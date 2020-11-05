@@ -12,10 +12,10 @@ export const userAuthentication = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
-  if (!user || !user.active) {
+  if (!user) {
     return res.status(401).json({
       data: {},
-      error: { code: 'BAD_CREDENTIALS' },
+      error: { code: 'NO_USER' },
     });
   }
 
