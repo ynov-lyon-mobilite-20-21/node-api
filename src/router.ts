@@ -9,7 +9,7 @@ import {
   userActivation,
 } from './controllers/UserController';
 import { userMiddlewares } from './services/UserService';
-import { refreshUserToken, userAuthentication } from './controllers/AuthController';
+import { logout, refreshUserToken, userAuthentication } from './controllers/AuthController';
 import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
@@ -33,6 +33,7 @@ appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlew
 /*   AUTH   */
 appRouter.post('/auth', userAuthentication);
 appRouter.post('/auth/refresh', refreshUserToken);
+appRouter.post('/logout', logout);
 
 /*   IMAGES   */
 appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
