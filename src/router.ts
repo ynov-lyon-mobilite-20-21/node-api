@@ -18,6 +18,9 @@ import {
   getUserCards, linkUserCard, pay, removeCard, setDefaultCard,
 } from './controllers/StripeController';
 import {
+  createEvent, deleteEventById, getEventById, getEvents, updateEventById,
+} from './controllers/EventController';
+import {
   createTicket, deleteTicketById, getTicketById, getTickets, updateTicketById,
 } from './controllers/TicketController';
 
@@ -38,12 +41,6 @@ appRouter.post('/auth', userAuthentication);
 appRouter.post('/auth/refresh', refreshUserToken);
 appRouter.post('/logout', logout);
 
-/*   IMAGES   */
-appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
-appRouter.get('/images/:id', getOneImageById);
-appRouter.get('/images', getAllImages);
-appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
-
 /*  CARDS */
 appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
 appRouter.post('/cards', userMiddlewares.isAuthenticated, linkUserCard);
@@ -53,11 +50,24 @@ appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefa
 /*   STRIPE   */
 appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
 
+/*   EVENTS   */
+appRouter.post('/events', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createEvent);
+appRouter.get('/events', [userMiddlewares.isAuthenticated], getEvents);
+appRouter.get('/event/:id', [userMiddlewares.isAuthenticated], getEventById);
+appRouter.put('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateEventById);
+appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteEventById);
+
 /*   TICKET   */
 appRouter.post('/tickets', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createTicket);
 appRouter.get('/tickets', [userMiddlewares.isAuthenticated], getTickets);
 appRouter.get('/ticket/:id', [userMiddlewares.isAuthenticated], getTicketById);
 appRouter.put('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateTicketById);
 appRouter.delete('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteTicketById);
+
+/*   IMAGES   */
+appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
+appRouter.get('/images/:id', getOneImageById);
+appRouter.get('/images', getAllImages);
+appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
 
 export default (): Router => appRouter;
