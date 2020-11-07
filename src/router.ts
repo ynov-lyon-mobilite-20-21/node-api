@@ -17,6 +17,9 @@ import {
 import {
   getUserCards, linkUserCard, pay, removeCard, setDefaultCard,
 } from './controllers/StripeController';
+import {
+  createTicket, deleteTicketById, getTicketById, getTickets, updateTicketById,
+} from './controllers/TicketController';
 
 const appRouter: Router = Router();
 
@@ -49,5 +52,12 @@ appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefa
 
 /*   STRIPE   */
 appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
+
+/*   TICKET   */
+appRouter.post('/tickets', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createTicket);
+appRouter.get('/tickets', [userMiddlewares.isAuthenticated], getTickets);
+appRouter.get('/ticket/:id', [userMiddlewares.isAuthenticated], getTicketById);
+appRouter.put('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateTicketById);
+appRouter.delete('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteTicketById);
 
 export default (): Router => appRouter;
