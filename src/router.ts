@@ -48,11 +48,11 @@ appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefa
 appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
 
 /*   EVENTS   */
-appRouter.post('/events', createEvent);
+appRouter.post('/events', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createEvent);
 appRouter.get('/events', [userMiddlewares.isAuthenticated], getEvents);
 appRouter.get('/event/:id', [userMiddlewares.isAuthenticated], getEventById);
-appRouter.put('/event/:id', [userMiddlewares.isAuthenticated], updateEventById);
-appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated], deleteEventById);
+appRouter.put('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateEventById);
+appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteEventById);
 
 /*   IMAGES   */
 appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
