@@ -9,6 +9,7 @@ import { Response, Request, NextFunction } from 'express';
 import { User, UserModel } from '../models/UserModel';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { findOneBy, saveData } from './MongooseService';
+import { JWTToken } from '../Interfaces/Token';
 
 const { SECRET_KEY, JWT_TOKEN_EXPIRATION_TIME } = process.env;
 
@@ -70,6 +71,13 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     req.user = user;
     next();
   });
+};
+
+export const getUserIdByToken = async (authorizationHeader: string) => {
+  const authorizationToken = authorizationHeader.replace(/^Bearer\s/, '');
+  const decodedToken = jwt.decode(authorizationToken)! as JWTToken;
+
+  return decodedToken._id;
 };
 
 const isAdmin = async (req: Request, res: Response, next: NextFunction) => {

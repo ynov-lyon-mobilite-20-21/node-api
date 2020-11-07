@@ -10,8 +10,10 @@ const UserSchema = new Schema({
   classroom: { type: 'string' },
   pictureUrl: { type: 'string' },
   registrationDate: { type: 'number' },
-  active: { type: 'boolean', required: true },
+  active: { type: 'boolean', required: true, default: false },
   activationKey: { type: 'string' },
+  isAdmin: { type: 'boolean', required: true, default: false },
+  isAdherent: { type: 'boolean', required: true, default: false },
   stripeId: { type: 'string', select: false },
   stripeSourceId: { type: 'string', select: false },
   __v: { type: Number, select: false },
@@ -27,9 +29,11 @@ export interface User extends Document {
   pictureUrl: string;
   registrationDate?: number;
   active: boolean;
-  isAdmin: boolean;
   activationKey?: string;
+  isAdmin: boolean;
+  isAdherent: boolean;
   stripeId: string;
+  stripeSourceId: string;
 }
 
 export const UserModel: Model<User> = model<User>('User', UserSchema);

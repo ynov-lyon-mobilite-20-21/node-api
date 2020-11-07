@@ -20,6 +20,9 @@ import {
 import {
   createEvent, deleteEventById, getEventById, getEvents, updateEventById,
 } from './controllers/EventController';
+import {
+  createTicket, deleteTicketById, getTicketById, getTickets, updateTicketById,
+} from './controllers/TicketController';
 
 const appRouter: Router = Router();
 
@@ -53,6 +56,13 @@ appRouter.get('/events', [userMiddlewares.isAuthenticated], getEvents);
 appRouter.get('/event/:id', [userMiddlewares.isAuthenticated], getEventById);
 appRouter.put('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateEventById);
 appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteEventById);
+
+/*   TICKET   */
+appRouter.post('/tickets', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createTicket);
+appRouter.get('/tickets', [userMiddlewares.isAuthenticated], getTickets);
+appRouter.get('/ticket/:id', [userMiddlewares.isAuthenticated], getTicketById);
+appRouter.put('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateTicketById);
+appRouter.delete('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteTicketById);
 
 /*   IMAGES   */
 appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
