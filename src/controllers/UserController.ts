@@ -99,7 +99,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     user = await saveData<User>({
       model: UserModel,
       params: {
-        mail, password: encryptedPassword, firstName, lastName, classroom, pictureUrl, activationKey, active: false,
+        mail, password: encryptedPassword, firstName, lastName, classroom, pictureUrl, activationKey,
       },
     });
 
