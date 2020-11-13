@@ -8,7 +8,7 @@ export default new CronJob('00 00 00 * * *', async () => {
   const refreshTokens = await findManyBy<RefreshToken>({ model: RefreshTokenModel, condition: {} });
 
   refreshTokens.forEach((token: RefreshToken) => {
-    if (!token.active || token.expirationDate < moment().unix()) {
+    if (!token.isActive || token.expirationDate < moment().unix()) {
       deleteOnyBy<RefreshToken>({ model: RefreshTokenModel, condition: { _id: token._id } });
     }
   });

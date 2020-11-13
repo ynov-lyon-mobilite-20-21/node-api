@@ -6,7 +6,7 @@ const refreshTokenSchema = new Schema({
   token: { type: 'string', unique: true, required: true },
   expirationDate: { type: 'number', required: true },
   userId: { type: 'string', required: true },
-  active: { type: 'boolean', required: true, default: true },
+  isActive: { type: 'boolean', required: true, default: true },
   __v: { type: Number, select: false },
 });
 

@@ -42,7 +42,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
 
   if (
     !refreshTokenObj
-        || !refreshTokenObj!.active
+        || !refreshTokenObj!.isActive
         || refreshTokenObj!.expirationDate < moment().unix()
   ) {
     return res.status(401).json({

@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   formation: { type: 'string' },
   pictureUrl: { type: 'string' },
   registrationDate: { type: 'number' },
-  active: { type: 'boolean', required: true, default: false },
+  isActive: { type: 'boolean', required: true, default: false },
   activationKey: { type: 'string' },
   isAdmin: { type: 'boolean', required: true, default: false },
   isAdherent: { type: 'boolean', required: true, default: false },
@@ -30,7 +30,7 @@ export interface User extends Document {
   formation: string;
   pictureUrl: string;
   registrationDate?: number;
-  active: boolean;
+  isActive: boolean;
   activationKey?: string;
   isAdmin: boolean;
   isAdherent: boolean;
