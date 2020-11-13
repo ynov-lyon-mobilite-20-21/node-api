@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
-import Crypto from 'crypto';
-import moment from 'moment';
-import { Schema } from 'mongoose';
 import {
   deleteOnyBy,
   findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { Event, EventModel } from '../models/EventModel';
-
-const { CLIENT_HOSTNAME } = process.env;
 
 export const createEvent = async (req: Request, res: Response): Promise<void> => {
   const {

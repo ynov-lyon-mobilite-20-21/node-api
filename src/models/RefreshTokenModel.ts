@@ -15,7 +15,7 @@ export interface RefreshToken extends Document {
   token: string;
   expirationDate: number;
   userId: string;
-  active: boolean;
+  isActive: boolean;
 }
 
 export const RefreshTokenModel: Model<RefreshToken> = model<RefreshToken>('RefreshToken', refreshTokenSchema);
