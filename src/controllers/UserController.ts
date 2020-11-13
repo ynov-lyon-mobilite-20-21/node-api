@@ -15,7 +15,7 @@ const { CLIENT_HOSTNAME } = process.env;
 
 export const postUser = async (req: Request, res: Response): Promise<void> => {
   const {
-    mail, password, firstName, lastName, classroom, pictureUrl,
+    mail, password, firstName, lastName, promotion, formation, pictureUrl,
   } = req.body;
 
   if (!mail) {
@@ -50,9 +50,14 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
     return;
   }
-  if (!classroom) {
+  if (!promotion || !formation) {
     res.status(400).json({
-      data: {},
+      data: {
+        example: {
+          promotion: 'string',
+          formation: 'string',
+        },
+      },
       error: { code: 'CLASSROOM_REQUIRED' },
     });
 
@@ -99,7 +104,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     user = await saveData<User>({
       model: UserModel,
       params: {
-        mail, password: encryptedPassword, firstName, lastName, classroom, pictureUrl, activationKey,
+        mail, password: encryptedPassword, firstName, lastName, promotion, formation, pictureUrl, activationKey,
       },
     });
 

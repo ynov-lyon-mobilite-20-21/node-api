@@ -7,7 +7,8 @@ const UserSchema = new Schema({
   password: { type: 'string', select: false },
   firstName: { type: 'string' },
   lastName: { type: 'string' },
-  classroom: { type: 'string' },
+  promotion: { type: 'string' },
+  formation: { type: 'string' },
   pictureUrl: { type: 'string' },
   registrationDate: { type: 'number' },
   active: { type: 'boolean', required: true, default: false },
@@ -25,7 +26,8 @@ export interface User extends Document {
   password?: string;
   firstName: string;
   lastName: string;
-  classroom: string;
+  promotion: string;
+  formation: string;
   pictureUrl: string;
   registrationDate?: number;
   active: boolean;
