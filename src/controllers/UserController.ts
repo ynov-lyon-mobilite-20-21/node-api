@@ -15,7 +15,7 @@ const { CLIENT_HOSTNAME } = process.env;
 
 export const postUser = async (req: Request, res: Response): Promise<void> => {
   const {
-    mail, password, firstName, lastName, classroom, pictureUrl,
+    mail, password, firstName, lastName, promotion, formation, pictureUrl,
   } = req.body;
 
   if (!mail) {
@@ -50,9 +50,14 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
     return;
   }
-  if (!classroom) {
+  if (!promotion || !formation) {
     res.status(400).json({
-      data: {},
+      data: {
+        example: {
+          promotion: 'string',
+          formation: 'string',
+        },
+      },
       error: { code: 'CLASSROOM_REQUIRED' },
     });
 
@@ -69,7 +74,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   let user = await findOneBy<User>({ model: UserModel, condition: { mail } });
 
-  if (user && user.active) {
+  if (user && user.isActive) {
     res.status(400).json({
       data: {},
       error: { code: 'USER_ALREADY_EXISTS' },
@@ -78,7 +83,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (user && !user.active) {
+  if (user && !user.isActive) {
     res.status(400).json({
       data: {},
       error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
@@ -99,7 +104,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     user = await saveData<User>({
       model: UserModel,
       params: {
-        mail, password: encryptedPassword, firstName, lastName, classroom, pictureUrl, activationKey,
+        mail, password: encryptedPassword, firstName, lastName, promotion, formation, pictureUrl, activationKey,
       },
     });
 
@@ -175,7 +180,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: userId } });
 
-  if (!user || user.active || user.activationKey !== activationKey) {
+  if (!user || user.isActive || user.activationKey !== activationKey) {
     res.status(400).json({
       data: {},
       error: { code: 'UNKNOWN_ERROR' },
@@ -202,7 +207,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     condition: { _id: userId },
     set: {
       password: encryptedPassword,
-      active: true,
+      isActive: true,
       activationKey: null,
       registrationDate: moment().unix(),
       stripeId,
