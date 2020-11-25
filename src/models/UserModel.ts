@@ -9,7 +9,6 @@ const UserSchema = new Schema({
   lastName: { type: 'string' },
   promotion: { type: 'string' },
   formation: { type: 'string' },
-  pictureUrl: { type: 'string' },
   registrationDate: { type: 'number' },
   isActive: { type: 'boolean', required: true, default: false },
   activationKey: { type: 'string' },
@@ -28,7 +27,6 @@ export interface User extends Document {
   lastName: string;
   promotion: string;
   formation: string;
-  pictureUrl: string;
   registrationDate?: number;
   isActive: boolean;
   activationKey?: string;
