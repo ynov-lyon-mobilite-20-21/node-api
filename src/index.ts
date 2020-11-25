@@ -10,7 +10,7 @@ import RefreshTokenCron from './crons/refresh-token-cron';
 const app: Application = express();
 const { NODE_ENV } = process.env;
 
-if (NODE_ENV !== 'production') {
+if (NODE_ENV === 'DEV') {
   // eslint-disable-next-line global-require
   require('dotenv').config();
 }
