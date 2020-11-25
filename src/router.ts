@@ -26,6 +26,22 @@ import {
 
 const appRouter: Router = Router();
 
+// Setup cacheability to all routes
+// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+// use `.set('name', 'value')` on the final response to overwrite this definition
+appRouter.use((req, res, next) => {
+  const period = 60 * 5;
+
+  if (req.method === 'GET') {
+    res.set('Cache-control', `public, max-age=${period}`);
+  } else {
+    res.set('Cache-control', 'no-store, max-age=0');
+  }
+
+  // remember to call next() to pass on the request
+  next();
+});
+
 /*   USERS   */
 appRouter.post('/users', postUser);
 appRouter.get('/users', userMiddlewares.isAuthenticated, getUsers);

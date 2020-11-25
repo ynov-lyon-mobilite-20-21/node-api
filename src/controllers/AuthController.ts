@@ -3,10 +3,14 @@
 
 import { Request, Response } from 'express';
 import moment from 'moment';
-import { deleteOnyBy, findOneBy } from '../services/MongooseService';
+import Crypto from 'crypto';
+import { deleteOnyBy, findOneBy, updateOneBy } from '../services/MongooseService';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { User, UserModel } from '../models/UserModel';
 import { comparePassword, createRefreshToken, createToken } from '../services/UserService';
+import { sendRegistrationMail } from '../services/MailService';
+
+const { CLIENT_HOSTNAME, NODE_ENV } = process.env;
 
 export const userAuthentication = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
@@ -17,6 +21,20 @@ export const userAuthentication = async (req: Request, res: Response) => {
       data: {},
       error: { code: 'NO_USER' },
     });
+  }
+
+  if (!user.isActive && NODE_ENV === 'PROD') {
+    res.status(400).json({
+      data: {},
+      error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
+    });
+
+    const newActivationKey = Crypto.randomBytes(50).toString('hex');
+    await updateOneBy<User>({ model: UserModel, condition: { mail: user.mail }, set: { activationKey: newActivationKey } });
+    const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
+    await sendRegistrationMail(user.mail, activationLink);
+
+    return;
   }
 
   const passwordIsCorrect = await comparePassword({ password, storagePassword: user.password! });
