@@ -10,15 +10,15 @@
     - [Events](#events)
         - [Create](#create)
         - [Read All](#read-all)
-        - [Read One by ID](#read-one-by-id)
-        - [Update One by ID](#update-one-by-id)
-        - [Delete One by ID](#delete-one-by-id)
+        - [Read One by ID](#read-one by id)
+        - [Update One by ID](#update-one by id)
+        - [Delete One by ID](#delete-one by id)
     - [Tickets](#tickets)
         - [Create](#create)
         - [Read All](#read-all)
-        - [Read One by ID](#read-one-by-id)
-        - [Update One by ID](#update-one-by-id)
-        - [Delete One by ID](#delete-one-by-id)
+        - [Read One by ID](#read-one by id)
+        - [Update One by ID](#update-one by id)
+        - [Delete One by ID](#delete-one by id)
 
 
 &nbsp; <!-- break line -->
@@ -55,29 +55,13 @@
 | promotion | unspecified | unspecified | string | unspecified |
 | formation | unspecified | unspecified | string | unspecified |
 
-### Return
-
-200 OK
-
-Errors:
-- If no email field or empty : 400 Bad Request 'EMAIL_REQUIRED'
-- If no password field or emptu : 400 Bad Request 'PASSWORD_REQUIRED'
-- If no firstname field or empty : 400 Bad Request 'FIRSTNAME_REQUIRED'
-- If no lastname field or empty : 400 Bad Request 'LASTNAME_REQUIRED'
-- If no promotion field or empty : 400 Bad Request 'PROMOTION_REQUIRED'
-- If no formation field or empty : 400 Bad Request 'FORMATION_REQUIRED'
-- If user already exist and active : 400 Bad Request 'USER_ALREADY_EXISTS'
-- If user already exist but not active : 400 Bad Request 'USER_ALREADY_EXISTS'
-- If couldn't create user in database : 400 Bad Request 'UNKNOWN_ERROR'
-- If another error occurs : 400 Bad Request 'UNKNOWN_ERROR'
-
 ---
 
 ### Login
 
 > Description unspecified.
 
-**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/login`
+**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth`
 
 **Authentication required** : `true`
 
@@ -99,25 +83,13 @@ Errors:
 | mail | unspecified | unspecified | string | unspecified |
 | password | unspecified | unspecified | string | unspecified |
 
-
-
-### Return
-
-200 OK
-
-Errors:
-- If no account for these credentials : 400 Bad Request 'NO_USER'
-- If user isn't active : 403 Forbidden 'USER_INACTIVE'
-- If bad credentials : 401 Unauthorized 'BAD_CREDENTIALS'
-
-
 ---
 
 ### Refresh Token
 
 > Generate new Token when it expire with the Refresh Token
 
-**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/refreshToken`
+**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/refresh`
 
 **Authentication required** : `true`
 
@@ -137,17 +109,6 @@ Errors:
 | Key | Required | Default | Type | Description |
 | --- | --- | --- | --- | --- |
 | refreshToken | unspecified | unspecified | string | unspecified |
-
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If refresh token doesn't exist, inactive or already expire : 400 Bad Request 'INVALID_TOKEN'
-- If no user found with this token : 404 Not Found 'USER_DOESNT_EXIST'
-
 
 ---
 
@@ -155,7 +116,7 @@ Errors:
 
 > Delete the Refresh Token associated to the user account.
 
-**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/logout`
+**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/logout`
 
 **Authentication required** : `true`
 
@@ -175,15 +136,6 @@ Errors:
 | Key | Required | Default | Type | Description |
 | --- | --- | --- | --- | --- |
 | refreshToken | unspecified | unspecified | string | unspecified |
-
-
-
-#### Return
-
-200 OK
-
-Error:
-- If impossible to delete the refresh token : 500 Internal server error 'UNKNOWN_ERROR'
 
 ---
 
@@ -225,22 +177,6 @@ Error:
 | price | unspecified | unspecified | string | unspecified |
 | qrcode | unspecified | unspecified | string | unspecified |
 
-
-#### Return
-
-200 OK
-
-Errors:
-- If no field name or empty : 400 Bad Request 'NAME_REQUIRED'
-- If no field type or empty : 400 Bad Request 'TYPE_REQUIRED'
-- If no field date or empty : 400 Bad Request 'DATE_REQUIRED'
-- If no field address or empty : 400 Bad Request 'ADDRESS_REQUIRED'
-- If no field description or empty : 400 Bad Request 'DESCRIPTION_REQUIRED'
-- If no field price or empty : 400 Bad Request 'PRICE_REQUIRED'
-- If no field qrcode or empty : 400 Bad Request 'QRCODE_REQUIRED'
-- If event already exist : 400 Bas Request 'EVENT_ALREADY_EXISTS'
-- If couldn't save event : 500 Internal Server Error 'UNKNOWN_ERROR'
-
 ---
 
 ### Read All
@@ -267,12 +203,6 @@ Errors:
 #### Body
 No body required for this request.
 
-
-
-#### Return
-
-200 OK
-
 ---
 
 ### Read One by ID
@@ -298,12 +228,6 @@ No body required for this request.
 
 #### Body
 No body required for this request.
-
-
-
-#### Return
-
-200 OK
 
 ---
 
@@ -333,14 +257,6 @@ No body required for this request.
 | --- | --- | --- | --- | --- |
 | name | unspecified | unspecified | string | unspecified |
 
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If couldn't save data : 500 Internal Server Error 'UNKNOWN_ERROR'
 ---
 
 ### Delete One by ID
@@ -366,15 +282,6 @@ Errors:
 
 #### Body
 No body required for this request.
-
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If couldn't save data : 500 Internal Server Error 'UNKNOWN_ERROR'
 
 ---
 
@@ -413,18 +320,6 @@ You must be an administrator to access this route.
 | eventId | unspecified | unspecified | string | unspecified |
 | paymentId | unspecified | unspecified | string | unspecified |
 
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If no field or empty userid : 400 Bad Request 'USERID_REQUIRED'
-- If no field or empty eventid : 400 Bad Request 'EVENTID_REQUIRED'
-- If no field or empty paymentid : 400 Bad Request 'PAYMENTID_REQUIRED'
-- If ticket already exist : 400 Bad Request 'TICKET_ALREADY_EXISTS"
-
 ---
 
 ### Read All
@@ -451,12 +346,6 @@ You must be an administrator to access this route.
 #### Body
 No body required for this request.
 
-
-
-#### Return
-
-200 OK
-
 ---
 
 ### Read One by ID
@@ -482,12 +371,6 @@ You must be an administrator to access this route.
 
 #### Body
 No body required for this request.
-
-
-
-#### Return
-
-200 OK
 
 ---
 
@@ -518,16 +401,6 @@ You must be an administrator to access this route.
 | --- | --- | --- | --- | --- |
 | paymentId | unspecified | unspecified | string | unspecified |
 
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If couldn't save data : 500 Internal Server Error 'UNKNOWN_ERROR'
-
-
 ---
 
 ### Delete One by ID
@@ -554,16 +427,6 @@ You must be an administrator to access this route.
 
 #### Body
 No body required for this request.
-
-
-
-#### Return
-
-200 OK
-
-Errors:
-- If couldn't delete data : 500 Internal Server Error 'UNKNOWN_ERROR'
-
 
 ---
 
