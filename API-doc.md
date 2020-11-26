@@ -10,15 +10,15 @@
     - [Events](#events)
         - [Create](#create)
         - [Read All](#read-all)
-        - [Read One by ID](#read-one by id)
-        - [Update One by ID](#update-one by id)
-        - [Delete One by ID](#delete-one by id)
+        - [Read One by ID](#read-one-by-id)
+        - [Update One by ID](#update-one-by-id)
+        - [Delete One by ID](#delete-one-by-id)
     - [Tickets](#tickets)
         - [Create](#create)
         - [Read All](#read-all)
-        - [Read One by ID](#read-one by id)
-        - [Update One by ID](#update-one by id)
-        - [Delete One by ID](#delete-one by id)
+        - [Read One by ID](#read-one-by-id)
+        - [Update One by ID](#update-one-by-id)
+        - [Delete One by ID](#delete-one-by-id)
 
 
 &nbsp; <!-- break line -->
