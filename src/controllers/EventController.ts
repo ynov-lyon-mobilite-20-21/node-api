@@ -89,7 +89,7 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
   });
 
   if (!event) {
-    res.status(400).json({
+    res.status(500).json({
       data: {},
       error: { code: 'UNKNOWN_ERROR', message: 'An error has occured while event creation in database' },
     });

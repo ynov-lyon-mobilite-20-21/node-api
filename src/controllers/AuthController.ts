@@ -17,14 +17,14 @@ export const userAuthentication = async (req: Request, res: Response) => {
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
   if (!user) {
-    return res.status(401).json({
+    return res.status(400).json({
       data: {},
       error: { code: 'NO_USER' },
     });
   }
 
   if (!user.isActive && NODE_ENV === 'PROD') {
-    res.status(400).json({
+    res.status(403).json({
       data: {},
       error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
     });
@@ -63,9 +63,9 @@ export const refreshUserToken = async (req: Request, res: Response) => {
         || !refreshTokenObj!.isActive
         || refreshTokenObj!.expirationDate < moment().unix()
   ) {
-    return res.status(401).json({
+    return res.status(400).json({
       data: {},
-      error: { code: 'CANT_REFRESH_TOKEN' },
+      error: { code: 'INVALID_TOKEN' },
     });
   }
 
