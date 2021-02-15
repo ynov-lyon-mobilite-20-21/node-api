@@ -53,9 +53,9 @@ appRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddleware
 appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], deleteUser);
 
 /*   AUTH   */
-appRouter.post('/auth', userAuthentication);
-appRouter.post('/auth/refresh', refreshUserToken);
-appRouter.post('/logout', logout);
+appRouter.post('/auth/login', userAuthentication);
+appRouter.post('/auth/refreshToken', refreshUserToken);
+appRouter.post('/auth/logout', logout);
 
 /*  CARDS */
 appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
