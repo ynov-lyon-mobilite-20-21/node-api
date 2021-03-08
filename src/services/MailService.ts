@@ -2,7 +2,7 @@ import NodeMailer, { SendMailOptions } from 'nodemailer';
 import handlebars from 'handlebars';
 import fs from 'fs';
 
-const { GMAIL_ADDRESS, GMAIL_PASSWORD } = process.env;
+const { ENDPOINT_API, GMAIL_ADDRESS, GMAIL_PASSWORD } = process.env;
 
 const mailer = NodeMailer.createTransport({
   service: 'gmail',
@@ -12,42 +12,71 @@ const mailer = NodeMailer.createTransport({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-const getMailTemplate = async (template: string, replacements: object): Promise<string | boolean> => {
+const projectName = process.env.PROJECT_NAME;
+const endpoint = `${ENDPOINT_API}`;
+
+async function getMailTemplate(template: string, replacements: object): Promise<string | boolean> {
   const html = await fs.readFileSync(`${__dirname}/../../templates/mails/${template}.html`, { encoding: 'utf-8' });
 
   return handlebars.compile(html)(replacements);
-};
+}
 
-const send = async (mail: SendMailOptions): Promise<boolean> => new Promise((resolve) => {
-  mailer.sendMail(mail, (err) => {
-    if (err) {
-      resolve(false);
-    } else {
-      resolve(true);
-    }
-    mailer.close();
+async function send(mail: SendMailOptions): Promise<void> {
+  return new Promise((resolve, reject) => {
+    mailer.sendMail(mail, (err, info) => {
+      if (err) {
+        reject(err);
+      }
+
+      mailer.close();
+
+      resolve(info);
+    });
   });
-});
+}
 
-export const sendRegistrationMail = async (to: string, activationLink: string): Promise<boolean> => {
+export async function sendRegistrationMail(to: string, activationKey: string): Promise<boolean> {
   try {
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const html = await getMailTemplate('registrationMail', { activationLink, project_name: process.env.PROJECT_NAME });
+    const activationLink = `${endpoint}/users/activate/${activationKey}`;
+    const html = await getMailTemplate('registrationMail', { projectName, activationLink });
 
     if (!html) {
       return false;
     }
 
     const mail: SendMailOptions = {
-      subject: `Validation créatiion de compte - ${process.env.PROJECT_NAME}`,
+      subject: `Valide ton compte sur ${projectName} !`,
       from: process.env.GMAIL_ADDRESS,
       html: html as string,
       to,
     };
 
-    return send(mail);
+    await send(mail);
+    return true;
   } catch (e) {
     return false;
   }
-};
+}
+
+export async function sendInactiveUserAccountExistMail(to: string, activationKey: string): Promise<boolean> {
+  try {
+    const activationLink = `${endpoint}/users/activate/${activationKey}`;
+    const html = await getMailTemplate('registrationMail', { projectName, activationLink });
+
+    if (!html) {
+      return false;
+    }
+
+    const mail: SendMailOptions = {
+      subject: `Tu as déjà un compte sur ${projectName} ! Active le !`,
+      from: process.env.GMAIL_ADDRESS,
+      html: html as string,
+      to,
+    };
+
+    await send(mail);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

@@ -21,12 +21,6 @@ type UpdateByParams<T extends Document> = ByParams<T> & {
   set: object;
 }
 
-export const saveData = async <T extends Document>({ model: ModelObject, params }: SaveParams<T>): Promise<T> => {
-  const newObject = new ModelObject(params);
-  await newObject.validate();
-  return newObject.save();
-};
-
 export const findOneBy = async <T extends Document>({ model: ModelObject, condition, hiddenPropertiesToSelect }: FindByParams<T>): Promise<T | null> => {
   try {
     // @ts-ignore
@@ -38,14 +32,21 @@ export const findOneBy = async <T extends Document>({ model: ModelObject, condit
   }
 };
 
+export const saveData = async <T extends Document>({ model: ModelObject, params }: SaveParams<T>): Promise<Model<T> | null> => {
+  const newObject = new ModelObject(params);
+  await newObject.validate();
+  await newObject.save();
+
+  // @ts-ignore
+  return findOneBy<typeof ModelObject>({ model: ModelObject, condition: { _id: newObject._id } });
+};
+
 export const deleteOnyBy = async <T extends Document>({ model: ModelObject, condition }: ByParams<T>): Promise<boolean> => {
   try {
     // @ts-ignore
     const deletion = await ModelObject.deleteOne(condition);
     return deletion.deletedCount! > 0;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return false;
   }
 };
@@ -56,8 +57,6 @@ export const updateOneBy = async <T extends Document>({ model: ModelObject, cond
     const update = await ModelObject.updateOne(condition, { $set: set, $inc: { __v: 1 } });
     return update.nModified > 0;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return false;
   }
 };
@@ -68,8 +67,6 @@ export const updateManyBy = async <T extends Document>({ model: ModelObject, con
     const update = await ModelObject.updateMany(condition, { $set: set, $inc: { __v: 1 } });
     return update.nModified > 0;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return false;
   }
 };

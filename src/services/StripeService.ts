@@ -1,46 +1,45 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/camelcase */
-
 import Stripe from 'stripe';
 
 import { User } from '../models/UserModel';
 import { findManyBy, saveData } from './MongooseService';
 import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
-import { Card, CardModel } from '../models/CardtModel';
+import { Card, CardModel } from '../models/CardModel';
 
 const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
 // @ts-ignore
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
 
-export const createStripeCustomer = async (user: User): Promise<Stripe.Customer | null> => {
+// TODO: createStripeProduct
+// export async function createStripeProduct(product: Product): Promise<Stripe.Product | null> {}
+
+export async function createStripeCustomer(user: User): Promise<Stripe.Customer | null> {
   try {
     return await stripe.customers.create({
       email: user.mail,
     });
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return null;
   }
-};
+}
 
-export const linkCardToCustomer = async (user: User, stripeToken: string): Promise<object | boolean> => {
+export async function linkCardToCustomer(user: User, stripeCardId: string): Promise<object | boolean> {
   try {
-    const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
+    const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
     const {
-      id: sourceId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
+      id: stripeSourceCardId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
     } = await stripe.customers.createSource(user.stripeId, {
-      source: stripeToken,
+      source: stripeCardId,
     }) as Stripe.Card;
 
-    const card = await saveData<Card>({
+    return await saveData<Card>({
       model: CardModel,
       params: {
-        stripeId: sourceId,
+        stripeId: stripeSourceCardId,
         userId: user._id,
-        isDefaultCard: cards.length < 1,
+        isDefaultCard: userCards.length < 1,
         expMonth,
         expYear,
         last4,
@@ -48,32 +47,44 @@ export const linkCardToCustomer = async (user: User, stripeToken: string): Promi
         brand,
       },
     });
-
-    return {
-      _id: card._id,
-      userId: user._id,
-      isDefaultCard: cards.length < 1,
-      expMonth,
-      expYear,
-      last4,
-      name,
-      brand,
-    };
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return false;
   }
-};
+}
 
-export const createPaymentIntent = async (user: User, card: Card, basket: BasketItem[], amount: number): Promise<Stripe.PaymentIntent | null> => {
+// TODO: createStripeInvoice cf. https://stripe.com/docs/api/invoices?lang=node
+// export async function createStripeInvoice(items: BasketItem): Promise<Stripe.Invoice | null> {
+//   try{
+//     const invoice = stripe.invoices.create({});
+//
+//     return await saveData<Invoice>({
+//       model: InvoiceModel,,
+//       params: {
+//       },
+//     });
+//   } catch (e) {
+//     return null;
+//   }
+// }
+
+// TODO: createStripeCoupon cf. https://stripe.com/docs/api/coupons?lang=node
+// export async function createStripeCoupon(coupon: Coupon): Promise<Stripe.Coupon | null> {}
+
+// TODO: createStripeSubscription cf. https://stripe.com/docs/api/subscriptions?lang=node
+// export async function createStripeCoupon(coupon: Coupon): Promise<Stripe.Coupon | null> {}
+
+// Maybe need https://stripe.com/docs/api/customer_tax_ids?lang=node or https://stripe.com/docs/api/tax_rates?lang=node
+
+// TODO: implement invoice support
+export async function createStripePaymentIntent(user: User, card: Card, basket: BasketItem[], amount: number): Promise<Stripe.PaymentIntent | null> {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
       customer: user.stripeId,
-      payment_method: card.stripeId,
+      amount,
       currency: 'eur',
       // confirm: true,
+
+      payment_method: card.stripeId,
       use_stripe_sdk: true,
     });
 
@@ -81,20 +92,23 @@ export const createPaymentIntent = async (user: User, card: Card, basket: Basket
       model: PaymentModel,
       params: {
         stripeId: paymentIntent.id,
+        userId: user._id,
+        createdAt: paymentIntent.created,
         status: paymentIntent.status,
         amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
         basket,
       },
     });
 
     return paymentIntent;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
     return null;
   }
-};
+}
 
-export const confirmPaymentIntent = (paymentIntent: Stripe.PaymentIntent): Promise<Stripe.PaymentIntent> => stripe.paymentIntents.confirm(paymentIntent.id, {
-  return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`,
-});
+export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent): Promise<Stripe.PaymentIntent> {
+  return stripe.paymentIntents.confirm(paymentIntent.id, {
+    return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`, // TODO: update this
+  });
+}

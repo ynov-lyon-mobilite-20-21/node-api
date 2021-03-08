@@ -4,10 +4,11 @@ import { NextFunction, Request, Response } from 'express';
 import bCrypt from 'bcrypt';
 import moment from 'moment';
 import cryptoJs from 'crypto-js';
+import Crypto from 'crypto';
 import { User, UserModel } from '../models/UserModel';
 import { findOneBy, saveData } from './MongooseService';
 import { JWTToken } from '../Interfaces/Token';
-import { APIRequest } from '../Interfaces/Request';
+import { APIRequest } from '../Interfaces/APIRequest';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 
 const { SECRET_KEY, JWT_TOKEN_EXPIRATION_TIME } = process.env;
@@ -116,4 +117,8 @@ export async function createRefreshTokenForUser({ _id }: User): Promise<RefreshT
       userId: _id,
     },
   });
+}
+
+export function createActivationKey(): string {
+  return Crypto.randomBytes(50).toString('hex');
 }
