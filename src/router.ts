@@ -8,7 +8,7 @@ import {
   updateUser,
   userActivation,
 } from './controllers/UserController';
-import { userMiddlewares } from './services/UserService';
+import { authMiddlewares } from './services/AuthService';
 import { logout, refreshUserToken, userAuthentication } from './controllers/AuthController';
 import {
   deleteImageById, getAllImages, getOneImageById, postImage,
@@ -20,7 +20,11 @@ import {
   createEvent, deleteEventById, getEventById, getEvents, updateEventById,
 } from './controllers/EventController';
 import {
-  createTicket, deleteTicketById, getTicketById, getTickets, updateTicketById,
+  createTicket,
+  deleteTicketById,
+  getTicketById,
+  getTickets,
+  updateTicketById,
 } from './controllers/TicketController';
 
 const appRouter: Router = Router();
@@ -42,47 +46,50 @@ appRouter.use((req, res, next) => {
 });
 
 /*   USERS   */
-appRouter.post('/users', postUser);
-appRouter.get('/users', userMiddlewares.isAuthenticated, getUsers);
-appRouter.get('/users/:id', userMiddlewares.isAuthenticated, getUserById);
-appRouter.post('/users/active', userActivation);
-appRouter.post('/users/activation', userActivation);
-appRouter.get('/me', userMiddlewares.isAuthenticated, getMe);
-appRouter.put('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], updateUser);
-appRouter.delete('/users/:userId', [userMiddlewares.isAuthenticated, userMiddlewares.userInParamsIsCurrentUser], deleteUser);
+appRouter.post('/users', postUser); // CREATE / Register user
+appRouter.get('/users/activate/:activationKey', userActivation); // Validate user (email)
+appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getMe); // Get current user informations
+appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsers); // Get all users
+appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserById); // Get user by ID
+
+// appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUser); // Update current user informations TODO: create this route
+appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUser); // Update one user by ID
+// appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete current user TODO: create this route
+appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete user by ID
 
 /*   AUTH   */
-appRouter.post('/auth/login', userAuthentication);
-appRouter.post('/auth/refreshToken', refreshUserToken);
-appRouter.post('/auth/logout', logout);
+appRouter.post('/auth/login', userAuthentication); // Login user
+appRouter.post('/auth/refreshToken', refreshUserToken); // Generate new tokens
+appRouter.post('/auth/logout', logout); // Delete tokens
 
-/*  CARDS */
-appRouter.get('/cards', [userMiddlewares.isAuthenticated], getUserCards);
-appRouter.post('/cards', userMiddlewares.isAuthenticated, linkUserCard);
-appRouter.delete('/cards/:cardId', userMiddlewares.isAuthenticated, removeCard);
-appRouter.put('/cards/default/:cardId', userMiddlewares.isAuthenticated, setDefaultCard);
+/* STRIPE */
+appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkUserCard); // Create new stripe credit card (link it to current user)
+appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated], getUserCards); // Read all credit cards of current user
+// appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserCards); // Read all credit cards TODO: create this route
+appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuthenticated, setDefaultCard); // Update default credit card of the current user
+appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated, removeCard); // Delete a card by ID
 
-/*   STRIPE   */
-appRouter.post('/stripe/pay', userMiddlewares.isAuthenticated, pay);
+appRouter.post('/stripe/pay', [authMiddlewares.isAuthenticated], pay); // Create new payment
 
 /*   EVENTS   */
-appRouter.post('/events', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createEvent);
-appRouter.get('/events', [userMiddlewares.isAuthenticated], getEvents);
-appRouter.get('/event/:id', [userMiddlewares.isAuthenticated], getEventById);
-appRouter.put('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateEventById);
-appRouter.delete('/event/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteEventById);
+appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createEvent); // Create nwe event
+appRouter.get('/events', [authMiddlewares.isAuthenticated], getEvents); // Get all events
+appRouter.get('/event/:id', [authMiddlewares.isAuthenticated], getEventById); // Get event informations by ID
+appRouter.put('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById); // Update event informations by ID
+appRouter.delete('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById); // Delete event by ID
 
 /*   TICKET   */
-appRouter.post('/tickets', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], createTicket);
-appRouter.get('/tickets', [userMiddlewares.isAuthenticated], getTickets);
-appRouter.get('/ticket/:id', [userMiddlewares.isAuthenticated], getTicketById);
-appRouter.put('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], updateTicketById);
-appRouter.delete('/ticket/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteTicketById);
+appRouter.post('/tickets', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createTicket); // Create a ticket
+appRouter.get('/tickets', [authMiddlewares.isAuthenticated], getTickets); // Get all tickets of current user
+// appRouter.get('/tickets', [authMiddlewares.isAuthenticated], getTickets); // Get all tickets
+appRouter.get('/ticket/:id', [authMiddlewares.isAuthenticated], getTicketById); // Get ticket informations by ID
+appRouter.put('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateTicketById); // Update a ticket by ID
+appRouter.delete('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteTicketById); // Delete a ticket by ID
 
 /*   IMAGES   */
-appRouter.post('/images', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], postImage);
-appRouter.get('/images/:id', getOneImageById);
-appRouter.get('/images', getAllImages);
-appRouter.delete('/images/:id', [userMiddlewares.isAuthenticated, userMiddlewares.isAdmin], deleteImageById);
+// appRouter.post('/images', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], postImage);
+// appRouter.get('/images/:id', getOneImageById);
+// appRouter.get('/images', getAllImages);
+// appRouter.delete('/images/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteImageById);
 
 export default (): Router => appRouter;
