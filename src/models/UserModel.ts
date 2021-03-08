@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   formation: { type: 'string' },
   registrationDate: { type: 'number' },
   isActive: { type: 'boolean', required: true, default: false },
-  activationKey: { type: 'string' },
+  activationKey: { type: 'string', select: false },
   isAdmin: { type: 'boolean', required: true, default: false },
   isAdherent: { type: 'boolean', required: true, default: false },
   stripeId: { type: 'string', select: false },
