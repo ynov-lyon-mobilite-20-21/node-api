@@ -16,6 +16,7 @@ const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
 
 export async function createStripeCustomer(user: User): Promise<Stripe.Customer | null> {
   try {
+    // TODO: add some params to user
     return await stripe.customers.create({
       email: user.mail,
     });
