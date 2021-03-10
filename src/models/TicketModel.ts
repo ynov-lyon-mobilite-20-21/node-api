@@ -3,9 +3,9 @@ import {
 } from 'mongoose';
 
 const TicketSchema = new Schema({
-  userId: { type: 'string' },
-  eventId: { type: 'string' },
-  paymentId: { type: 'string' },
+  userId: { type: 'string', required: true },
+  eventId: { type: 'string', required: true },
+  paymentId: { type: 'string', required: true },
   validationCount: { type: 'number', default: 0 },
   __v: { type: Number, select: false },
 });
