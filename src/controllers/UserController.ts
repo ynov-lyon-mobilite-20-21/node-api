@@ -445,7 +445,25 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
   });
 };
 
-export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+// Protected: isAuthenticated
+export const deleteCurrentUser = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
+
+  const deletedUser = await deleteOnyBy({ model: UserModel, condition: { _id: request.currentUserId } });
+
+  if (!deletedUser) {
+    res.status(500).json({
+      data: {},
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An unknown error has occurs while deleting the user.',
+      },
+    });
+    return;
+  }
+
+  res.status(204).send();
+};
   const { userId } = req.params;
 
   const deletion = await deleteOnyBy({ model: UserModel, condition: { _id: userId } });
