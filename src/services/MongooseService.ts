@@ -47,10 +47,7 @@ export const findManyBy = async <T extends Document>({ model: ModelObject, condi
 export const updateOneBy = async <T extends Document>({ model: ModelObject, condition, set }: UpdateByParams<T>): Promise<T | null> => {
   try {
     // @ts-ignore
-    const updatedObject = await ModelObject.updateOne(condition, { $set: set, $inc: { __v: 1 } }); // TODO: implement incrementation
-
-    // @ts-ignore
-    return findOneBy<typeof ModelObject>({ model: ModelObject, condition: { _id: updatedObject._id } });
+    return await ModelObject.findOneAndUpdate(condition, set);
   } catch (e) {
     return null;
   }
@@ -62,7 +59,7 @@ export const updateManyBy = async <T extends Document>({ model: ModelObject, con
     const updatedObject = await ModelObject.updateMany(condition, { $set: set, $inc: { __v: 1 } }); // TODO: implement incrementation
 
     // @ts-ignore
-    return findOneBy<typeof ModelObject>({ model: ModelObject, condition: { _id: updatedObject._id } });
+    return findManyBy<typeof ModelObject>({ model: ModelObject, condition });
   } catch (e) {
     return null;
   }
