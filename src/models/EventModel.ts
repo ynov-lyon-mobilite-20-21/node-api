@@ -30,7 +30,7 @@ const EventSchema = new Schema({
   date: { type: 'Date', required: true },
   address: { type: 'string', required: true },
   description: { type: 'string', required: true },
-  price: { type: 'number', required: true },
+  price: { type: 'number', required: true }, // In cents : 100 => 1,00€
   stripeProductId: { type: 'string', default: null, select: false },
   __v: { type: Number, select: false },
 });
