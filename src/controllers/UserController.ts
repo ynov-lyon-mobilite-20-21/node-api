@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/camelcase */
 import { Request, Response } from 'express';
-import moment from 'moment';
 import {
   findOneBy,
   findManyBy,
@@ -185,23 +184,20 @@ export const createNewUser_post = async (req: Request, res: Response): Promise<v
     return;
   }
 
-  let activationKey = null;
-  if (NODE_ENV !== 'DEV') {
-    activationKey = createActivationKey();
+  const activationKey = createActivationKey();
 
-    const isEmailSentSuccessfully = await sendRegistrationMail(mail, activationKey);
+  const isEmailSentSuccessfully = await sendRegistrationMail(mail, activationKey);
 
-    if (!isEmailSentSuccessfully) {
-      res.status(500).json({
-        error: {
-          code: 'UNKNOWN_ERROR',
-          message: 'An error has occurred while send validation email to user.',
-        },
-        data: null,
-      });
+  if (!isEmailSentSuccessfully) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while send validation email to user.',
+      },
+      data: null,
+    });
 
-      return;
-    }
+    return;
   }
 
   const encryptedPassword = await encryptPassword(password);
@@ -295,16 +291,30 @@ export const activateUser_get = async (req: Request, res: Response): Promise<voi
 
   const { id: stripeId } = stripeCustomer;
 
-  await updateOneBy<User>({
+  const currentDate = new Date();
+
+  const updatedUser = await updateOneBy<User>({
     model: UserModel,
     condition: { _id: user._id },
     update: {
       isActive: true,
       activationKey: null,
-      registrationDate: moment().unix(),
+      validationDate: currentDate,
       stripeId,
     },
   });
+
+  if (!updatedUser) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurs while updating your account to save user stripe id.',
+      },
+      data: updatedUser,
+    });
+
+    return;
+  }
 
   res.redirect('https://via.placeholder.com/414x736?text=Application+redirection'); // TODO: update redirection
 };
@@ -323,7 +333,7 @@ export const getCurrentUserInfos_get = async (req: Request, res: Response): Prom
 
 // Protected : isAuthenticated + isAdmin
 export const getUsersInfos_get = async (req: Request, res: Response): Promise<void> => {
-  const users = await findManyBy<User>({ model: UserModel, condition: {} });
+  const users = await findManyBy<User>({ model: UserModel, condition: {}, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
 
   res.status(200).json({
     error: null,
@@ -334,7 +344,7 @@ export const getUsersInfos_get = async (req: Request, res: Response): Promise<vo
 // Protected : isAuthenticated + isAdmin
 export const getUserInfosById_get = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const user = await findOneBy<User>({ model: UserModel, condition: { _id: id } });
+  const user = await findOneBy<User>({ model: UserModel, condition: { _id: id }, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
 
   if (!user) {
     res.status(400).json({
@@ -383,6 +393,7 @@ export const updateCurrentUserInfos_put = async (req: Request, res: Response): P
   }
 
   // TODO: add check to unchanged properties
+  // TODO: add email validation on update
 
   if (req.body.password) {
     // TODO: add password strength validation
@@ -444,6 +455,7 @@ export const updateUserInfosById_put = async (req: Request, res: Response): Prom
   }
 
   // TODO: add check to unchanged properties
+  // TODO: add email validation on update
 
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
