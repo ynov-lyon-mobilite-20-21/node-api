@@ -6,7 +6,7 @@ import {
 } from '../services/MongooseService';
 import { Event, EventModel } from '../models/EventModel';
 
-export const createEvent = async (req: Request, res: Response): Promise<void> => {
+export const createNewEvent_post = async (req: Request, res: Response): Promise<void> => {
   const {
     name, type, date, address, description, price, qrcode,
   } = req.body;
@@ -103,7 +103,7 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
   });
 };
 
-export const getEvents = async (req: Request, res: Response): Promise<void> => {
+export const getAllEvents_get = async (req: Request, res: Response): Promise<void> => {
   const events = await findManyBy<Event>({ model: EventModel, condition: {} });
 
   res.status(200).json({
@@ -112,7 +112,7 @@ export const getEvents = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
-export const getEventById = async (req: Request, res: Response): Promise<void> => {
+export const getEventById_get = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   const event = await findOneBy<Event>({ model: EventModel, condition: { _id: id } });
@@ -123,7 +123,7 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
   });
 };
 
-export const updateEventById = async (req: Request, res: Response): Promise<void> => {
+export const updateEventById_put = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const event = req.body;
 
@@ -149,7 +149,7 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
   });
 };
 
-export const deleteEventById = async (req: Request, res: Response): Promise<void> => {
+export const deleteEventById_delete = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   const event = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: id } });
