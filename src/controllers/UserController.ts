@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import {
   findOneBy,
@@ -17,7 +17,8 @@ import { RefreshTokenModel } from '../models/RefreshTokenModel';
 
 const { NODE_ENV } = process.env;
 
-export const createNewUser_post = async (req: Request, res: Response): Promise<void> => {
+// [POST]
+export const createNewUser = async (req: Request, res: Response): Promise<void> => {
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
@@ -234,7 +235,8 @@ export const createNewUser_post = async (req: Request, res: Response): Promise<v
   });
 };
 
-export const activateUser_get = async (req: Request, res: Response): Promise<void> => {
+// [GET]
+export const activateUser = async (req: Request, res: Response): Promise<void> => {
   const { activationKey } = req.params;
 
   if (!activationKey) {
@@ -319,8 +321,8 @@ export const activateUser_get = async (req: Request, res: Response): Promise<voi
   res.redirect('https://via.placeholder.com/414x736?text=Application+redirection'); // TODO: update redirection
 };
 
-// Protected : isAuthenticated
-export const getCurrentUserInfos_get = async (req: Request, res: Response): Promise<void> => {
+// [GET] Protected : isAuthenticated
+export const getCurrentUserInfos = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.currentUserId } });
@@ -331,8 +333,8 @@ export const getCurrentUserInfos_get = async (req: Request, res: Response): Prom
   });
 };
 
-// Protected : isAuthenticated + isAdmin
-export const getUsersInfos_get = async (req: Request, res: Response): Promise<void> => {
+// [GET] Protected : isAuthenticated + isAdmin
+export const getUsersInfos = async (req: Request, res: Response): Promise<void> => {
   const users = await findManyBy<User>({ model: UserModel, condition: {}, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
 
   res.status(200).json({
@@ -341,8 +343,8 @@ export const getUsersInfos_get = async (req: Request, res: Response): Promise<vo
   });
 };
 
-// Protected : isAuthenticated + isAdmin
-export const getUserInfosById_get = async (req: Request, res: Response): Promise<void> => {
+// [GET] Protected : isAuthenticated + isAdmin
+export const getUserInfosById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: id }, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
 
@@ -363,8 +365,8 @@ export const getUserInfosById_get = async (req: Request, res: Response): Promise
   });
 };
 
-// Protected : isAuthenticated
-export const updateCurrentUserInfos_put = async (req: Request, res: Response): Promise<void> => {
+// [PUT] Protected : isAuthenticated
+export const updateCurrentUserInfos = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -425,8 +427,8 @@ export const updateCurrentUserInfos_put = async (req: Request, res: Response): P
   });
 };
 
-// Protected : isAuthenticated + isAdmin
-export const updateUserInfosById_put = async (req: Request, res: Response): Promise<void> => {
+// [PUT] Protected : isAuthenticated + isAdmin
+export const updateUserInfosById = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -482,8 +484,8 @@ export const updateUserInfosById_put = async (req: Request, res: Response): Prom
   });
 };
 
-// Protected: isAuthenticated
-export const deleteCurrentUser_delete = async (req: Request, res: Response): Promise<void> => {
+// [DELETE] Protected: isAuthenticated
+export const deleteCurrentUser = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   const deletedUser = await deleteOnyBy({ model: UserModel, condition: { _id: request.currentUserId } });
@@ -504,8 +506,8 @@ export const deleteCurrentUser_delete = async (req: Request, res: Response): Pro
   res.status(204).send();
 };
 
-// Protected: isAuthenticated + isAdmin
-export const deleteUserById_delete = async (req: Request, res: Response): Promise<void> => {
+// [DELETE] Protected: isAuthenticated + isAdmin
+export const deleteUserById = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
   const deletedUser = await deleteOnyBy({ model: UserModel, condition: { _id: userId } });

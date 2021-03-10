@@ -10,8 +10,8 @@ import { confirmStripePaymentIntent, createStripePaymentIntent } from '../servic
 import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import { Ticket, TicketModel } from '../models/TicketModel';
 
-// Protected : isAuthenticated + isAdmin
-export const createNewEvent_post = async (req: Request, res: Response): Promise<void> => {
+// [POST] Protected : isAuthenticated + isAdmin
+export const createNewEvent = async (req: Request, res: Response): Promise<void> => {
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
@@ -186,7 +186,8 @@ export const createNewEvent_post = async (req: Request, res: Response): Promise<
   });
 };
 
-export const getAllEvents_get = async (req: Request, res: Response): Promise<void> => {
+// [GET]
+export const getAllEvents = async (req: Request, res: Response): Promise<void> => {
   const events = await findManyBy<Event>({ model: EventModel, condition: {} });
 
   res.status(200).json({
@@ -195,7 +196,8 @@ export const getAllEvents_get = async (req: Request, res: Response): Promise<voi
   });
 };
 
-export const getEventById_get = async (req: Request, res: Response): Promise<void> => {
+// [GET]
+export const getEventById = async (req: Request, res: Response): Promise<void> => {
   const { id: eventId } = req.params;
 
   if (!eventId) {
@@ -229,8 +231,8 @@ export const getEventById_get = async (req: Request, res: Response): Promise<voi
   });
 };
 
-// Protected : isAuthenticated + isAdmin
-export const updateEventById_put = async (req: Request, res: Response): Promise<void> => {
+// [PUT] Protected : isAuthenticated + isAdmin
+export const updateEventById = async (req: Request, res: Response): Promise<void> => {
   const { id: eventId } = req.params;
 
   if (!eventId) {
@@ -293,8 +295,8 @@ export const updateEventById_put = async (req: Request, res: Response): Promise<
   });
 };
 
-// Protected : isAuthenticated + isAdmin
-export const deleteEventById_delete = async (req: Request, res: Response): Promise<void> => {
+// [DELETE] Protected : isAuthenticated + isAdmin
+export const deleteEventById = async (req: Request, res: Response): Promise<void> => {
   const { id: eventId } = req.params;
 
   if (!eventId) {
@@ -326,8 +328,8 @@ export const deleteEventById_delete = async (req: Request, res: Response): Promi
   res.status(204).send();
 };
 
-// Protected : isAuthenticated
-export const pay_post = async (req: Request, res: Response): Promise<void> => {
+// [POST] Protected : isAuthenticated
+export const pay = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
   const { currentUser, currentUserId } = request;
   const { cardId } = request.body.cardId;

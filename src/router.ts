@@ -1,24 +1,21 @@
 import { Router } from 'express';
 import {
-  createNewUser_post,
-  activateUser_get,
-  getCurrentUserInfos_get,
-  getUsersInfos_get,
-  getUserInfosById_get,
-  updateCurrentUserInfos_put,
-  updateUserInfosById_put,
-  deleteUserById_delete, deleteCurrentUser_delete,
+  createNewUser,
+  activateUser,
+  getCurrentUserInfos,
+  getUsersInfos,
+  getUserInfosById,
+  updateCurrentUserInfos,
+  updateUserInfosById,
+  deleteUserById, deleteCurrentUser,
 } from './controllers/UserController';
 import { authMiddlewares } from './services/AuthService';
-import { logout_post, refreshUserToken_post, login_post } from './controllers/AuthController';
+import { logout, refreshUserToken, login } from './controllers/AuthController';
 import {
-  deleteImageById, getAllImages, getOneImageById, postImage,
-} from './controllers/ImageController';
-import {
-  getCurrentUserCards, linkCardToCurrentUser, pay, removeCardForCurrentUser, setDefaultCardForCurrentUser,
+  getCurrentUserCards, linkCardToCurrentUser, removeCardForCurrentUser, setDefaultCardForCurrentUser,
 } from './controllers/StripeController';
 import {
-  createNewEvent_post, deleteEventById_delete, getEventById_get, getAllEvents_get, updateEventById_put, pay_post,
+  createNewEvent, deleteEventById, getEventById, getAllEvents, updateEventById, pay,
 } from './controllers/EventController';
 import {
   createTicket,
@@ -47,28 +44,28 @@ appRouter.use((req, res, next) => {
 });
 
 /*   USERS   */
-appRouter.post('/users', createNewUser_post); // CREATE / Register user
-appRouter.get('/users/activate/:activationKey', activateUser_get); // Validate user (email)
-appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getCurrentUserInfos_get); // Get current user informations
-appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsersInfos_get); // Get all users for admins
-appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserInfosById_get); // Get user by ID for admins
-appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUserInfos_put); // Update current user informations
-appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUserInfosById_put); // Update one user by ID for admins
-appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser_delete); // Delete current user
-appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById_delete); // Delete user by ID for admins
+appRouter.post('/users', createNewUser); // CREATE / Register user
+appRouter.get('/users/activate/:activationKey', activateUser); // Validate user (email)
+appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getCurrentUserInfos); // Get current user informations
+appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsersInfos); // Get all users for admins
+appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserInfosById); // Get user by ID for admins
+appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUserInfos); // Update current user informations
+appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUserInfosById); // Update one user by ID for admins
+appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser); // Delete current user
+appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById); // Delete user by ID for admins
 
 /*   AUTH   */
-appRouter.post('/auth/login', login_post); // Login user
-appRouter.post('/auth/refreshToken', refreshUserToken_post); // Generate new tokens
-appRouter.post('/auth/logout', logout_post); // Delete tokens
+appRouter.post('/auth/login', login); // Login user
+appRouter.post('/auth/refreshToken', refreshUserToken); // Generate new tokens
+appRouter.post('/auth/logout', logout); // Delete tokens
 
 /*   EVENTS   */
-appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createNewEvent_post); // Create nwe event
-appRouter.get('/events', [], getAllEvents_get); // Get all events
-appRouter.get('/events/:id', [], getEventById_get); // Get event informations by ID
-appRouter.put('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById_put); // Update event informations by ID
-appRouter.delete('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById_delete); // Delete event by ID
-appRouter.post('/events/pay/:id', [authMiddlewares.isAuthenticated], pay_post); // Buy a ticket
+appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createNewEvent); // Create nwe event
+appRouter.get('/events', [], getAllEvents); // Get all events
+appRouter.get('/events/:id', [], getEventById); // Get event informations by ID
+appRouter.put('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById); // Update event informations by ID
+appRouter.delete('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById); // Delete event by ID
+appRouter.post('/events/pay/:id', [authMiddlewares.isAuthenticated], pay); // Buy a ticket
 
 /* STRIPE */
 appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkCardToCurrentUser); // Create new stripe credit card (link it to current user)

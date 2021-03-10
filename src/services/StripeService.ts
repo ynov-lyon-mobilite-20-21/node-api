@@ -3,7 +3,6 @@ import Stripe from 'stripe';
 
 import { User } from '../models/UserModel';
 import { findManyBy, findOneBy, saveData } from './MongooseService';
-import { BasketItem, StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import { Card, CardModel } from '../models/CardModel';
 
 const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
