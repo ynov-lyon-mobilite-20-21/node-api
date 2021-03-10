@@ -62,6 +62,13 @@ appRouter.post('/auth/login', login); // Login user
 appRouter.post('/auth/refreshToken', refreshUserToken); // Generate new tokens
 appRouter.post('/auth/logout', logout); // Delete tokens
 
+/*   EVENTS   */
+appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createEvent); // Create nwe event
+appRouter.get('/events', [authMiddlewares.isAuthenticated], getEvents); // Get all events
+appRouter.get('/event/:id', [authMiddlewares.isAuthenticated], getEventById); // Get event informations by ID
+appRouter.put('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById); // Update event informations by ID
+appRouter.delete('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById); // Delete event by ID
+
 /* STRIPE */
 appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkUserCard); // Create new stripe credit card (link it to current user)
 appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated], getUserCards); // Read all credit cards of current user
@@ -70,13 +77,6 @@ appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuth
 appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated, removeCard); // Delete a card by ID
 
 appRouter.post('/stripe/pay', [authMiddlewares.isAuthenticated], pay); // Create new payment
-
-/*   EVENTS   */
-appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createEvent); // Create nwe event
-appRouter.get('/events', [authMiddlewares.isAuthenticated], getEvents); // Get all events
-appRouter.get('/event/:id', [authMiddlewares.isAuthenticated], getEventById); // Get event informations by ID
-appRouter.put('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById); // Update event informations by ID
-appRouter.delete('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById); // Delete event by ID
 
 /*   TICKET   */
 appRouter.post('/tickets', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createTicket); // Create a ticket
