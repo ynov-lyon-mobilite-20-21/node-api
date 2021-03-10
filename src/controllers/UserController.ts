@@ -64,6 +64,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
     return;
   }
+  // TODO: add password strength validation
 
   if (!firstName) {
     res.status(400).json({
@@ -373,7 +374,8 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
   // TODO: add check to unchanged properties
 
   if (req.body.password) {
-    req.body.password = encryptPassword(req.body.password);
+    // TODO: add password strength validation
+    req.body.password = await encryptPassword(req.body.password);
   }
 
   const updatedUser = await updateOneBy<User>({
@@ -431,10 +433,6 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
   }
 
   // TODO: add check to unchanged properties
-
-  if (req.body.password) {
-    req.body.password = await encryptPassword(req.body.password);
-  }
 
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
