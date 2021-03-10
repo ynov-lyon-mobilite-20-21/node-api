@@ -69,8 +69,7 @@ appRouter.post('/events/pay/:id', [authMiddlewares.isAuthenticated], pay); // Bu
 
 /* STRIPE */
 appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkCardToCurrentUser); // Create new stripe credit card (link it to current user)
-appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated], getCurrentUserCards); // Read all credit cards of current user
-// appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserCards); // Read all credit cards TODO: create this route
+appRouter.get('/stripe/credit-cards/me', [authMiddlewares.isAuthenticated], getCurrentUserCards); // Read all credit cards of current user
 appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuthenticated, setDefaultCardForCurrentUser); // Update default credit card of the current user
 appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated, removeCardForCurrentUser); // Delete a card by ID
 
