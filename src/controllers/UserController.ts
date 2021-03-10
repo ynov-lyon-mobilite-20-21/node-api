@@ -19,7 +19,7 @@ import { RefreshTokenModel } from '../models/RefreshTokenModel';
 const { NODE_ENV } = process.env;
 
 export const createNewUser_post = async (req: Request, res: Response): Promise<void> => {
-  // eslint-disable-next-line guard-for-in
+  // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
       case 'mail':
