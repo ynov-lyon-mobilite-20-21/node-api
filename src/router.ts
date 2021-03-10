@@ -21,8 +21,8 @@ import {
   createTicket,
   deleteTicketById,
   getTicketById,
-  getTickets,
-  updateTicketById,
+  getCurrentUserTickets,
+  updateTicketById, getTickets, getCurrentUserTicketById,
 } from './controllers/TicketController';
 
 const appRouter: Router = Router();
@@ -77,9 +77,10 @@ appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated
 
 /*   TICKET   */
 appRouter.post('/tickets', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createTicket); // Create a ticket
-appRouter.get('/tickets', [authMiddlewares.isAuthenticated], getTickets); // Get all tickets of current user
-// appRouter.get('/tickets', [authMiddlewares.isAuthenticated], getTickets); // Get all tickets
-appRouter.get('/ticket/:id', [authMiddlewares.isAuthenticated], getTicketById); // Get ticket informations by ID
+appRouter.get('/tickets/me', [authMiddlewares.isAuthenticated], getCurrentUserTickets); // Get all tickets of current user
+appRouter.get('/tickets', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getTickets); // Get all tickets
+appRouter.get('/ticket/:id/me', [authMiddlewares.isAuthenticated], getCurrentUserTicketById); // Get ticket informations by ID
+appRouter.get('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getTicketById); // Get ticket informations by ID
 appRouter.put('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateTicketById); // Update a ticket by ID
 appRouter.delete('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteTicketById); // Delete a ticket by ID
 
