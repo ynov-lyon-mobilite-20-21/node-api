@@ -337,13 +337,56 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   });
 };
 
-export const getMe = async (req: Request, res: Response): Promise<void> => {
-  // @ts-ignore
-  const { _id } = req.user as User;
-  const user = await findOneBy<User>({ model: UserModel, condition: { _id } });
+// Protected : isAuthenticated
+export const updateCurrentUser = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
+
+  // eslint-disable-next-line guard-for-in
+  for (const jsonParamKey in req.body) {
+    switch (jsonParamKey) {
+      case 'mail':
+      case 'password':
+      case 'firstName':
+      case 'lastName':
+      case 'promotion':
+      case 'formation':
+        // eslint-disable-next-line no-continue
+        continue;
+
+      default:
+        res.status(400).json({
+          data: {},
+          error: {
+            code: 'MALFORMED_JSON',
+            message: 'Your body contain other fields than those expected.',
+            acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
+          },
+        });
+        return;
+    }
+  }
+
+  const updatedUser = await updateOneBy<User>({
+    model: UserModel,
+    condition: { _id: request.userId },
+    set: {
+      ...req.body,
+    },
+  });
+
+  if (!updatedUser) {
+    res.status(500).json({
+      data: {},
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An unknown error has occurs while updating the user.',
+      },
+    });
+    return;
+  }
 
   res.status(200).json({
-    data: user,
+    data: updatedUser,
     error: {},
   });
 };
