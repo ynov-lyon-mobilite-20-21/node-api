@@ -21,8 +21,6 @@ type UpdateByParams<T extends Document> = ByParams<T> & {
   update: object;
 }
 
-// TODO: Surround try/catch all db request
-// TODO: change returned data
 export const findOneBy = async <T extends Document>({ model: ModelObject, condition, hiddenPropertiesToSelect }: FindByParams<T>): Promise<T | null> => {
   try {
     // @ts-ignore

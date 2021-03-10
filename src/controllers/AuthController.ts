@@ -10,7 +10,7 @@ import { User, UserModel } from '../models/UserModel';
 import { comparePassword, createRefreshTokenForUser, createTokenForUser } from '../services/AuthService';
 import { sendRegistrationMail } from '../services/MailService';
 
-const { CLIENT_HOSTNAME, NODE_ENV } = process.env;
+const { CLIENT_HOSTNAME } = process.env;
 
 export const login = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
@@ -23,7 +23,7 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 
-  if (!user.isActive && NODE_ENV === 'PROD') {
+  if (!user.isActive) {
     res.status(403).json({
       error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
       data: null,

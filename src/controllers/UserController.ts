@@ -10,6 +10,8 @@ import { createActivationKey, encryptPassword } from '../services/AuthService';
 import { createStripeCustomer } from '../services/StripeService';
 import { APIRequest } from '../Interfaces/APIRequest';
 
+const { NODE_ENV } = process.env;
+
 export const postUser = async (req: Request, res: Response): Promise<void> => {
   // eslint-disable-next-line guard-for-in
   for (const jsonParamKey in req.body) {
@@ -202,6 +204,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
       promotion,
       formation,
       activationKey,
+      isActive: NODE_ENV === 'DEV',
     },
   });
 
