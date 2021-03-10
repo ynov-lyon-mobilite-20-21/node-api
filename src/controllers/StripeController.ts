@@ -152,10 +152,9 @@ export const linkCardToCurrentUser = async (req: Request, res: Response): Promis
 // };
 
 export const getCurrentUserCards = async (req: Request, res: Response): Promise<void> => {
-  // @ts-ignore
-  const { _id } = req.user as User;
+  const { currentUserId } = req as APIRequest;
 
-  const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: _id } });
+  const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: currentUserId } });
 
   res.status(200).json({
     error: null,
