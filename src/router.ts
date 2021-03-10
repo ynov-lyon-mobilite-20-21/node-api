@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import {
-  postUser,
-  userActivation,
-  getMe,
-  getUsers,
-  getUserById,
-  updateCurrentUser,
-  updateUserById,
-  deleteUserById, deleteCurrentUser,
+  createNewUser_post,
+  activateUser_get,
+  getCurrentUserInfos_get,
+  getUsersInfos_get,
+  getUserInfosById_get,
+  updateCurrentUserInfos_put,
+  updateUserInfosById_put,
+  deleteUserById_delete, deleteCurrentUser_delete,
 } from './controllers/UserController';
 import { authMiddlewares } from './services/AuthService';
 import { logout, refreshUserToken, login } from './controllers/AuthController';
@@ -47,15 +47,15 @@ appRouter.use((req, res, next) => {
 });
 
 /*   USERS   */
-appRouter.post('/users', postUser); // CREATE / Register user
-appRouter.get('/users/activate/:activationKey', userActivation); // Validate user (email)
-appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getMe); // Get current user informations
-appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsers); // Get all users for admins
-appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserById); // Get user by ID for admins
-appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUser); // Update current user informations
-appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUserById); // Update one user by ID for admins
-appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser); // Delete current user
-appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById); // Delete user by ID for admins
+appRouter.post('/users', createNewUser_post); // CREATE / Register user
+appRouter.get('/users/activate/:activationKey', activateUser_get); // Validate user (email)
+appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getCurrentUserInfos_get); // Get current user informations
+appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsersInfos_get); // Get all users for admins
+appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserInfosById_get); // Get user by ID for admins
+appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUserInfos_put); // Update current user informations
+appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUserInfosById_put); // Update one user by ID for admins
+appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser_delete); // Delete current user
+appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById_delete); // Delete user by ID for admins
 
 /*   AUTH   */
 appRouter.post('/auth/login', login); // Login user

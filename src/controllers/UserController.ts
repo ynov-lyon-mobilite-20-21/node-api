@@ -18,7 +18,7 @@ import { RefreshTokenModel } from '../models/RefreshTokenModel';
 
 const { NODE_ENV } = process.env;
 
-export const postUser = async (req: Request, res: Response): Promise<void> => {
+export const createNewUser_post = async (req: Request, res: Response): Promise<void> => {
   // eslint-disable-next-line guard-for-in
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
@@ -238,7 +238,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
-export const userActivation = async (req: Request, res: Response): Promise<void> => {
+export const activateUser_get = async (req: Request, res: Response): Promise<void> => {
   const { activationKey } = req.params;
 
   if (!activationKey) {
@@ -310,7 +310,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 };
 
 // Protected : isAuthenticated
-export const getMe = async (req: Request, res: Response): Promise<void> => {
+export const getCurrentUserInfos_get = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.currentUserId } });
@@ -322,7 +322,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Protected : isAuthenticated + isAdmin
-export const getUsers = async (req: Request, res: Response): Promise<void> => {
+export const getUsersInfos_get = async (req: Request, res: Response): Promise<void> => {
   const users = await findManyBy<User>({ model: UserModel, condition: {} });
 
   res.status(200).json({
@@ -332,7 +332,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Protected : isAuthenticated + isAdmin
-export const getUserById = async (req: Request, res: Response): Promise<void> => {
+export const getUserInfosById_get = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: id } });
 
@@ -354,7 +354,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 };
 
 // Protected : isAuthenticated
-export const updateCurrentUser = async (req: Request, res: Response): Promise<void> => {
+export const updateCurrentUserInfos_put = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -415,7 +415,7 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
 };
 
 // Protected : isAuthenticated + isAdmin
-export const updateUserById = async (req: Request, res: Response): Promise<void> => {
+export const updateUserInfosById_put = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
   // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -471,7 +471,7 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
 };
 
 // Protected: isAuthenticated
-export const deleteCurrentUser = async (req: Request, res: Response): Promise<void> => {
+export const deleteCurrentUser_delete = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
   const deletedUser = await deleteOnyBy({ model: UserModel, condition: { _id: request.currentUserId } });
@@ -493,7 +493,7 @@ export const deleteCurrentUser = async (req: Request, res: Response): Promise<vo
 };
 
 // Protected: isAuthenticated + isAdmin
-export const deleteUserById = async (req: Request, res: Response): Promise<void> => {
+export const deleteUserById_delete = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
   const deletedUser = await deleteOnyBy({ model: UserModel, condition: { _id: userId } });
