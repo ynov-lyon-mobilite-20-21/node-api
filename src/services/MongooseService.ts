@@ -81,3 +81,13 @@ export const deleteOnyBy = async <T extends Document>({ model: ModelObject, cond
     return false;
   }
 };
+
+export const deleteManyBy = async <T extends Document>({ model: ModelObject, condition }: ByParams<T>): Promise<boolean> => {
+  try {
+    // @ts-ignore
+    const deleteResult = await ModelObject.deleteMany(condition);
+    return deleteResult.deletedCount! > 0;
+  } catch (e) {
+    return false;
+  }
+};
