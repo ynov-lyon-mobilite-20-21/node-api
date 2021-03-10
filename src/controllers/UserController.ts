@@ -367,6 +367,12 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
     }
   }
 
+  // TODO: add check to unchanged properties
+
+  if (req.body.password) {
+    req.body.password = encryptPassword(req.body.password);
+  }
+
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
     condition: { _id: request.currentUserId },
@@ -381,7 +387,7 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
-      data: null,
+      data: updatedUser,
     });
     return;
   }
@@ -419,6 +425,12 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         });
         return;
     }
+  }
+
+  // TODO: add check to unchanged properties
+
+  if (req.body.password) {
+    req.body.password = encryptPassword(req.body.password);
   }
 
   const updatedUser = await updateOneBy<User>({
