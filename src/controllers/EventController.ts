@@ -303,10 +303,10 @@ export const deleteEventById_delete = async (req: Request, res: Response): Promi
   const deleteEvent = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: eventId } });
 
   if (!deleteEvent) {
-    res.status(500).json({
+    res.status(404).json({
       error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An unknown error has occurs while deleting the  event',
+        code: 'EVENT_NOT_FOUND',
+        message: 'An unknown error has occurs while deleting the event. It seems that your event does not exist.',
       },
       data: null,
     });
@@ -314,5 +314,5 @@ export const deleteEventById_delete = async (req: Request, res: Response): Promi
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
