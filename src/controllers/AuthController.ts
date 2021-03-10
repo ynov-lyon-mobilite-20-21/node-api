@@ -12,7 +12,7 @@ import { sendRegistrationMail } from '../services/MailService';
 
 const { CLIENT_HOSTNAME, NODE_ENV } = process.env;
 
-export const userAuthentication = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });

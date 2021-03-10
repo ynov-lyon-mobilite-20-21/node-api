@@ -10,7 +10,7 @@ import {
   deleteUserById, deleteCurrentUser,
 } from './controllers/UserController';
 import { authMiddlewares } from './services/AuthService';
-import { logout, refreshUserToken, userAuthentication } from './controllers/AuthController';
+import { logout, refreshUserToken, login } from './controllers/AuthController';
 import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
@@ -58,7 +58,7 @@ appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser)
 appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById); // Delete user by ID for admins
 
 /*   AUTH   */
-appRouter.post('/auth/login', userAuthentication); // Login user
+appRouter.post('/auth/login', login); // Login user
 appRouter.post('/auth/refreshToken', refreshUserToken); // Generate new tokens
 appRouter.post('/auth/logout', logout); // Delete tokens
 
