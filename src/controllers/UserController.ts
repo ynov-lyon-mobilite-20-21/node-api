@@ -183,22 +183,26 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const activationKey = createActivationKey();
-  const encryptedPassword = await encryptPassword(password);
+  let activationKey = null;
+  if (NODE_ENV !== 'DEV') {
+    activationKey = createActivationKey();
 
-  const isEmailSentSuccessfully = await sendRegistrationMail(mail, activationKey);
+    const isEmailSentSuccessfully = await sendRegistrationMail(mail, activationKey);
 
-  if (!isEmailSentSuccessfully) {
-    res.status(500).json({
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An error has occurred while send validation email to user.',
-      },
-      data: null,
-    });
+    if (!isEmailSentSuccessfully) {
+      res.status(500).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'An error has occurred while send validation email to user.',
+        },
+        data: null,
+      });
 
-    return;
+      return;
+    }
   }
+
+  const encryptedPassword = await encryptPassword(password);
 
   user = await saveData<User>({
     model: UserModel,
