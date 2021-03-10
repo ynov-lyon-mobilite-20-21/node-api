@@ -310,7 +310,7 @@ export const activateUser_get = async (req: Request, res: Response): Promise<voi
         code: 'UNKNOWN_ERROR',
         message: 'An error has occurs while updating your account to save user stripe id.',
       },
-      data: updatedUser,
+      data: null,
     });
 
     return;
@@ -414,7 +414,7 @@ export const updateCurrentUserInfos_put = async (req: Request, res: Response): P
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
-      data: updatedUser,
+      data: null,
     });
     return;
   }
@@ -471,7 +471,7 @@ export const updateUserInfosById_put = async (req: Request, res: Response): Prom
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
-      data: updatedUser,
+      data: null,
     });
     return;
   }
