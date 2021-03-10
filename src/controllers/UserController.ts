@@ -58,6 +58,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     });
     return;
   }
+  // TODO: add email domain validation
 
   if (!password) {
     res.status(400).json({
