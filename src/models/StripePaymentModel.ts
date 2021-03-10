@@ -18,7 +18,7 @@ export interface StripePayment extends Document {
   _id: string;
   intentId: string;
   userId: string;
-  createdAt: number;
+  createdAt: Date;
   amount: number;
   currency: string;
   status: string;
