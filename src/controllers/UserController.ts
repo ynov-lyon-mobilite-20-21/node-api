@@ -14,6 +14,7 @@ import { sendInactiveUserAccountExistMail, sendRegistrationMail } from '../servi
 import { createActivationKey, encryptPassword } from '../services/AuthService';
 import { createStripeCustomer } from '../services/StripeService';
 import { APIRequest } from '../Interfaces/APIRequest';
+import { RefreshTokenModel } from '../models/RefreshTokenModel';
 
 const { NODE_ENV } = process.env;
 

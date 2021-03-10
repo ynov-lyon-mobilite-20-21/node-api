@@ -2,7 +2,7 @@ import {
   Schema, Document, Model, model,
 } from 'mongoose';
 
-const refreshTokenSchema = new Schema({
+const RefreshTokenSchema = new Schema({
   token: { type: 'string', unique: true, required: true },
   expirationDate: { type: 'number', required: true },
   userId: { type: 'string', required: true },
@@ -18,4 +18,4 @@ export interface RefreshToken extends Document {
   isActive: boolean;
 }
 
-export const RefreshTokenModel: Model<RefreshToken> = model<RefreshToken>('RefreshToken', refreshTokenSchema);
+export const RefreshTokenModel: Model<RefreshToken> = model<RefreshToken>('RefreshToken', RefreshTokenSchema);
