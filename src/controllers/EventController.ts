@@ -417,7 +417,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     params: {
       intentId: paymentIntent.id,
       userId: currentUserId,
-      createdAt: paymentIntent.created,
+      createdAt: new Date(paymentIntent.created),
       amount: paymentIntent.amount / 100,
       currency: paymentIntent.currency,
       status: paymentIntent.status,

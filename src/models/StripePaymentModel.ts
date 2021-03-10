@@ -5,7 +5,7 @@ import {
 const StripePaymentSchema = new Schema({
   intentId: { type: 'string', required: true, unique: true },
   userId: { type: 'string', required: true },
-  createdAt: { type: 'number', required: true },
+  createdAt: { type: 'Date', required: true },
   amount: { type: 'number', required: true },
   currency: { type: 'string', required: true },
   status: { type: 'string', required: true },
