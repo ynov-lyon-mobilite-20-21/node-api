@@ -332,8 +332,7 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
 export const pay = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
   const { currentUser, currentUserId } = request;
-  const { cardId } = request.body.cardId;
-  const { eventId } = request.params;
+  const { id: eventId } = request.params;
 
   if (!eventId) {
     res.status(400).json({
@@ -363,12 +362,14 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   let card;
 
-  if (!cardId) {
+  // eslint-disable-next-line no-prototype-builtins
+  if (!request.body.hasOwnProperty('cardId')) {
     card = await findOneBy<Card>({
       model: CardModel,
-      condition: { currentUserId, isDefaultCard: true },
+      condition: { userId: currentUserId, isDefaultCard: true },
     });
   } else {
+    const { cardId } = request.body.cardId;
     card = await findOneBy<Card>({
       model: CardModel,
       condition: { _id: cardId, currentUserId },
@@ -405,7 +406,10 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   if (!paymentIntent) {
     res.status(400).json({
-      error: { code: 'UNKNOWN_ERROR', message: '' },
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: '',
+      },
       data: null,
     });
 
@@ -445,6 +449,8 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       },
       data: null,
     });
+
+    return;
   }
 
   const ticket = await saveData<Ticket>({
