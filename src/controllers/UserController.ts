@@ -293,6 +293,19 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
   res.redirect('https://via.placeholder.com/414x736?text=Application+redirection'); // TODO: update redirection
 };
 
+// Protected : isAuthenticated
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
+
+  const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.userId } });
+
+  res.status(200).json({
+    data: user,
+    error: {},
+  });
+};
+
+// Protected : isAuthenticated + isAdmin
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const users = await findManyBy<User>({ model: UserModel, condition: {} });
 
