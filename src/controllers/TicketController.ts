@@ -3,8 +3,10 @@ import { Request, Response } from 'express';
 import {
   deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
+import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import { Ticket, TicketModel } from '../models/TicketModel';
 import { APIRequest } from '../Interfaces/APIRequest';
+import { User, UserModel } from '../models/UserModel';
 
 // [POST] Shields : isAuthenticated + isAdmin
 export const createTicket = async (req: Request, res: Response): Promise<void> => {
@@ -211,6 +213,8 @@ export const updateTicketById = async (req: Request, res: Response): Promise<voi
     });
   }
 
+  // TODO: add a check to fetch payment object when paymentId is edited (if payment isn't stored in database, it will crash the validation route)
+
   const updatedTicket = await updateOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId }, update: ticket });
 
   if (!updatedTicket) {
@@ -262,4 +266,70 @@ export const deleteTicketById = async (req: Request, res: Response): Promise<voi
   }
 
   res.status(204).send();
+};
+
+// [GET] Shields : isAuthenticated + isAdmin
+export const checkTicketById = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  if (!id) {
+    res.status(400).json({
+      error: {
+        code: 'TICKET_ID_REQUIRED',
+        message: 'Please fill the ticket id in URL. This is required',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id } });
+
+  if (!ticket) {
+    res.status(404).json({
+      error: {
+        code: 'TICKET_NOT_FOUND',
+        message: 'The ticket id does not exist',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const userOfTicket = await findOneBy<User>({ model: UserModel, condition: { _id: ticket.userId } });
+
+  const validationTicketInfos = {
+    ticket,
+    payment: {
+      buyOn: 'null',
+      amount: 'null',
+      paymentStatus: 'null',
+    },
+    user: userOfTicket,
+  };
+
+  if (ticket && ticket.paymentId) {
+    const paymentOfTicket = await findOneBy<StripePayment>({ model: StripePaymentModel, condition: { _id: ticket.paymentId } });
+
+    if (!paymentOfTicket) {
+      res.status(500).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'It seems that the payment of this ticket is missing in our database. Maybe it was deleted or the paymentId of the ticket was edited',
+        },
+        data: null,
+      });
+    }
+
+    validationTicketInfos.payment.buyOn = paymentOfTicket!.createdAt.toDateString();
+    validationTicketInfos.payment.amount = `${paymentOfTicket!.amount} ${paymentOfTicket!.currency}`;
+    validationTicketInfos.payment.paymentStatus = paymentOfTicket!.status;
+  }
+
+  res.status(200).json({
+    error: null,
+    data: validationTicketInfos,
+  });
 };

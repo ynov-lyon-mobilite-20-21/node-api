@@ -22,7 +22,7 @@ import {
   deleteTicketById,
   getTicketById,
   getCurrentUserTickets,
-  updateTicketById, getTickets, getCurrentUserTicketById,
+  updateTicketById, getTickets, getCurrentUserTicketById, checkTicketById,
 } from './controllers/TicketController';
 
 const appRouter: Router = Router();
@@ -83,6 +83,7 @@ appRouter.get('/ticket/:id/me', [authMiddlewares.isAuthenticated], getCurrentUse
 appRouter.get('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getTicketById); // Get ticket informations by ID
 appRouter.put('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateTicketById); // Update a ticket by ID
 appRouter.delete('/ticket/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteTicketById); // Delete a ticket by ID
+appRouter.get('/ticket/:id/check', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], checkTicketById); // Get ticket informations by ID
 
 /*   IMAGES   */
 // appRouter.post('/images', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], postImage);
