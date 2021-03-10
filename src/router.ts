@@ -15,10 +15,10 @@ import {
   deleteImageById, getAllImages, getOneImageById, postImage,
 } from './controllers/ImageController';
 import {
-  getUserCards, linkUserCard, pay, removeCard, setDefaultCard,
+  getCurrentUserCards, linkCardToCurrentUser, pay, removeCardForCurrentUser, setDefaultCardForCurrentUser,
 } from './controllers/StripeController';
 import {
-  createNewEvent_post, deleteEventById_delete, getEventById_get, getAllEvents_get, updateEventById_put,
+  createNewEvent_post, deleteEventById_delete, getEventById_get, getAllEvents_get, updateEventById_put, pay_post,
 } from './controllers/EventController';
 import {
   createTicket,
@@ -65,18 +65,18 @@ appRouter.post('/auth/logout', logout_post); // Delete tokens
 /*   EVENTS   */
 appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createNewEvent_post); // Create nwe event
 appRouter.get('/events', [], getAllEvents_get); // Get all events
-appRouter.get('/event/:id', [], getEventById_get); // Get event informations by ID
-appRouter.put('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById_put); // Update event informations by ID
-appRouter.delete('/event/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById_delete); // Delete event by ID
+appRouter.get('/events/:id', [], getEventById_get); // Get event informations by ID
+appRouter.put('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById_put); // Update event informations by ID
+appRouter.delete('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById_delete); // Delete event by ID
 
 /* STRIPE */
-appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkUserCard); // Create new stripe credit card (link it to current user)
-appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated], getUserCards); // Read all credit cards of current user
+appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkCardToCurrentUser); // Create new stripe credit card (link it to current user)
+appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated], getCurrentUserCards); // Read all credit cards of current user
 // appRouter.get('/stripe/credit-cards', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserCards); // Read all credit cards TODO: create this route
-appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuthenticated, setDefaultCard); // Update default credit card of the current user
-appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated, removeCard); // Delete a card by ID
+appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuthenticated, setDefaultCardForCurrentUser); // Update default credit card of the current user
+appRouter.delete('/stripe/credit-cards/:cardId', authMiddlewares.isAuthenticated, removeCardForCurrentUser); // Delete a card by ID
 
-appRouter.post('/stripe/pay', [authMiddlewares.isAuthenticated], pay); // Create new payment
+// appRouter.post('/stripe/pay', [authMiddlewares.isAuthenticated], pay); // Create new payment
 
 /*   TICKET   */
 appRouter.post('/tickets', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createTicket); // Create a ticket
