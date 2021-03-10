@@ -121,7 +121,7 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
       condition: {
         mail: user.mail,
       },
-      set: {
+      update: {
         activationKey: newActivationKey,
       },
     });
@@ -283,7 +283,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
   await updateOneBy<User>({
     model: UserModel,
     condition: { _id: user._id },
-    set: {
+    update: {
       isActive: true,
       activationKey: null,
       registrationDate: moment().unix(),
@@ -376,7 +376,7 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
     condition: { _id: request.currentUserId },
-    set: {
+    update: {
       ...req.body,
     },
   });
@@ -430,13 +430,13 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
   // TODO: add check to unchanged properties
 
   if (req.body.password) {
-    req.body.password = encryptPassword(req.body.password);
+    req.body.password = await encryptPassword(req.body.password);
   }
 
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
     condition: { _id: userId },
-    set: {
+    update: {
       ...req.body,
     },
   });
@@ -447,7 +447,7 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
-      data: null,
+      data: updatedUser,
     });
     return;
   }

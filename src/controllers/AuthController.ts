@@ -30,7 +30,7 @@ export const userAuthentication = async (req: Request, res: Response) => {
     });
 
     const newActivationKey = Crypto.randomBytes(50).toString('hex');
-    await updateOneBy<User>({ model: UserModel, condition: { mail: user.mail }, set: { activationKey: newActivationKey } });
+    await updateOneBy<User>({ model: UserModel, condition: { mail: user.mail }, update: { activationKey: newActivationKey } });
     const activationLink = `${CLIENT_HOSTNAME}/users/activation?u=${user._id}&k=${user.activationKey}`;
     await sendRegistrationMail(user.mail, activationLink);
 

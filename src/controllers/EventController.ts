@@ -127,7 +127,7 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
   const { id } = req.params;
   const event = req.body;
 
-  const updatedEvent = await updateOneBy<Event>({ model: EventModel, condition: { _id: id }, set: event });
+  const updatedEvent = await updateOneBy<Event>({ model: EventModel, condition: { _id: id }, update: event });
 
   if (!updatedEvent) {
     res.status(500).json({

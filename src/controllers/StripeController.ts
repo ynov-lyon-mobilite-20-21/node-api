@@ -171,8 +171,8 @@ export const setDefaultCard = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  await updateManyBy<Card>({ model: CardModel, condition: {}, set: { isDefaultCard: false } });
-  const update = await updateOneBy<Card>({ model: CardModel, condition: { _id: cardId }, set: { isDefaultCard: true } });
+  await updateManyBy<Card>({ model: CardModel, condition: {}, update: { isDefaultCard: false } });
+  const update = await updateOneBy<Card>({ model: CardModel, condition: { _id: cardId }, update: { isDefaultCard: true } });
 
   if (!update) {
     res.status(400).json({

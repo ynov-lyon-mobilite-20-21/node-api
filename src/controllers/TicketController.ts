@@ -100,7 +100,7 @@ export const updateTicketById = async (req: Request, res: Response): Promise<voi
 
   const { currentUserId } = request;
 
-  const updatedTicket = await updateOneBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId }, set: ticket });
+  const updatedTicket = await updateOneBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId }, update: ticket });
 
   if (!updatedTicket) {
     res.status(500).json({
