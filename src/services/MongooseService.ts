@@ -42,22 +42,31 @@ export const findManyBy = async <T extends Document>({ model: ModelObject, condi
   }
 };
 
+// TODO: implement property to access to old version of document
 export const updateOneBy = async <T extends Document>({ model: ModelObject, condition, update }: UpdateByParams<T>): Promise<T | null> => {
   try {
     // @ts-ignore
-    return await ModelObject.findOneAndUpdate(condition, update);
+    const oldObject = await ModelObject.findOneAndUpdate(condition, update);
+
+    // @ts-ignore
+    const updatedObject = await findOneBy<ModelObject>({ model: ModelObject, condition: { _id: oldObject._id } });
+
+    return updatedObject;
   } catch (e) {
     return null;
   }
 };
 
-export const updateManyBy = async <T extends Document>({ model: ModelObject, condition, update }: UpdateByParams<T>): Promise<T | null> => {
+// TODO: implement property to access to old version of document
+export const updateManyBy = async <T extends Document>({ model: ModelObject, condition, update }: UpdateByParams<T>): Promise<T[] | null> => {
   try {
     // @ts-ignore
-    const updatedObject = await ModelObject.updateMany(condition, { $set: update, $inc: { __v: 1 } }); // TODO: implement incrementation
+    const oldObjects = await ModelObject.updateMany(condition, { $set: update, $inc: { __v: 1 } }); // TODO: implement incrementation
 
     // @ts-ignore
-    return findManyBy<typeof ModelObject>({ model: ModelObject, condition });
+    const updatedObjects = await findManyBy<ModelObject>({ model: ModelObject, condition });
+
+    return updatedObjects;
   } catch (e) {
     return null;
   }
