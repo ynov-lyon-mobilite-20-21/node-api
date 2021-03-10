@@ -2,54 +2,59 @@
 import Stripe from 'stripe';
 
 import { User } from '../models/UserModel';
-import { findManyBy, saveData } from './MongooseService';
-import { BasketItem, Payment, PaymentModel } from '../models/PaymentModel';
+import { findManyBy, findOneBy, saveData } from './MongooseService';
+import { BasketItem, StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import { Card, CardModel } from '../models/CardModel';
 
 const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
 
 // @ts-ignore
-const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-03-02' });
+const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2021-03-10' });
 
 // TODO: createStripeProduct
 // export async function createStripeProduct(product: Product): Promise<Stripe.Product | null> {}
 
 export async function createStripeCustomer(user: User): Promise<Stripe.Customer | null> {
   try {
-    // TODO: add some params to user
+    // TODO: implement commented params to user
     return await stripe.customers.create({
+      // address: user.address
       email: user.mail,
+      name: `${user.lastName} ${user.firstName}`,
+      // payment_method: '', // NTA
+      // phone: user.phone,
+      preferred_locales: ['fr-FR'],
     });
   } catch (e) {
     return null;
   }
 }
 
-export async function linkCardToCustomer(user: User, stripeCardId: string): Promise<Card | null | boolean> {
+export async function linkCardToCustomer(user: User, stripeId: string): Promise<Card | null | boolean> {
   try {
     const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
-    if (!userCards) {
+    const card = await findManyBy<Card>({ model: CardModel, condition: { stripeId } });
+
+    if (card) { // If there is already a card saved with this stripe id
       return null;
     }
 
     const {
       id: stripeSourceCardId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
-    } = await stripe.customers.createSource(user.stripeId, {
-      source: stripeCardId,
-    }) as Stripe.Card;
+    } = await stripe.customers.createSource(user.stripeId, { source: stripeId }) as Stripe.Card;
 
     return await saveData<Card>({
       model: CardModel,
       params: {
         stripeId: stripeSourceCardId,
         userId: user._id,
-        isDefaultCard: userCards.length < 1,
+        name,
+        last4,
         expMonth,
         expYear,
-        last4,
-        name,
         brand,
+        isDefaultCard: !!(userCards && userCards.length < 1), // userCards ? true : false
       },
     });
   } catch (e) {
@@ -81,32 +86,17 @@ export async function linkCardToCustomer(user: User, stripeCardId: string): Prom
 // Maybe need https://stripe.com/docs/api/customer_tax_ids?lang=node or https://stripe.com/docs/api/tax_rates?lang=node
 
 // TODO: implement invoice support
-export async function createStripePaymentIntent(user: User, card: Card, basket: BasketItem[], amount: number): Promise<Stripe.PaymentIntent | null> {
+export async function createStripePaymentIntent(user: User, stripeCardId: string, amount: number): Promise<Stripe.PaymentIntent | null> {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      customer: user.stripeId,
+    return await stripe.paymentIntents.create({
       amount,
       currency: 'eur',
-      // confirm: true,
-
-      payment_method: card.stripeId,
-      use_stripe_sdk: true,
+      customer: user.stripeId,
+      // description: '' // NTA
+      payment_method: stripeCardId,
+      receipt_email: user.mail,
+      use_stripe_sdk: true, // Set to true only when using manual confirmation and the iOS or Android SDKs to handle additional authentication steps.
     });
-
-    await saveData<Payment>({
-      model: PaymentModel,
-      params: {
-        stripeId: paymentIntent.id,
-        userId: user._id,
-        createdAt: paymentIntent.created,
-        status: paymentIntent.status,
-        amount: paymentIntent.amount / 100,
-        currency: paymentIntent.currency,
-        basket,
-      },
-    });
-
-    return paymentIntent;
   } catch (e) {
     return null;
   }
