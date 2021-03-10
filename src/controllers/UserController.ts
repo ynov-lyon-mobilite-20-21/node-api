@@ -391,10 +391,36 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
   });
 };
 
-export const updateUser = async (req: Request, res: Response): Promise<void> => {
+// Protected : isAuthenticated + isAdmin
+export const updateUserById = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
-  const userUpdate = await updateOneBy<User>({
+  // eslint-disable-next-line guard-for-in
+  for (const jsonParamKey in req.body) {
+    switch (jsonParamKey) {
+      case 'mail':
+      case 'password':
+      case 'firstName':
+      case 'lastName':
+      case 'promotion':
+      case 'formation':
+        // eslint-disable-next-line no-continue
+        continue;
+
+      default:
+        res.status(400).json({
+          data: {},
+          error: {
+            code: 'MALFORMED_JSON',
+            message: 'Your body contain other fields than those expected.',
+            acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
+          },
+        });
+        return;
+    }
+  }
+
+  const updatedUser = await updateOneBy<User>({
     model: UserModel,
     condition: { _id: userId },
     set: {
@@ -402,16 +428,21 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     },
   });
 
-  if (!userUpdate) {
-    res.status(400).json({
+  if (!updatedUser) {
+    res.status(500).json({
       data: {},
-      error: { code: 'CANNOT_UPDATE_USER' },
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An unknown error has occurs while updating the user.',
+      },
     });
-
     return;
   }
 
-  res.status(204).send();
+  res.status(200).json({
+    data: updatedUser,
+    error: {},
+  });
 };
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
