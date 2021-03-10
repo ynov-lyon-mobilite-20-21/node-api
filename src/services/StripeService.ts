@@ -24,7 +24,7 @@ export async function createStripeCustomer(user: User): Promise<Stripe.Customer 
   }
 }
 
-export async function linkCardToCustomer(user: User, stripeCardId: string): Promise<object | boolean> {
+export async function linkCardToCustomer(user: User, stripeCardId: string): Promise<Card | null | boolean> {
   try {
     const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 

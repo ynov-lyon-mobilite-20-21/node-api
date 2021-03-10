@@ -32,7 +32,7 @@ export const findOneBy = async <T extends Document>({ model: ModelObject, condit
   }
 };
 
-export const saveData = async <T extends Document>({ model: ModelObject, params }: SaveParams<T>): Promise<Model<T> | null> => {
+export const saveData = async <T extends Document>({ model: ModelObject, params }: SaveParams<T>): Promise<T | null> => {
   const newObject = new ModelObject(params);
   await newObject.validate();
   await newObject.save();

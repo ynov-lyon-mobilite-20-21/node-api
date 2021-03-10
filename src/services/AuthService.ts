@@ -105,7 +105,7 @@ export async function createTokenForUser({ _id }: User): Promise<string> {
   return jwt.sign({ _id }, SECRET_KEY!, { expiresIn: Number(JWT_TOKEN_EXPIRATION_TIME) });
 }
 
-export async function createRefreshTokenForUser({ _id }: User): Promise<RefreshToken> {
+export async function createRefreshTokenForUser({ _id }: User): Promise<RefreshToken | null> {
   const expirationDate = moment().add(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME, 'seconds').unix();
   const token = cryptoJs.SHA256(`${_id}.${moment().unix()}.${expirationDate}`).toString();
 
