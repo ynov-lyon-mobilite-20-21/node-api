@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/explicit-function-return-type,@typescript-eslint/camelcase */
 import { Request, Response } from 'express';
 import moment from 'moment';
 import { deleteOnyBy, findOneBy, updateOneBy } from '../services/MongooseService';
@@ -12,7 +12,7 @@ import {
 } from '../services/AuthService';
 import { sendInactiveUserAccountExistMail } from '../services/MailService';
 
-export const login = async (req: Request, res: Response) => {
+export const login_post = async (req: Request, res: Response) => {
   const { mail, password } = req.body;
 
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
@@ -105,7 +105,7 @@ export const login = async (req: Request, res: Response) => {
   });
 };
 
-export const refreshUserToken = async (req: Request, res: Response) => {
+export const refreshUserToken_post = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -173,7 +173,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   });
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout_post = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/camelcase */
 import { Request, Response } from 'express';
 import moment from 'moment';
 import {
