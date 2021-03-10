@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import {
-  deleteOnyBy,
-  findManyBy, findOneBy, saveData, updateOneBy,
+  deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { Ticket, TicketModel } from '../models/TicketModel';
-import { getUserIdByToken } from '../services/UserService';
+import { APIRequest } from '../Interfaces/APIRequest';
 
 export const createTicket = async (req: Request, res: Response): Promise<void> => {
   const { userId, eventId, paymentId } = req.body;
@@ -69,8 +68,9 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
 };
 
 export const getTickets = async (req: Request, res: Response): Promise<void> => {
-  const userId = await getUserIdByToken(req.headers.authorization!);
-  const tickets = await findManyBy<Ticket>({ model: TicketModel, condition: { userId } });
+  const request = req as APIRequest;
+  const { currentUserId } = request;
+  const tickets = await findManyBy<Ticket>({ model: TicketModel, condition: { currentUserId } });
 
   res.status(200).json({
     data: tickets,
@@ -78,11 +78,12 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
 };
 
 export const getTicketById = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
   const { id } = req.params;
 
-  const userId = await getUserIdByToken(req.headers.authorization!);
+  const { currentUserId } = request;
 
-  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id, userId } });
+  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId } });
 
   res.status(200).json({
     data: ticket,
@@ -90,12 +91,13 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
 };
 
 export const updateTicketById = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
   const { id } = req.params;
   const ticket = req.body;
 
-  const userId = await getUserIdByToken(req.headers.authorization!);
+  const { currentUserId } = request;
 
-  const updatedTicket = await updateOneBy<Ticket>({ model: TicketModel, condition: { _id: id, userId }, set: ticket });
+  const updatedTicket = await updateOneBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId }, set: ticket });
 
   if (!updatedTicket) {
     res.status(500).json({
@@ -116,11 +118,12 @@ export const updateTicketById = async (req: Request, res: Response): Promise<voi
 };
 
 export const deleteTicketById = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
   const { id } = req.params;
 
-  const userId = await getUserIdByToken(req.headers.authorization!);
+  const { currentUserId } = request;
 
-  const ticket = await deleteOnyBy<Ticket>({ model: TicketModel, condition: { _id: id, userId } });
+  const ticket = await deleteOnyBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId } });
 
   if (!ticket) {
     res.status(500).json({

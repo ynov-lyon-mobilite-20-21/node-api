@@ -62,21 +62,21 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     res.status(401).send({
       code: 'INVALID_TOKEN',
       message: 'If you are trying to access to a protected route, you must be authenticated to access it.'
-        + "We couldn't find a user attach to this token. Maybe this token isn't valid anymore.",
+        + "We couldn't find a currentUser attach to this token. Maybe this token isn't valid anymore.",
       data: null,
     });
     return;
   }
 
-  request.userId = _id;
-  request.user = user;
+  request.currentUserId = _id;
+  request.currentUser = user;
 
   next();
 };
 
 const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const request = req as APIRequest;
-  if (!request.user.isAdmin) {
+  if (!request.currentUser.isAdmin) {
     res.status(403).json({
       code: 'UNAUTHORIZED_ACTION',
       message: "You're trying to access to a protected route without enough permissions. Please contact administrator.",

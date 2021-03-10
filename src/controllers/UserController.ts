@@ -297,7 +297,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
-  const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.userId } });
+  const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.currentUserId } });
 
   res.status(200).json({
     data: user,
@@ -368,7 +368,7 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
 
   const updatedUser = await updateOneBy<User>({
     model: UserModel,
-    condition: { _id: request.userId },
+    condition: { _id: request.currentUserId },
     set: {
       ...req.body,
     },

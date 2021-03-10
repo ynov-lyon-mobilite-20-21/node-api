@@ -58,18 +58,21 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  // TODO: implement product declaration on stripe (à faire dans la route de création d'évènement.)
+  // https://stripe.com/docs/api/products?lang=node
+
   let card;
 
   if (!req.body.cardId) {
     card = await findOneBy<Card>({
       model: CardModel,
-      condition: { userId: user._id, isDefaultCard: true },
+      condition: { currentUserId, isDefaultCard: true },
       hiddenPropertiesToSelect: ['stripeId'],
     });
   } else {
     card = await findOneBy<Card>({
       model: CardModel,
-      condition: { _id: req.body.cardId, userId: user._id },
+      condition: { _id: req.body.cardId, currentUserId },
       hiddenPropertiesToSelect: ['stripeId'],
     });
   }
@@ -86,7 +89,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
   }
 
   const amount = 0;
-  const paymentIntent = await createPaymentIntent(user, card, basket, amount);
+  const paymentIntent = await createStripePaymentIntent(user, card, basket, amount); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
 
   if (!paymentIntent) {
     res.status(400).json({

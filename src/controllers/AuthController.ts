@@ -7,7 +7,7 @@ import Crypto from 'crypto';
 import { deleteOnyBy, findOneBy, updateOneBy } from '../services/MongooseService';
 import { RefreshToken, RefreshTokenModel } from '../models/RefreshTokenModel';
 import { User, UserModel } from '../models/UserModel';
-import { comparePassword, createRefreshToken, createToken } from '../services/UserService';
+import { comparePassword, createRefreshTokenForUser, createTokenForUser } from '../services/AuthService';
 import { sendRegistrationMail } from '../services/MailService';
 
 const { CLIENT_HOSTNAME, NODE_ENV } = process.env;
@@ -37,7 +37,7 @@ export const userAuthentication = async (req: Request, res: Response) => {
     return;
   }
 
-  const passwordIsCorrect = await comparePassword({ password, storagePassword: user.password! });
+  const passwordIsCorrect = await comparePassword({ password, storedPassword: user.password! });
   if (!passwordIsCorrect) {
     return res.status(401).json({
       data: {},
@@ -45,11 +45,11 @@ export const userAuthentication = async (req: Request, res: Response) => {
     });
   }
 
-  const newToken = await createToken(user);
-  const newRefreshToken = await createRefreshToken(user);
+  const newToken = await createTokenForUser(user);
+  const newRefreshToken = await createRefreshTokenForUser(user);
 
   res.status(200).json({
-    data: { token: newToken, refreshToken: newRefreshToken.token },
+    data: { token: newToken, refreshToken: newRefreshToken!.token },
     error: {},
   });
 };
@@ -78,11 +78,11 @@ export const refreshUserToken = async (req: Request, res: Response) => {
     });
   }
 
-  const newToken = await createToken(user);
-  const newRefreshToken = await createRefreshToken(user);
+  const newToken = await createTokenForUser(user);
+  const newRefreshToken = await createRefreshTokenForUser(user);
 
   res.status(200).json({
-    data: { token: newToken, refreshToken: newRefreshToken.token },
+    data: { token: newToken, refreshToken: newRefreshToken!.token },
     error: {},
   });
 };
