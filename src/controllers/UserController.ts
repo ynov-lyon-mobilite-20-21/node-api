@@ -486,18 +486,7 @@ export const deleteCurrentUser = async (req: Request, res: Response): Promise<vo
     return;
   }
 
-  const deletedRefreshTokens = await deleteManyBy({ model: UserModel, condition: { userId: request.currentUserId } });
-
-  if (!deletedRefreshTokens) {
-    res.status(500).json({
-      data: null,
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An unknown error has occurs while deleting the user refreshTokens.',
-      },
-    });
-    return;
-  }
+  await deleteManyBy({ model: RefreshTokenModel, condition: { userId: request.currentUserId } });
 
   res.status(204).send();
 };
@@ -519,18 +508,7 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  const deletedRefreshTokens = await deleteManyBy({ model: UserModel, condition: { userId } });
-
-  if (!deletedRefreshTokens) {
-    res.status(500).json({
-      data: null,
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An unknown error has occurs while deleting the user refreshTokens.',
-      },
-    });
-    return;
-  }
+  await deleteManyBy({ model: RefreshTokenModel, condition: { userId } });
 
   res.status(204).send();
 };
