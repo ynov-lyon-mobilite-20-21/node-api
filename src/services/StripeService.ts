@@ -5,10 +5,10 @@ import { User } from '../models/UserModel';
 import { findManyBy, findOneBy, saveData } from './MongooseService';
 import { Card, CardModel } from '../models/CardModel';
 
-const { STRIPE_API_KEY, CLIENT_HOSTNAME } = process.env;
+const { STRIPE_API_KEY, ENDPOINT_APP } = process.env;
 
 // @ts-ignore
-const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2021-03-10' });
+const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-08-27' });
 
 // TODO: createStripeProduct
 // export async function createStripeProduct(product: Product): Promise<Stripe.Product | null> {}
@@ -33,7 +33,7 @@ export async function linkCardToCustomer(user: User, stripeId: string): Promise<
   try {
     const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
-    const card = await findManyBy<Card>({ model: CardModel, condition: { stripeId } });
+    const card = await findOneBy<Card>({ model: CardModel, condition: { stripeId } });
 
     if (card) { // If there is already a card saved with this stripe id
       return null;
@@ -103,6 +103,6 @@ export async function createStripePaymentIntent(user: User, stripeCardId: string
 
 export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent): Promise<Stripe.PaymentIntent> {
   return stripe.paymentIntents.confirm(paymentIntent.id, {
-    return_url: `${CLIENT_HOSTNAME}/payment/stripe/return`, // TODO: update this
+    return_url: `${ENDPOINT_APP}`, // TODO: update the env var
   });
 }
