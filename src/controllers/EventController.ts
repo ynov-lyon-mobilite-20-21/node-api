@@ -4,6 +4,11 @@ import {
   deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { Event, EventModel } from '../models/EventModel';
+import { APIRequest } from '../Interfaces/APIRequest';
+import { Card, CardModel } from '../models/CardModel';
+import { confirmStripePaymentIntent, createStripePaymentIntent } from '../services/StripeService';
+import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
+import { Ticket, TicketModel } from '../models/TicketModel';
 
 // Protected : isAuthenticated + isAdmin
 export const createNewEvent_post = async (req: Request, res: Response): Promise<void> => {
@@ -122,6 +127,7 @@ export const createNewEvent_post = async (req: Request, res: Response): Promise<
 
     return;
   }
+  // TODO: add a check to price (must be in cents)
 
   const event = await findOneBy<Event>({ model: EventModel, condition: { name } });
 
@@ -158,6 +164,9 @@ export const createNewEvent_post = async (req: Request, res: Response): Promise<
 
     return;
   }
+
+  // TODO: implement product declaration on stripe
+  // https://stripe.com/docs/api/products?lang=node
 
   if (!newEvent) {
     res.status(500).json({
@@ -315,4 +324,154 @@ export const deleteEventById_delete = async (req: Request, res: Response): Promi
   }
 
   res.status(204).send();
+};
+
+// Protected : isAuthenticated
+export const pay_post = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
+  const { currentUser, currentUserId } = request;
+  const { cardId } = request.body.cardId;
+  const { eventId } = request.params;
+
+  if (!eventId) {
+    res.status(400).json({
+      error: {
+        code: 'EVENT_ID_REQUIRED',
+        message: 'Please fill the event field, this field is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId } });
+
+  if (!event) {
+    res.status(404).json({
+      error: {
+        code: 'EVENT_NOT_FOUND',
+        message: 'No event found with the given id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  let card;
+
+  if (!cardId) {
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { currentUserId, isDefaultCard: true },
+    });
+  } else {
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { _id: cardId, currentUserId },
+    });
+
+    if (!card) {
+      res.status(400).json({
+        error: {
+          code: 'CARD_NOT_FOUND',
+          message: 'No card found for the user with this card id.',
+        },
+        data: null,
+      });
+
+      return;
+    }
+  }
+
+  if (!card) {
+    res.status(400).json({
+      error: {
+        code: 'NO_CARDS_AVAILABLE',
+        message: 'It seems that the current user has no default card. Please try to add one or specify a card id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  // TODO: Implement stripe invoice generation with event stripe product
+
+  const paymentIntent = await createStripePaymentIntent(currentUser, card.stripeId, event.price); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
+
+  if (!paymentIntent) {
+    res.status(400).json({
+      error: { code: 'UNKNOWN_ERROR', message: '' },
+      data: null,
+    });
+
+    return;
+  }
+
+  const payment = await saveData<StripePayment>({
+    model: StripePaymentModel,
+    params: {
+      intentId: paymentIntent.id,
+      userId: currentUserId,
+      createdAt: paymentIntent.created,
+      amount: paymentIntent.amount / 100,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status,
+    },
+  });
+
+  if (!payment) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while saving the payment in our database.',
+      },
+      data: null,
+    });
+    return;
+  }
+
+  try {
+    await confirmStripePaymentIntent(paymentIntent);
+  } catch (e) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while confirm the payment intent.',
+      },
+      data: null,
+    });
+  }
+
+  const ticket = await saveData<Ticket>({
+    model: TicketModel,
+    params: {
+      userId: currentUserId,
+      eventId: event._id,
+      paymentId: payment.id,
+      currency: paymentIntent.currency,
+    },
+  });
+
+  if (!ticket) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while saving the ticket in our database.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  res.status(200).json({
+    error: null,
+    data: {
+      paymentIntentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
+    },
+  });
 };

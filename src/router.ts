@@ -68,6 +68,7 @@ appRouter.get('/events', [], getAllEvents_get); // Get all events
 appRouter.get('/events/:id', [], getEventById_get); // Get event informations by ID
 appRouter.put('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById_put); // Update event informations by ID
 appRouter.delete('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteEventById_delete); // Delete event by ID
+appRouter.post('/events/pay/:id', [authMiddlewares.isAuthenticated], pay_post); // Buy a ticket
 
 /* STRIPE */
 appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkCardToCurrentUser); // Create new stripe credit card (link it to current user)
