@@ -66,9 +66,9 @@ Errors:
 - If no lastname field or empty : 400 Bad Request 'LASTNAME_REQUIRED'
 - If no promotion field or empty : 400 Bad Request 'PROMOTION_REQUIRED'
 - If no formation field or empty : 400 Bad Request 'FORMATION_REQUIRED'
-- If user already exist and active : 400 Bad Request 'USER_ALREADY_EXISTS'
-- If user already exist but not active : 400 Bad Request 'USER_ALREADY_EXISTS'
-- If couldn't create user in database : 400 Bad Request 'UNKNOWN_ERROR'
+- If currentUser already exist and active : 400 Bad Request 'USER_ALREADY_EXISTS'
+- If currentUser already exist but not active : 400 Bad Request 'USER_ALREADY_EXISTS'
+- If couldn't create currentUser in database : 400 Bad Request 'UNKNOWN_ERROR'
 - If another error occurs : 400 Bad Request 'UNKNOWN_ERROR'
 
 ---
@@ -107,7 +107,7 @@ Errors:
 
 Errors:
 - If no account for these credentials : 400 Bad Request 'NO_USER'
-- If user isn't active : 403 Forbidden 'USER_INACTIVE'
+- If currentUser isn't active : 403 Forbidden 'USER_INACTIVE'
 - If bad credentials : 401 Unauthorized 'BAD_CREDENTIALS'
 
 
@@ -146,14 +146,14 @@ Errors:
 
 Errors:
 - If refresh token doesn't exist, inactive or already expire : 400 Bad Request 'INVALID_TOKEN'
-- If no user found with this token : 404 Not Found 'USER_DOESNT_EXIST'
+- If no currentUser found with this token : 404 Not Found 'USER_DOESNT_EXIST'
 
 
 ---
 
 ### Logout
 
-> Delete the Refresh Token associated to the user account.
+> Delete the Refresh Token associated to the currentUser account.
 
 **URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/logout`
 
@@ -409,7 +409,7 @@ You must be an administrator to access this route.
 #### Body
 | Key | Required | Default | Type | Description |
 | --- | --- | --- | --- | --- |
-| userId | unspecified | unspecified | string | unspecified |
+| currentUserId | unspecified | unspecified | string | unspecified |
 | eventId | unspecified | unspecified | string | unspecified |
 | paymentId | unspecified | unspecified | string | unspecified |
 
@@ -429,7 +429,7 @@ Errors:
 
 ### Read All
 
-> Allows to retrieve all the tickets of the current user thanks to his token.
+> Allows to retrieve all the tickets of the current currentUser thanks to his token.
 You must be an administrator to access this route.
 
 **URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/tickets`
