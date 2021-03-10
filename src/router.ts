@@ -6,8 +6,8 @@ import {
   getUsers,
   getUserById,
   updateCurrentUser,
-  updateUser,
-  deleteUser,
+  updateUserById,
+  deleteUserById, deleteCurrentUser,
 } from './controllers/UserController';
 import { authMiddlewares } from './services/AuthService';
 import { logout, refreshUserToken, userAuthentication } from './controllers/AuthController';
@@ -50,13 +50,12 @@ appRouter.use((req, res, next) => {
 appRouter.post('/users', postUser); // CREATE / Register user
 appRouter.get('/users/activate/:activationKey', userActivation); // Validate user (email)
 appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getMe); // Get current user informations
-appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsers); // Get all users
-appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserById); // Get user by ID
-
+appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsers); // Get all users for admins
+appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserById); // Get user by ID for admins
 appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUser); // Update current user informations
-appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUser); // Update one user by ID
-// appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete current user TODO: create this route
-appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete user by ID
+appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUserById); // Update one user by ID for admins
+appRouter.delete('/users', [authMiddlewares.isAuthenticated], deleteCurrentUser); // Delete current user
+appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUserById); // Delete user by ID for admins
 
 /*   AUTH   */
 appRouter.post('/auth/login', userAuthentication); // Login user
