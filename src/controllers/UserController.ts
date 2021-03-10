@@ -315,16 +315,19 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
+// Protected : isAuthenticated + isAdmin
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: id } });
 
   if (!user) {
-    res.status(200).json({
+    res.status(400).json({
       data: {},
-      error: { code: 'CANNOT_GET_USER' },
+      error: {
+        code: 'UNKNOWN_USER',
+        message: 'We did not find a user for this ID.',
+      },
     });
-
     return;
   }
 
