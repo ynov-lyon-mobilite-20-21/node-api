@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import {
-  deleteUser,
-  getMe,
-  getUserById,
-  getUsers,
   postUser,
-  updateUser,
   userActivation,
+  getMe,
+  getUsers,
+  getUserById,
+  updateCurrentUser,
+  updateUser,
+  deleteUser,
 } from './controllers/UserController';
 import { authMiddlewares } from './services/AuthService';
 import { logout, refreshUserToken, userAuthentication } from './controllers/AuthController';
@@ -52,7 +53,7 @@ appRouter.get('/users/me', [authMiddlewares.isAuthenticated], getMe); // Get cur
 appRouter.get('/users', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUsers); // Get all users
 appRouter.get('/users/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], getUserById); // Get user by ID
 
-// appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUser); // Update current user informations TODO: create this route
+appRouter.put('/users', [authMiddlewares.isAuthenticated], updateCurrentUser); // Update current user informations
 appRouter.put('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateUser); // Update one user by ID
 // appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete current user TODO: create this route
 appRouter.delete('/users/:userId', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteUser); // Delete user by ID
