@@ -25,12 +25,12 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
       default:
         res.status(400).json({
-          data: {},
           error: {
             code: 'MALFORMED_JSON',
             message: 'Your body contain other fields than those expected.',
             acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
           },
+          data: null,
         });
         return;
     }
@@ -42,22 +42,22 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!mail) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'EMAIL_REQUIRED',
         message: 'Please fill email field, this field is required.',
       },
+      data: null,
     });
     return;
   }
 
   if (!password) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'PASSWORD_REQUIRED',
         message: 'Please fill password field, this field is required.',
       },
+      data: null,
     });
 
     return;
@@ -65,11 +65,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!firstName) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'FIRSTNAME_REQUIRED',
         message: 'Please fill firstname field, this field is required.',
       },
+      data: null,
     });
 
     return;
@@ -77,11 +77,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!lastName) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'LASTNAME_REQUIRED',
         message: 'Please fill lastname field, this field is required.',
       },
+      data: null,
     });
 
     return;
@@ -89,11 +89,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!promotion) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'PROMOTION_REQUIRED',
         message: 'Please fill promotion field, this field is required.',
       },
+      data: null,
     });
 
     return;
@@ -101,11 +101,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!formation) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'FORMATION_REQUIRED',
         message: 'Please fill formation field, this field is required.',
       },
+      data: null,
     });
 
     return;
@@ -131,33 +131,33 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
     if (!isEmailSentSuccessfully) {
       console.log(isEmailSentSuccessfully);
       res.status(500).json({
-        data: {},
         error: {
           code: 'UNKNOWN_ERROR',
           message: 'An error has occurred while send validation email to user.',
         },
+        data: null,
       });
 
       return;
     }
 
     res.status(400).json({
-      data: {},
       error: {
         code: 'USER_INACTIVE',
         message: 'Your account already exist but as inactive. A new activation link is send again to you, check your email.',
       },
+      data: null,
     });
     return;
   }
 
   if (user && user.isActive) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'USER_ALREADY_EXISTS',
         message: 'Your account is already exist and activated. Please login.',
       },
+      data: null,
     });
 
     return;
@@ -165,11 +165,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (user) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'Your account seems to already exist but not activated or inactive. Your account is possibly corrupted or banned Please contact the administrator.',
       },
+      data: null,
     });
 
     return;
@@ -182,11 +182,11 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!isEmailSentSuccessfully) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An error has occurred while send validation email to user.',
       },
+      data: null,
     });
 
     return;
@@ -207,17 +207,18 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 
   if (!user) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An error has occurred while user creation in database',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: user,
   });
 };
@@ -227,11 +228,11 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 
   if (!activationKey) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'ACTIVATION_KEY_REQUIRED',
         message: 'The activation key is missing. Please check your link.',
       },
+      data: null,
     });
 
     return;
@@ -241,11 +242,11 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 
   if (!user) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'INVALID_ACTIVATION_KEY',
         message: 'No user found with this activation key.',
       },
+      data: null,
     });
 
     return;
@@ -253,11 +254,11 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 
   if (user.stripeId) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'ACCOUNT_ALREADY_ACTIVATED',
         message: 'Your user is already active.',
       },
+      data: null,
     });
 
     return;
@@ -267,11 +268,11 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
 
   if (!stripeCustomer) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_STRIPE_ERROR',
         message: 'An error has occurs while creating your account on stripe.',
       },
+      data: null,
     });
 
     return;
@@ -300,8 +301,8 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: request.currentUserId } });
 
   res.status(200).json({
+    error: null,
     data: user,
-    error: {},
   });
 };
 
@@ -310,8 +311,8 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const users = await findManyBy<User>({ model: UserModel, condition: {} });
 
   res.status(200).json({
+    error: null,
     data: users,
-    error: {},
   });
 };
 
@@ -322,18 +323,18 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 
   if (!user) {
     res.status(400).json({
-      data: {},
       error: {
         code: 'UNKNOWN_USER',
         message: 'We did not find a user for this ID.',
       },
+      data: null,
     });
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: user,
-    error: {},
   });
 };
 
@@ -355,12 +356,12 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
 
       default:
         res.status(400).json({
-          data: {},
           error: {
             code: 'MALFORMED_JSON',
             message: 'Your body contain other fields than those expected.',
             acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
           },
+          data: null,
         });
         return;
     }
@@ -376,18 +377,18 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
 
   if (!updatedUser) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
+      data: null,
     });
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: updatedUser,
-    error: {},
   });
 };
 
@@ -409,12 +410,12 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
 
       default:
         res.status(400).json({
-          data: {},
           error: {
             code: 'MALFORMED_JSON',
             message: 'Your body contain other fields than those expected.',
             acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
           },
+          data: null,
         });
         return;
     }
@@ -430,18 +431,18 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
 
   if (!updatedUser) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while updating the user.',
       },
+      data: null,
     });
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: updatedUser,
-    error: {},
   });
 };
 
@@ -453,7 +454,7 @@ export const deleteCurrentUser = async (req: Request, res: Response): Promise<vo
 
   if (!deletedUser) {
     res.status(500).json({
-      data: {},
+      data: null,
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while deleting the user.',
@@ -473,11 +474,11 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
 
   if (!deletedUser) {
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'An unknown error has occurs while deleting the user.',
       },
+      data: null,
     });
     return;
   }

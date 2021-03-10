@@ -18,15 +18,15 @@ export const userAuthentication = async (req: Request, res: Response) => {
   const user = await findOneBy<User>({ model: UserModel, condition: { mail }, hiddenPropertiesToSelect: ['password'] });
   if (!user) {
     return res.status(400).json({
-      data: {},
-      error: { code: 'NO_USER' },
+      error: { code: 'NO_USER', message: '' },
+      data: null,
     });
   }
 
   if (!user.isActive && NODE_ENV === 'PROD') {
     res.status(403).json({
-      data: {},
       error: { code: 'USER_INACTIVE', message: 'Activation link resent, check your email' },
+      data: null,
     });
 
     const newActivationKey = Crypto.randomBytes(50).toString('hex');
@@ -40,8 +40,8 @@ export const userAuthentication = async (req: Request, res: Response) => {
   const passwordIsCorrect = await comparePassword({ password, storedPassword: user.password! });
   if (!passwordIsCorrect) {
     return res.status(401).json({
-      data: {},
-      error: { code: 'BAD_CREDENTIALS' },
+      error: { code: 'BAD_CREDENTIALS', message: '' },
+      data: null,
     });
   }
 
@@ -49,8 +49,8 @@ export const userAuthentication = async (req: Request, res: Response) => {
   const newRefreshToken = await createRefreshTokenForUser(user);
 
   res.status(200).json({
+    error: null,
     data: { token: newToken, refreshToken: newRefreshToken!.token },
-    error: {},
   });
 };
 
@@ -64,8 +64,8 @@ export const refreshUserToken = async (req: Request, res: Response) => {
         || refreshTokenObj!.expirationDate < moment().unix()
   ) {
     return res.status(400).json({
-      data: {},
-      error: { code: 'INVALID_TOKEN' },
+      error: { code: 'INVALID_TOKEN', message: '' },
+      data: null,
     });
   }
 
@@ -73,8 +73,8 @@ export const refreshUserToken = async (req: Request, res: Response) => {
 
   if (!user) {
     return res.status(404).json({
-      data: {},
-      error: { code: 'USER_DOESNT_EXIST' },
+      error: { code: 'USER_DOESNT_EXIST', message: '' },
+      data: null,
     });
   }
 
@@ -82,8 +82,8 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   const newRefreshToken = await createRefreshTokenForUser(user);
 
   res.status(200).json({
+    error: null,
     data: { token: newToken, refreshToken: newRefreshToken!.token },
-    error: {},
   });
 };
 
@@ -94,6 +94,7 @@ export const logout = async (req: Request, res: Response) => {
 
   if (!deletionResult) {
     res.status(200).json({
+      error: null,
       data: {
         message: 'You can close your browser',
       },
@@ -102,11 +103,11 @@ export const logout = async (req: Request, res: Response) => {
     console.log('[ERROR] impossible to delete refresh token');
     console.log(deletionResult);
     res.status(500).json({
-      data: {},
       error: {
         code: 'UNKNOWN_ERROR',
         message: 'impossible to delete refresh token',
       },
+      data: null,
     });
   }
 };

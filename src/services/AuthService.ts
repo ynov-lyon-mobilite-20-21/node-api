@@ -20,9 +20,11 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
 
   if (!authorization) {
     res.status(401).send({
-      code: 'MISSING_AUTHORIZATION_HEADER',
-      message: 'If you are trying to access a protected route, you must be authenticated to access it.'
-        + 'The authorization header is missing.',
+      error: {
+        code: 'MISSING_AUTHORIZATION_HEADER',
+        message: 'If you are trying to access a protected route, you must be authenticated to access it.'
+      + 'The authorization header is missing.',
+      },
       data: null,
     });
     return;
@@ -32,9 +34,12 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
 
   if (!userToken) {
     res.status(401).send({
-      code: 'MISSING_TOKEN',
-      message: 'If you are trying to access a protected route, you must be authenticated to access it.'
-        + 'The token is missing in authorization header.',
+      error: {
+        code: 'MISSING_TOKEN',
+        message:
+      'If you are trying to access a protected route, you must be authenticated to access it.'
+      + 'The token is missing in authorization header.',
+      },
       data: null,
     });
     return;
@@ -44,9 +49,12 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
 
   if (!_id) {
     res.status(401).send({
-      code: 'INVALID_TOKEN',
-      message: 'If you are trying to access a protected route, you must be authenticated to access it.'
-        + "We couldn't validate your token. Maybe is expired.",
+      error: {
+        code: 'INVALID_TOKEN',
+        message:
+      'If you are trying to access a protected route, you must be authenticated to access it.'
+      + "We couldn't validate your token. Maybe is expired.",
+      },
       data: null,
     });
     return;
@@ -60,9 +68,12 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
 
   if (!user) {
     res.status(401).send({
-      code: 'INVALID_TOKEN',
-      message: 'If you are trying to access to a protected route, you must be authenticated to access it.'
-        + "We couldn't find a currentUser attach to this token. Maybe this token isn't valid anymore.",
+      error: {
+        code: 'INVALID_TOKEN',
+        message:
+      'If you are trying to access to a protected route, you must be authenticated to access it.'
+      + "We couldn't find a currentUser attach to this token. Maybe this token isn't valid anymore.",
+      },
       data: null,
     });
     return;
@@ -78,8 +89,11 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const request = req as APIRequest;
   if (!request.currentUser.isAdmin) {
     res.status(403).json({
-      code: 'UNAUTHORIZED_ACTION',
-      message: "You're trying to access to a protected route without enough permissions. Please contact administrator.",
+      error: {
+        code: 'UNAUTHORIZED_ACTION',
+        message:
+      "You're trying to access to a protected route without enough permissions. Please contact administrator.",
+      },
       data: null,
     });
     return;

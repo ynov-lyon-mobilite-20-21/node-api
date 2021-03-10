@@ -11,24 +11,24 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
 
   if (!userId) {
     res.status(400).json({
-      data: {},
-      error: { code: 'USERID_REQUIRED' },
+      error: { code: 'USERID_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!eventId) {
     res.status(400).json({
-      data: {},
-      error: { code: 'EVENTID_REQUIRED' },
+      error: { code: 'EVENTID_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!paymentId) {
     res.status(400).json({
-      data: {},
-      error: { code: 'PAYMENTID_REQUIRED' },
+      error: { code: 'PAYMENTID_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
@@ -38,8 +38,8 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
 
   if (ticket) {
     res.status(400).json({
-      data: {},
-      error: { code: 'TICKET_ALREADY_EXISTS' },
+      error: { code: 'TICKET_ALREADY_EXISTS', message: '' },
+      data: null,
     });
 
     return;
@@ -52,14 +52,15 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
 
   if (!ticket) {
     res.status(400).json({
-      data: {},
       error: { code: 'UNKNOWN_ERROR', message: 'An error has occured while ticket creation in database' },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
       code: 'OK',
       message: 'Ticket created successfully',
@@ -73,6 +74,7 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
   const tickets = await findManyBy<Ticket>({ model: TicketModel, condition: { currentUserId } });
 
   res.status(200).json({
+    error: null,
     data: tickets,
   });
 };
@@ -86,6 +88,7 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
   const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id, currentUserId } });
 
   res.status(200).json({
+    error: null,
     data: ticket,
   });
 };
@@ -105,12 +108,14 @@ export const updateTicketById = async (req: Request, res: Response): Promise<voi
         code: 'UNKNOWN_ERROR',
         message: 'Impossible to update the ticket',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
       message: 'Ticket updated successfully !',
     },
@@ -131,12 +136,14 @@ export const deleteTicketById = async (req: Request, res: Response): Promise<voi
         code: 'UNKNOWN_ERROR',
         message: 'Impossible to delete ticket',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
       message: 'Ticket deleted successfully !',
     },

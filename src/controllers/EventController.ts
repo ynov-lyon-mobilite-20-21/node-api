@@ -13,56 +13,56 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
   if (!name) {
     res.status(400).json({
-      data: {},
-      error: { code: 'NAME_REQUIRED' },
+      error: { code: 'NAME_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!type) {
     res.status(400).json({
-      data: {},
-      error: { code: 'TYPE_REQUIRED' },
+      error: { code: 'TYPE_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!date) {
     res.status(400).json({
-      data: {},
-      error: { code: 'DATE_REQUIRED' },
+      error: { code: 'DATE_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!address) {
     res.status(400).json({
-      data: {},
-      error: { code: 'ADDRESS_REQUIRED' },
+      error: { code: 'ADDRESS_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!description) {
     res.status(400).json({
-      data: {},
-      error: { code: 'DESCRIPTION_REQUIRED' },
+      error: { code: 'DESCRIPTION_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!price) {
     res.status(400).json({
-      data: {},
-      error: { code: 'PRICE_REQUIRED' },
+      error: { code: 'PRICE_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
   }
   if (!qrcode) {
     res.status(400).json({
-      data: {},
-      error: { code: 'QRCODE_REQUIRED' },
+      error: { code: 'QRCODE_REQUIRED', message: '' },
+      data: null,
     });
 
     return;
@@ -72,8 +72,8 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
   if (event) {
     res.status(400).json({
-      data: {},
-      error: { code: 'EVENT_ALREADY_EXISTS' },
+      error: { code: 'EVENT_ALREADY_EXISTS', message: '' },
+      data: null,
     });
 
     return;
@@ -90,18 +90,16 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
   if (!event) {
     res.status(500).json({
-      data: {},
       error: { code: 'UNKNOWN_ERROR', message: 'An error has occured while event creation in database' },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
-    data: {
-      code: 'OK',
-      message: 'Event created successfully',
-    },
+    error: null,
+    data: event,
   });
 };
 
@@ -109,6 +107,7 @@ export const getEvents = async (req: Request, res: Response): Promise<void> => {
   const events = await findManyBy<Event>({ model: EventModel, condition: {} });
 
   res.status(200).json({
+    error: null,
     data: events,
   });
 };
@@ -119,6 +118,7 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
   const event = await findOneBy<Event>({ model: EventModel, condition: { _id: id } });
 
   res.status(200).json({
+    error: null,
     data: event,
   });
 };
@@ -135,12 +135,14 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
         code: 'UNKNOWN_ERROR',
         message: 'Impossible to update the event',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
       message: 'Event updated successfully !',
     },
@@ -158,12 +160,14 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
         code: 'UNKNOWN_ERROR',
         message: 'Impossible to delete event',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
       message: 'Event deleted successfully !',
     },

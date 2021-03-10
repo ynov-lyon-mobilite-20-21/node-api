@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import { User } from '../models/UserModel';
-import { confirmPaymentIntent, createPaymentIntent, linkCardToCustomer } from '../services/StripeService';
+import { confirmStripePaymentIntent, createStripePaymentIntent, linkCardToCustomer } from '../services/StripeService';
 import { BasketItem } from '../models/PaymentModel';
 import {
   deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
-import { Card, CardModel } from '../models/CardtModel';
+import { Card, CardModel } from '../models/CardModel';
+import { APIRequest } from '../Interfaces/APIRequest';
 
 export const linkUserCard = async (req: Request, res: Response): Promise<void> => {
   const { stripeToken } = req.body;
@@ -16,30 +17,31 @@ export const linkUserCard = async (req: Request, res: Response): Promise<void> =
 
   if (!linkingCardRequest) {
     res.status(400).send({
-      errors: { code: 'UNKNOWN_ERROR' },
-      data: {},
+      error: { code: 'UNKNOWN_ERROR', message: '' },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: linkingCardRequest,
-    errors: {},
   });
 };
 
 export const pay = async (req: Request, res: Response): Promise<void> => {
-  // @ts-ignore
-  const { user } = req;
+  const request = req as APIRequest;
+  const user = request.currentUser as User;
+  const { currentUserId } = request;
 
   if (!req.body.products) {
     res.status(400).json({
-      data: {},
-      errors: {
+      error: {
         code: 'REQUIRED_PRODUCTS_PARAMETER',
         message: 'No required parameter named “products“ which is an array of object. These objects contain productId and quantity',
       },
+      data: null,
     });
 
     return;
@@ -49,10 +51,11 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   if (basket.length < 1) {
     res.status(400).json({
-      data: {},
-      errors: {
+      error: {
         code: 'NO_PRODUCTS',
+        message: '',
       },
+      data: null,
     });
 
     return;
@@ -79,10 +82,11 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   if (!card) {
     res.status(400).json({
-      data: {},
-      errors: {
+      error: {
         code: 'NO_AVAILABLE_CARDS',
+        message: '',
       },
+      data: null,
     });
 
     return;
@@ -93,26 +97,30 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   if (!paymentIntent) {
     res.status(400).json({
-      data: {},
-      errors: { code: 'UNKNOWN_ERROR' },
+      error: { code: 'UNKNOWN_ERROR', message: '' },
+      data: null,
     });
 
     return;
   }
 
   try {
-    const confirmation = await confirmPaymentIntent(paymentIntent);
+    const confirmation = await confirmStripePaymentIntent(paymentIntent);
     // eslint-disable-next-line no-console
     console.log(confirmation);
   } finally {
     const { id: paymentIntentId, client_secret: clientSecret } = paymentIntent;
 
+    // TODO: Create ticket with paymentIntentId
+
+    // TODO: Implement the webhook to the update ticket : https://stripe.com/docs/payments/handling-payment-events
+
     res.status(200).json({
+      error: null,
       data: {
         paymentIntentId,
         clientSecret,
       },
-      errors: {},
     });
   }
 };
@@ -124,8 +132,8 @@ export const getUserCards = async (req: Request, res: Response): Promise<void> =
   const cards = await findManyBy<Card>({ model: CardModel, condition: { userId: _id } });
 
   res.status(200).json({
+    error: null,
     data: cards,
-    errors: {},
   });
 };
 
@@ -133,14 +141,20 @@ export const removeCard = async (req: Request, res: Response): Promise<void> => 
   const { cardId } = req.params;
 
   if (!cardId) {
-    res.status(400).json({ data: {}, errors: { code: 'REQUIRED_CARD_ID_PARAMETER' } });
+    res.status(400).json({
+      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: '' },
+      data: null,
+    });
     return;
   }
 
   const deletion = await deleteOnyBy<Card>({ model: CardModel, condition: { _id: cardId } });
 
   if (!deletion) {
-    res.status(400).json({ data: {}, errors: { code: 'UNKNOWN_ERROR' } });
+    res.status(400).json({
+      error: { code: 'UNKNOWN_ERROR', message: '' },
+      data: null,
+    });
   }
 
   res.status(204).send();
@@ -150,7 +164,10 @@ export const setDefaultCard = async (req: Request, res: Response): Promise<void>
   const { cardId } = req.params;
 
   if (!cardId) {
-    res.status(400).json({ data: {}, errors: { code: 'REQUIRED_CARD_ID_PARAMETER' } });
+    res.status(400).json({
+      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: '' },
+      data: null,
+    });
     return;
   }
 
@@ -158,8 +175,18 @@ export const setDefaultCard = async (req: Request, res: Response): Promise<void>
   const update = await updateOneBy<Card>({ model: CardModel, condition: { _id: cardId }, set: { isDefaultCard: true } });
 
   if (!update) {
-    res.status(400).json({ data: {}, errors: { code: 'UNKNOWN_ERROR' } });
+    res.status(400).json({
+      error: { code: 'UNKNOWN_ERROR', message: '' },
+      data: null,
+    });
   }
 
   res.status(204).send();
+};
+
+export const paySuccess = async (req: Request, res: Response): Promise<void> => {
+  console.log(req);
+
+  res.status(200);
+  // TODO: setup redirection to universal link
 };
