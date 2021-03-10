@@ -8,8 +8,34 @@ import { User, UserModel } from '../models/UserModel';
 import { sendInactiveUserAccountExistMail, sendRegistrationMail } from '../services/MailService';
 import { createActivationKey, encryptPassword } from '../services/AuthService';
 import { createStripeCustomer } from '../services/StripeService';
+import { APIRequest } from '../Interfaces/APIRequest';
 
 export const postUser = async (req: Request, res: Response): Promise<void> => {
+  // eslint-disable-next-line guard-for-in
+  for (const jsonParamKey in req.body) {
+    switch (jsonParamKey) {
+      case 'mail':
+      case 'password':
+      case 'firstName':
+      case 'lastName':
+      case 'promotion':
+      case 'formation':
+        // eslint-disable-next-line no-continue
+        continue;
+
+      default:
+        res.status(400).json({
+          data: {},
+          error: {
+            code: 'MALFORMED_JSON',
+            message: 'Your body contain other fields than those expected.',
+            acceptedFields: 'mail, password, firstName, lastName, promotion, formation',
+          },
+        });
+        return;
+    }
+  }
+
   const {
     mail, password, firstName, lastName, promotion, formation,
   } = req.body;
