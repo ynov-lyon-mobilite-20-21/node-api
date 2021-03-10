@@ -45,6 +45,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     return;
   }
 
+  // TODO: check JWT implementation (SECRET KEY. A logged out user can use his token for a long time)
   const { _id } = await jwt.verify(userToken, SECRET_KEY!) as JWTToken;
 
   if (!_id) {
