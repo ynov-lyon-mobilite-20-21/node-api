@@ -225,6 +225,18 @@ export const postUser = async (req: Request, res: Response): Promise<void> => {
 export const userActivation = async (req: Request, res: Response): Promise<void> => {
   const { activationKey } = req.params;
 
+  if (!activationKey) {
+    res.status(400).json({
+      data: {},
+      error: {
+        code: 'ACTIVATION_KEY_REQUIRED',
+        message: 'The activation key is missing. Please check your link.',
+      },
+    });
+
+    return;
+  }
+
   const user = await findOneBy<User>({ model: UserModel, condition: { activationKey } });
 
   if (!user) {
@@ -251,9 +263,9 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  const customer = await createStripeCustomer(user);
+  const stripeCustomer = await createStripeCustomer(user);
 
-  if (!customer) {
+  if (!stripeCustomer) {
     res.status(500).json({
       data: {},
       error: {
@@ -265,7 +277,7 @@ export const userActivation = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  const { id: stripeId } = customer;
+  const { id: stripeId } = stripeCustomer;
 
   await updateOneBy<User>({
     model: UserModel,
