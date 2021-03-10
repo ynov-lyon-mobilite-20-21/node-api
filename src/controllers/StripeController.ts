@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import { User } from '../models/UserModel';
-import { confirmStripePaymentIntent, createStripePaymentIntent, linkCardToCustomer } from '../services/StripeService';
-import { BasketItem } from '../models/StripePaymentModel';
+import { linkCardToCustomer } from '../services/StripeService';
 import {
-  deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
+  deleteOnyBy, findManyBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
 import { Card, CardModel } from '../models/CardModel';
 import { APIRequest } from '../Interfaces/APIRequest';
