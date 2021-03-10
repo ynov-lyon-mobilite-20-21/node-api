@@ -28,6 +28,10 @@ export async function linkCardToCustomer(user: User, stripeCardId: string): Prom
   try {
     const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
+    if (!userCards) {
+      return null;
+    }
+
     const {
       id: stripeSourceCardId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
     } = await stripe.customers.createSource(user.stripeId, {
