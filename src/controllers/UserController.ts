@@ -2,7 +2,12 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
 import {
-  deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
+  findOneBy,
+  findManyBy,
+  updateOneBy,
+  saveData,
+  deleteOnyBy,
+  deleteManyBy,
 } from '../services/MongooseService';
 import { User, UserModel } from '../models/UserModel';
 import { sendInactiveUserAccountExistMail, sendRegistrationMail } from '../services/MailService';
@@ -476,6 +481,19 @@ export const deleteCurrentUser = async (req: Request, res: Response): Promise<vo
     return;
   }
 
+  const deletedRefreshTokens = await deleteManyBy({ model: UserModel, condition: { userId: request.currentUserId } });
+
+  if (!deletedRefreshTokens) {
+    res.status(500).json({
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An unknown error has occurs while deleting the user refreshTokens.',
+      },
+    });
+    return;
+  }
+
   res.status(204).send();
 };
 
@@ -492,6 +510,19 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
         message: 'An unknown error has occurs while deleting the user.',
       },
       data: null,
+    });
+    return;
+  }
+
+  const deletedRefreshTokens = await deleteManyBy({ model: UserModel, condition: { userId } });
+
+  if (!deletedRefreshTokens) {
+    res.status(500).json({
+      data: null,
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An unknown error has occurs while deleting the user refreshTokens.',
+      },
     });
     return;
   }
