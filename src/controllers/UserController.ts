@@ -346,7 +346,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 export const updateCurrentUser = async (req: Request, res: Response): Promise<void> => {
   const request = req as APIRequest;
 
-  // eslint-disable-next-line guard-for-in
+  // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
       case 'mail':
@@ -407,7 +407,7 @@ export const updateCurrentUser = async (req: Request, res: Response): Promise<vo
 export const updateUserById = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.params;
 
-  // eslint-disable-next-line guard-for-in
+  // eslint-disable-next-line guard-for-in,no-restricted-syntax
   for (const jsonParamKey in req.body) {
     switch (jsonParamKey) {
       case 'mail':
