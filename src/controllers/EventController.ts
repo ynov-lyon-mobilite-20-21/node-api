@@ -1,79 +1,143 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/camelcase */
 import { Request, Response } from 'express';
 import {
-  deleteOnyBy,
-  findManyBy, findOneBy, saveData, updateOneBy,
+  deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { Event, EventModel } from '../models/EventModel';
+import { APIRequest } from '../Interfaces/APIRequest';
+import { Card, CardModel } from '../models/CardModel';
+import { confirmStripePaymentIntent, createStripePaymentIntent } from '../services/StripeService';
+import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
+import { Ticket, TicketModel } from '../models/TicketModel';
 
-export const createEvent = async (req: Request, res: Response): Promise<void> => {
+// [POST] Protected : isAuthenticated + isAdmin
+export const createNewEvent = async (req: Request, res: Response): Promise<void> => {
+  // eslint-disable-next-line guard-for-in,no-restricted-syntax
+  for (const jsonParamKey in req.body) {
+    switch (jsonParamKey) {
+      case 'name':
+      case 'type':
+      case 'imgType':
+      case 'date':
+      case 'address':
+      case 'description':
+      case 'price':
+        // eslint-disable-next-line no-continue
+        continue;
+
+      default:
+        res.status(400).json({
+          error: {
+            code: 'MALFORMED_JSON',
+            message: 'Your body contain other fields than those expected.',
+            acceptedFields: 'name, type, imgType, date, address, description, price',
+          },
+          data: null,
+        });
+        return;
+    }
+  }
+
   const {
-    name, type, date, address, description, price, qrcode,
+    name, type, imgType, date, address, description, price,
   } = req.body;
 
   if (!name) {
     res.status(400).json({
-      data: {},
-      error: { code: 'NAME_REQUIRED' },
+      error: {
+        code: 'NAME_REQUIRED',
+        message: 'Please fill name field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
+
   if (!type) {
     res.status(400).json({
-      data: {},
-      error: { code: 'TYPE_REQUIRED' },
+      error: {
+        code: 'TYPE_REQUIRED',
+        message: 'Please fill type field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
+  // TODO: add type enum check
+
+  if (!imgType) {
+    res.status(400).json({
+      error: {
+        code: 'IMG_TYPE_REQUIRED',
+        message: 'Please fill imgType field, this field is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
   if (!date) {
     res.status(400).json({
-      data: {},
-      error: { code: 'DATE_REQUIRED' },
+      error: {
+        code: 'DATE_REQUIRED',
+        message: 'Please fill date field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
+  // TODO: add check on date format
+
   if (!address) {
     res.status(400).json({
-      data: {},
-      error: { code: 'ADDRESS_REQUIRED' },
+      error: {
+        code: 'ADDRESS_REQUIRED',
+        message: 'Please fill address field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
+
   if (!description) {
     res.status(400).json({
-      data: {},
-      error: { code: 'DESCRIPTION_REQUIRED' },
+      error: {
+        code: 'DESCRIPTION_REQUIRED',
+        message: 'Please fill description field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
+
   if (!price) {
     res.status(400).json({
-      data: {},
-      error: { code: 'PRICE_REQUIRED' },
+      error: {
+        code: 'PRICE_REQUIRED',
+        message: 'Please fill price field, this field is required.',
+      },
+      data: null,
     });
 
     return;
   }
-  if (!qrcode) {
-    res.status(400).json({
-      data: {},
-      error: { code: 'QRCODE_REQUIRED' },
-    });
+  // TODO: add a check to price (must be in cents)
 
-    return;
-  }
-
-  let event = await findOneBy<Event>({ model: EventModel, condition: { name } });
+  const event = await findOneBy<Event>({ model: EventModel, condition: { name } });
 
   if (event) {
     res.status(400).json({
-      data: {},
-      error: { code: 'EVENT_ALREADY_EXISTS' },
+      error: {
+        code: 'EVENT_ALREADY_EXISTS',
+        message: 'An event with the same name already exists. It is not possible to have multiple event with the same name.',
+      },
+      data: null,
     });
 
     return;
@@ -81,91 +145,341 @@ export const createEvent = async (req: Request, res: Response): Promise<void> =>
 
   const typedDate = new Date(date);
 
-  event = await saveData<Event>({
-    model: EventModel,
-    params: {
-      name, type, dateFormated: typedDate, address, description, price, qrcode,
-    },
-  });
+  let newEvent = null;
+  try {
+    newEvent = await saveData<Event>({
+      model: EventModel,
+      params: {
+        name, type, imgType, date: typedDate, address, description, price,
+      },
+    });
+  } catch (e) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while saving event in database. A field does not appear to have an acceptable value or type.',
+      },
+      data: null,
+    });
 
-  if (!event) {
-    res.status(400).json({
-      data: {},
-      error: { code: 'UNKNOWN_ERROR', message: 'An error has occured while event creation in database' },
+    return;
+  }
+
+  // TODO: implement product declaration on stripe
+  // https://stripe.com/docs/api/products?lang=node
+
+  if (!newEvent) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while saving event in database.',
+      },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
-    data: {
-      code: 'OK',
-      message: 'Event created successfully',
-    },
+    error: null,
+    data: newEvent,
   });
 };
 
-export const getEvents = async (req: Request, res: Response): Promise<void> => {
+// [GET]
+export const getAllEvents = async (req: Request, res: Response): Promise<void> => {
   const events = await findManyBy<Event>({ model: EventModel, condition: {} });
 
   res.status(200).json({
+    error: null,
     data: events,
   });
 };
 
+// [GET]
 export const getEventById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: eventId } = req.params;
 
-  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: id } });
+  if (!eventId) {
+    res.status(400).json({
+      error: {
+        code: 'EVENT_ID_REQUIRED',
+        message: 'Please give the event ID in URL, this is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId } });
+
+  if (!event) {
+    res.status(404).json({
+      error: {
+        code: 'EVENT_NOT_FOUND',
+        message: 'No event found for this id.',
+      },
+      data: null,
+    });
+    return;
+  }
 
   res.status(200).json({
+    error: null,
     data: event,
   });
 };
 
+// [PUT] Protected : isAuthenticated + isAdmin
 export const updateEventById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: eventId } = req.params;
+
+  if (!eventId) {
+    res.status(400).json({
+      error: {
+        code: 'EVENTID_REQUIRED',
+        message: 'Please give the event ID in URL, this is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  // eslint-disable-next-line guard-for-in,no-restricted-syntax
+  for (const jsonParamKey in req.body) {
+    switch (jsonParamKey) {
+      case 'name':
+      case 'type':
+      case 'imgType':
+      case 'date':
+      case 'address':
+      case 'description':
+      case 'price':
+        // eslint-disable-next-line no-continue
+        continue;
+
+      default:
+        res.status(400).json({
+          error: {
+            code: 'MALFORMED_JSON',
+            message: 'Your body contain other fields than those expected.',
+            acceptedFields: 'name, type, imgType, date, address, description, price',
+          },
+          data: null,
+        });
+        return;
+    }
+  }
+
   const event = req.body;
 
-  const updatedEvent = await updateOneBy<Event>({ model: EventModel, condition: { _id: id }, set: event });
+  const updatedEvent = await updateOneBy<Event>({ model: EventModel, condition: { _id: eventId }, update: event });
 
   if (!updatedEvent) {
     res.status(500).json({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: 'Impossible to update the event',
+        message: 'An error has occurred while updating the event',
       },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
-    data: {
-      message: 'Event updated successfully !',
-    },
+    error: null,
+    data: updatedEvent,
   });
 };
 
+// [DELETE] Protected : isAuthenticated + isAdmin
 export const deleteEventById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: eventId } = req.params;
 
-  const event = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: id } });
+  if (!eventId) {
+    res.status(400).json({
+      error: {
+        code: 'EVENTID_REQUIRED',
+        message: 'Please give the event ID in URL, this is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const deleteEvent = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: eventId } });
+
+  if (!deleteEvent) {
+    res.status(404).json({
+      error: {
+        code: 'EVENT_NOT_FOUND',
+        message: 'An unknown error has occurs while deleting the event. It seems that your event does not exist.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  res.status(204).send();
+};
+
+// [POST] Protected : isAuthenticated
+export const pay = async (req: Request, res: Response): Promise<void> => {
+  const request = req as APIRequest;
+  const { currentUser, currentUserId } = request;
+  const { id: eventId } = request.params;
+
+  if (!eventId) {
+    res.status(400).json({
+      error: {
+        code: 'EVENT_ID_REQUIRED',
+        message: 'Please fill the event field, this field is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId } });
 
   if (!event) {
+    res.status(404).json({
+      error: {
+        code: 'EVENT_NOT_FOUND',
+        message: 'No event found with the given id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  let card;
+
+  // eslint-disable-next-line no-prototype-builtins
+  if (!request.body.hasOwnProperty('cardId')) {
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { userId: currentUserId, isDefaultCard: true },
+    });
+  } else {
+    const { cardId } = request.body.cardId;
+    card = await findOneBy<Card>({
+      model: CardModel,
+      condition: { _id: cardId, currentUserId },
+    });
+
+    if (!card) {
+      res.status(400).json({
+        error: {
+          code: 'CARD_NOT_FOUND',
+          message: 'No card found for the user with this card id.',
+        },
+        data: null,
+      });
+
+      return;
+    }
+  }
+
+  if (!card) {
+    res.status(400).json({
+      error: {
+        code: 'NO_CARDS_AVAILABLE',
+        message: 'It seems that the current user has no default card. Please try to add one or specify a card id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  // TODO: Implement stripe invoice generation with event stripe product
+
+  const paymentIntent = await createStripePaymentIntent(currentUser, card.stripeId, event.price); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
+
+  if (!paymentIntent) {
+    res.status(400).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An an error occurred while ',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const payment = await saveData<StripePayment>({
+    model: StripePaymentModel,
+    params: {
+      intentId: paymentIntent.id,
+      userId: currentUserId,
+      createdAt: new Date(paymentIntent.created),
+      amount: paymentIntent.amount / 100,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status,
+    },
+  });
+
+  if (!payment) {
     res.status(500).json({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: 'Impossible to delete event',
+        message: 'An error has occurred while saving the payment in our database.',
       },
+      data: null,
+    });
+    return;
+  }
+
+  try {
+    await confirmStripePaymentIntent(paymentIntent);
+  } catch (e) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while confirm the payment intent.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const ticket = await saveData<Ticket>({
+    model: TicketModel,
+    params: {
+      userId: currentUserId,
+      eventId: event._id,
+      paymentId: payment.id,
+      currency: paymentIntent.currency,
+    },
+  });
+
+  if (!ticket) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while saving the ticket in our database.',
+      },
+      data: null,
     });
 
     return;
   }
 
   res.status(200).json({
+    error: null,
     data: {
-      message: 'Event deleted successfully !',
+      paymentIntentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
     },
   });
 };

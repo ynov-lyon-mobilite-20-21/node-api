@@ -3,9 +3,10 @@ import {
 } from 'mongoose';
 
 const TicketSchema = new Schema({
-  userId: { type: 'string' },
-  eventId: { type: 'string' },
+  userId: { type: 'string', required: true },
+  eventId: { type: 'string', required: true },
   paymentId: { type: 'string' },
+  isValid: { type: 'boolean', required: true, default: false },
   validationCount: { type: 'number', default: 0 },
   __v: { type: Number, select: false },
 });
@@ -15,6 +16,7 @@ export interface Ticket extends Document {
   userId: string;
   eventId: string;
   paymentId: string;
+  isValid: boolean;
   validation_count: number;
 }
 

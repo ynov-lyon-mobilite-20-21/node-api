@@ -12,14 +12,14 @@ export const postImage = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(400).json({
-      data: {},
-      error: { code: 'UNKNOWN_ERROR' },
+      error: { code: 'UNKNOWN_ERROR', message: 'An error occurred while saving the image.' },
+      data: null,
     });
   }
 
   res.status(200).json({
+    error: null,
     data: image,
-    error: {},
   });
 };
 
@@ -29,14 +29,14 @@ export const getOneImageById = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(404).send({
-      data: {},
-      error: { code: 'INVALID_IMAGE_ID' },
+      error: { code: 'INVALID_IMAGE_ID', message: 'Please fill the image field, this is required.' },
+      data: null,
     });
   }
 
   res.status(200).json({
+    error: null,
     data: image,
-    error: {},
   });
 };
 
@@ -46,8 +46,8 @@ export const deleteImageById = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(400).send({
-      data: {},
-      error: { code: 'UNKNOWN_ERROR' },
+      error: { code: 'UNKNOWN_ERROR', message: 'An error occurred while deleting the image.' },
+      data: null,
     });
   }
 
@@ -58,7 +58,7 @@ export const getAllImages = async (req: Request, res: Response) => {
   const images = await findManyBy<Image>({ model: ImageModel, condition: {} });
 
   res.status(200).json({
+    error: null,
     data: images,
-    error: {},
   });
 };
