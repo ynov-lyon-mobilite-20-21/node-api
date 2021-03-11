@@ -156,7 +156,7 @@ export const createNewEvent = async (req: Request, res: Response): Promise<void>
   } catch (e) {
     res.status(500).json({
       error: {
-        code: 'MALFORMED_JSON',
+        code: 'UNKNOWN_ERROR',
         message: 'An error has occurred while saving event in database. A field does not appear to have an acceptable value or type.',
       },
       data: null,
@@ -203,7 +203,7 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
   if (!eventId) {
     res.status(400).json({
       error: {
-        code: 'EVENTID_REQUIRED',
+        code: 'EVENT_ID_REQUIRED',
         message: 'Please give the event ID in URL, this is required.',
       },
       data: null,
@@ -408,7 +408,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: '',
+        message: 'An an error occurred while ',
       },
       data: null,
     });

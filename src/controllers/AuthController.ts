@@ -126,9 +126,9 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   if (!refreshTokenObj
     || (!refreshTokenObj.isActive || refreshTokenObj.expirationDate < moment().unix())
   ) {
-    res.status(400).json({
+    res.status(404).json({
       error: {
-        code: 'INVALID_TOKEN',
+        code: 'TOKEN_NOT_FOUND',
         message: 'Your refresh token is invalid or has expired.',
       },
       data: null,
@@ -140,7 +140,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   const user = await findOneBy<User>({ model: UserModel, condition: { _id: refreshTokenObj.userId } });
 
   if (!user) {
-    res.status(404).json({
+    res.status(400).json({
       error: {
         code: 'USER_NOT_FOUND',
         message: 'We did not foud any user attach to this refresh token.',

@@ -12,7 +12,7 @@ export const postImage = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(400).json({
-      error: { code: 'UNKNOWN_ERROR', message: '' },
+      error: { code: 'UNKNOWN_ERROR', message: 'An error occurred while saving the image.' },
       data: null,
     });
   }
@@ -29,7 +29,7 @@ export const getOneImageById = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(404).send({
-      error: { code: 'INVALID_IMAGE_ID', message: '' },
+      error: { code: 'INVALID_IMAGE_ID', message: 'Please fill the image field, this is required.' },
       data: null,
     });
   }
@@ -46,7 +46,7 @@ export const deleteImageById = async (req: Request, res: Response) => {
 
   if (!image) {
     return res.status(400).send({
-      error: { code: 'UNKNOWN_ERROR', message: '' },
+      error: { code: 'UNKNOWN_ERROR', message: 'An error occurred while deleting the image.' },
       data: null,
     });
   }

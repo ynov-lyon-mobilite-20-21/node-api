@@ -113,9 +113,9 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
 
 // [GET] Shields : isAuthenticated
 export const getCurrentUserTicketById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: ticketId } = req.params;
 
-  if (!id) {
+  if (!ticketId) {
     res.status(400).json({
       error: {
         code: 'TICKET_ID_REQUIRED',
@@ -130,7 +130,7 @@ export const getCurrentUserTicketById = async (req: Request, res: Response): Pro
   const request = req as APIRequest;
   const { currentUserId } = request;
 
-  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id, userId: currentUserId } });
+  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId, userId: currentUserId } });
 
   res.status(200).json({
     error: null,
@@ -140,9 +140,9 @@ export const getCurrentUserTicketById = async (req: Request, res: Response): Pro
 
 // [GET] Shields : isAuthenticated + isAdmin
 export const getTicketById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: ticketId } = req.params;
 
-  if (!id) {
+  if (!ticketId) {
     res.status(400).json({
       error: {
         code: 'TICKET_ID_REQUIRED',
@@ -154,7 +154,7 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id } });
+  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId } });
 
   res.status(200).json({
     error: null,
@@ -270,9 +270,9 @@ export const deleteTicketById = async (req: Request, res: Response): Promise<voi
 
 // [GET] Shields : isAuthenticated + isAdmin
 export const checkTicketById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const { id: ticketId } = req.params;
 
-  if (!id) {
+  if (!ticketId) {
     res.status(400).json({
       error: {
         code: 'TICKET_ID_REQUIRED',
@@ -284,7 +284,7 @@ export const checkTicketById = async (req: Request, res: Response): Promise<void
     return;
   }
 
-  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: id } });
+  const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId } });
 
   if (!ticket) {
     res.status(404).json({

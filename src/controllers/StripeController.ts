@@ -39,10 +39,10 @@ export const linkCardToCurrentUser = async (req: Request, res: Response): Promis
   }
 
   if (!linkedCard) {
-    res.status(400).send({
+    res.status(500).send({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: '',
+        message: 'An error has occurred while link the card to the customer.',
       },
       data: null,
     });
@@ -167,7 +167,7 @@ export const removeCardForCurrentUser = async (req: Request, res: Response): Pro
 
   if (!cardId) {
     res.status(400).json({
-      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: '' },
+      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: 'Please fill the field cardId, this is required.' },
       data: null,
     });
     return;
@@ -177,7 +177,7 @@ export const removeCardForCurrentUser = async (req: Request, res: Response): Pro
 
   if (!deletion) {
     res.status(400).json({
-      error: { code: 'UNKNOWN_ERROR', message: '' },
+      error: { code: 'UNKNOWN_ERROR', message: 'An error has occurred while deleting the card. It is possible that the card does not exist.' },
       data: null,
     });
   }
@@ -190,7 +190,7 @@ export const setDefaultCardForCurrentUser = async (req: Request, res: Response):
 
   if (!cardId) {
     res.status(400).json({
-      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: '' },
+      error: { code: 'REQUIRED_CARD_ID_PARAMETER', message: 'Please fill the field cardId, this is required.' },
       data: null,
     });
     return;
@@ -200,18 +200,11 @@ export const setDefaultCardForCurrentUser = async (req: Request, res: Response):
   const update = await updateOneBy<Card>({ model: CardModel, condition: { _id: cardId }, update: { isDefaultCard: true } });
 
   if (!update) {
-    res.status(400).json({
-      error: { code: 'UNKNOWN_ERROR', message: '' },
+    res.status(500).json({
+      error: { code: 'UNKNOWN_ERROR', message: 'An error occurred while updating the card' },
       data: null,
     });
   }
 
   res.status(204).send();
-};
-
-export const paySuccess = async (req: Request, res: Response): Promise<void> => {
-  console.log(req);
-
-  res.status(200);
-  // TODO: setup redirection to universal link
 };

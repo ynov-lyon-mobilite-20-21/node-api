@@ -236,6 +236,7 @@ export const createNewUser = async (req: Request, res: Response): Promise<void> 
 };
 
 // [GET]
+// TODO: replace errors by request params to pass to applications
 export const activateUser = async (req: Request, res: Response): Promise<void> => {
   const { activationKey } = req.params;
 
@@ -318,7 +319,7 @@ export const activateUser = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  res.redirect('https://via.placeholder.com/414x736?text=Application+redirection'); // TODO: update redirection
+  res.redirect(`${process.env.ENDPOINT_APP}`); // TODO: update redirection
 };
 
 // [GET] Protected : isAuthenticated
@@ -345,11 +346,24 @@ export const getUsersInfos = async (req: Request, res: Response): Promise<void> 
 
 // [GET] Protected : isAuthenticated + isAdmin
 export const getUserInfosById = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
-  const user = await findOneBy<User>({ model: UserModel, condition: { _id: id }, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
+  const { id: userId } = req.params;
+
+  if (!userId) {
+    res.status(404).json({
+      error: {
+        code: 'USER_ID_REQUIRED',
+        message: 'Please give the userId in URL parameters. This is required.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const user = await findOneBy<User>({ model: UserModel, condition: { _id: userId }, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
 
   if (!user) {
-    res.status(400).json({
+    res.status(404).json({
       error: {
         code: 'UNKNOWN_USER',
         message: 'We did not find a user for this ID.',
