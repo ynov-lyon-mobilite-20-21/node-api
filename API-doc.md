@@ -868,16 +868,13 @@ Errors:
 
 **URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/events`
 
-**Authentication required** : `true`
+**Authentication required** : `false`
 
 **Method** : `GET`
 
 
 #### Headers
-| Key | Expected value | Required | Description |
-| --- | --- | --- | --- |
-| Authorization | `bearer TOKEN` | yes | Allow you to prove that you have the authorization to access to this route |
-
+No headers specified.
 
 
 #### Body
@@ -938,15 +935,13 @@ No errors returned.
 
 **URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/events/EVENT_ID`
 
-**Authentication required** : `true`
+**Authentication required** : `false`
 
 **Method** : `GET`
 
 
 #### Headers
-| Key | Expected value | Required | Description |
-| --- | --- | --- | --- |
-| Authorization | `bearer TOKEN` | yes | Allow you to prove that you have the authorization to access to this route |
+No headers specified.
 
 
 
