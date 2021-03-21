@@ -234,7 +234,7 @@ Errors:
 
 > Generate new Token when it expire with the Refresh Token.
 
-**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/refresh`
+**URI** : `https://lyon-ynov-bde-api.herokuapp.com/api/auth/refreshToken`
 
 **Authentication required** : `false`
 
