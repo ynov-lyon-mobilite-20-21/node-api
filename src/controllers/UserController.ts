@@ -519,6 +519,8 @@ export const deleteCurrentUser = async (req: Request, res: Response): Promise<vo
 
   await deleteManyBy({ model: RefreshTokenModel, condition: { userId: request.currentUserId } });
 
+  // TODO: delete also user tickets
+
   res.status(204).send();
 };
 
@@ -540,6 +542,8 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
   }
 
   await deleteManyBy({ model: RefreshTokenModel, condition: { userId } });
+
+  // TODO: delete also user tickets
 
   res.status(204).send();
 };
