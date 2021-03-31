@@ -8,6 +8,8 @@ import { Ticket, TicketModel } from '../models/TicketModel';
 import { APIRequest } from '../Interfaces/APIRequest';
 import { User, UserModel } from '../models/UserModel';
 
+const ticketQrCodeDiscriminant = 'bde_';
+
 // [POST] Shields : isAuthenticated + isAdmin
 export const createTicket = async (req: Request, res: Response): Promise<void> => {
   const { userId, eventId, paymentId } = req.body;
@@ -112,7 +114,7 @@ export const getCurrentUserTickets = async (req: Request, res: Response): Promis
 
     tickets[ticketIndex] = {
       ...currentTicket._doc,
-      qrCodeString: `bde_${currentTicket._id}`,
+      qrCodeString: `${ticketQrCodeDiscriminant}${currentTicket._id}`,
     };
   }
 
@@ -143,7 +145,7 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
 
     tickets[ticketIndex] = {
       ...currentTicket._doc,
-      qrCodeString: `bde_${currentTicket._id}`,
+      qrCodeString: `${ticketQrCodeDiscriminant}${currentTicket._id}`,
     };
   }
 
@@ -190,7 +192,7 @@ export const getCurrentUserTicketById = async (req: Request, res: Response): Pro
     error: null,
     data: {
       ...ticket._doc,
-      qrCodeString: `bde_${ticket._id}`,
+      qrCodeString: `${ticketQrCodeDiscriminant}${ticket._id}`,
     },
   });
 };
@@ -229,7 +231,7 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
     error: null,
     data: {
       ...ticket._doc,
-      qrCodeString: `bde_${ticket._id}`,
+      qrCodeString: `${ticketQrCodeDiscriminant}${ticket._id}`,
     },
   });
 };
