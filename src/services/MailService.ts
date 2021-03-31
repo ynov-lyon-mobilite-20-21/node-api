@@ -2,13 +2,24 @@ import NodeMailer, { SendMailOptions } from 'nodemailer';
 import handlebars from 'handlebars';
 import fs from 'fs';
 
-const { ENDPOINT_API, GMAIL_ADDRESS, GMAIL_PASSWORD } = process.env;
+const { ENDPOINT_API, EMAIL_ADDRESS, EMAIL_PASSWORD } = process.env;
 
+// const mailer = NodeMailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: GMAIL_ADDRESS,
+//     pass: GMAIL_PASSWORD,
+//   },
+// });
+
+// Change email sending to Ynov's SMTP
 const mailer = NodeMailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.free.fr',
+  port: 465,
+  secure: true, // upgrade later with STARTTLS
   auth: {
-    user: GMAIL_ADDRESS,
-    pass: GMAIL_PASSWORD,
+    user: EMAIL_ADDRESS,
+    pass: EMAIL_PASSWORD,
   },
 });
 
