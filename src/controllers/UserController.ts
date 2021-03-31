@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import {
-  findOneBy,
-  findManyBy,
-  updateOneBy,
-  saveData,
-  deleteOnyBy,
-  deleteManyBy,
+  deleteManyBy, deleteOnyBy, findManyBy, findOneBy, saveData, updateOneBy,
 } from '../services/MongooseService';
 import { User, UserModel } from '../models/UserModel';
 import { sendInactiveUserAccountExistMail, sendRegistrationMail } from '../services/MailService';
@@ -139,7 +134,6 @@ export const createNewUser = async (req: Request, res: Response): Promise<void> 
     const isEmailSentSuccessfully = await sendInactiveUserAccountExistMail(user.mail, newActivationKey);
 
     if (!isEmailSentSuccessfully) {
-      console.log(isEmailSentSuccessfully);
       res.status(500).json({
         error: {
           code: 'UNKNOWN_ERROR',
@@ -336,7 +330,11 @@ export const getCurrentUserInfos = async (req: Request, res: Response): Promise<
 
 // [GET] Protected : isAuthenticated + isAdmin
 export const getUsersInfos = async (req: Request, res: Response): Promise<void> => {
-  const users = await findManyBy<User>({ model: UserModel, condition: {}, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
+  const users = await findManyBy<User>({
+    model: UserModel,
+    condition: {},
+    hiddenPropertiesToSelect: ['registrationDate', 'validationDate'],
+  });
 
   res.status(200).json({
     error: null,
@@ -360,7 +358,11 @@ export const getUserInfosById = async (req: Request, res: Response): Promise<voi
     return;
   }
 
-  const user = await findOneBy<User>({ model: UserModel, condition: { _id: userId }, hiddenPropertiesToSelect: ['registrationDate', 'validationDate'] });
+  const user = await findOneBy<User>({
+    model: UserModel,
+    condition: { _id: userId },
+    hiddenPropertiesToSelect: ['registrationDate', 'validationDate'],
+  });
 
   if (!user) {
     res.status(404).json({
