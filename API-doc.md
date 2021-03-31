@@ -1152,7 +1152,7 @@ Errors:
 | Key | Expected value | Required | Description |
 | --- | --- | --- | --- |
 | Content-Type | application/json | No | Specify the body content type. This api accept only JSON. |
-| Authorization | `bearer TOKEN` | yes | Allow you to prove that you have the authorization to access to this route |
+| Authorization | Basic with api key as user | yes | Allow you to prove that you have the authorization to access to this route |
 
 
 
