@@ -30,35 +30,35 @@ export async function createStripeCustomer(user: User): Promise<Stripe.Customer 
 }
 
 export async function linkCardToCustomer(user: User, stripeId: string): Promise<Card | null | boolean> {
-  try {
-    const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
+  const userCards = await findManyBy<Card>({ model: CardModel, condition: { userId: user._id } });
 
-    const card = await findOneBy<Card>({ model: CardModel, condition: { stripeId } });
+  const card = await findOneBy<Card>({ model: CardModel, condition: { stripeId } });
 
-    if (card) { // If there is already a card saved with this stripe id
-      return null;
-    }
-
-    const {
-      id: stripeSourceCardId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
-    } = await stripe.customers.createSource(user.stripeId, { source: stripeId }) as Stripe.Card;
-
-    return await saveData<Card>({
-      model: CardModel,
-      params: {
-        stripeId: stripeSourceCardId,
-        userId: user._id,
-        name,
-        last4,
-        expMonth,
-        expYear,
-        brand,
-        isDefaultCard: !!(userCards && userCards.length < 1), // userCards ? true : false
-      },
-    });
-  } catch (e) {
-    return false;
+  if (card) { // If there is already a card saved with this stripe id
+    throw new Error('This card has already been linked to a user.');
   }
+
+  if (!user.stripeId) {
+    throw new Error('User stripeId is null.');
+  }
+
+  const {
+    id: stripeSourceCardId, exp_month: expMonth, exp_year: expYear, last4, name, brand,
+  } = await stripe.customers.createSource(user.stripeId, { source: stripeId }) as Stripe.Card;
+
+  return saveData<Card>({
+    model: CardModel,
+    params: {
+      stripeId: stripeSourceCardId,
+      userId: user._id,
+      name,
+      last4,
+      expMonth,
+      expYear,
+      brand,
+      isDefaultCard: !!(userCards && userCards.length < 1), // userCards ? true : false
+    },
+  });
 }
 
 // TODO: createStripeInvoice cf. https://stripe.com/docs/api/invoices?lang=node

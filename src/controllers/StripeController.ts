@@ -46,13 +46,14 @@ export const linkCardToCurrentUser = async (req: Request, res: Response): Promis
     return;
   }
 
-  const linkedCard = await linkCardToCustomer(request.currentUser, stripeId);
-
-  if (linkedCard === null) {
+  let linkedCard;
+  try {
+    linkedCard = await linkCardToCustomer(request.currentUser, stripeId);
+  } catch (e) {
     res.status(400).send({
       error: {
-        code: 'CARD_ALREADY_LINKED',
-        message: 'A card with the same id is already linked.',
+        code: 'CARD_LINKING_ERROR',
+        message: e.message,
       },
       data: null,
     });
@@ -64,7 +65,7 @@ export const linkCardToCurrentUser = async (req: Request, res: Response): Promis
     res.status(500).send({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: 'An error has occurred while link the card to the customer.',
+        message: 'An unknown error has occurred while link the card to the customer.',
       },
       data: null,
     });
