@@ -46,9 +46,14 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
   }
 
   // TODO: check JWT implementation (SECRET KEY. A logged out user can use his token for a long time)
-  const { _id } = await jwt.verify(userToken, SECRET_KEY!) as JWTToken;
+  let userDecodedToken;
+  try {
+    userDecodedToken = await jwt.verify(userToken, SECRET_KEY!) as JWTToken;
+  } catch (e) {
+    userDecodedToken = null;
+  }
 
-  if (!_id) {
+  if (!userDecodedToken) {
     res.status(401).send({
       error: {
         code: 'INVALID_TOKEN',
@@ -63,7 +68,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
 
   const user = await findOneBy<User>({
     model: UserModel,
-    condition: { _id },
+    condition: { _id: userDecodedToken._id },
     hiddenPropertiesToSelect: ['stripeId', 'stripeSourceId'],
   });
 
@@ -80,7 +85,7 @@ const isAuthenticated = async (req: Request, res: Response, next: NextFunction) 
     return;
   }
 
-  request.currentUserId = _id;
+  request.currentUserId = userDecodedToken;
   request.currentUser = user;
 
   next();
