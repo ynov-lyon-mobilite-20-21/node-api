@@ -1,5 +1,5 @@
 import {
-  Document, Model, model, Schema,
+  Document, Model, model, MongooseDocument, Schema,
 } from 'mongoose';
 
 const TicketSchema = new Schema({
@@ -12,13 +12,14 @@ const TicketSchema = new Schema({
 });
 
 export interface Ticket extends Document {
-  _doc: object; // The document data on destructuring
+  _doc: any; // The document data on destructuring
   _id: string;
   userId: string;
   eventId: string;
   paymentId: string;
   isValid: boolean;
   validation_count: number;
+  qrCodeString?: string;
 }
 
 export const TicketModel: Model<Ticket> = model<Ticket>('Ticket', TicketSchema);

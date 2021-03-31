@@ -1529,14 +1529,16 @@ No body required for this request.
           "_id": "",
           "userId": "",
           "eventId": "",
-          "paymentId": "" | null
+          "paymentId": "" | null,
+          "qrCodeString": "", // bde_{_id}
       },
       {
           "validationCount": 0,
           "_id": "",
           "userId": "",
           "eventId": "",
-          "paymentId": "" | null
+          "paymentId": "" | null,
+          "qrCodeString": "", // bde_{_id}
       }
   ]
 }
@@ -1582,14 +1584,16 @@ No body required for this request.
           "_id": "",
           "userId": "",
           "eventId": "",
-          "paymentId": "" | null
+          "paymentId": "" | null,
+          "qrCodeString": "", // bde_{_id}
       },
       {
           "validationCount": 0,
           "_id": "",
           "userId": "",
           "eventId": "",
-          "paymentId": "" | null
+          "paymentId": "" | null,
+          "qrCodeString": "", // bde_{_id}
       }
   ]
 }
@@ -1635,7 +1639,8 @@ No body required for this request.
     "_id": "",
     "userId": "",
     "eventId": "",
-    "paymentId": "" | null
+    "paymentId": "" | null,
+    "qrCodeString": "", // bde_{_id}
   }
 }
 ```
@@ -1681,7 +1686,8 @@ No body required for this request.
     "_id": "",
     "userId": "",
     "eventId": "",
-    "paymentId": "" | null
+    "paymentId": "" | null,
+    "qrCodeString": "", // bde_{_id}
   }
 }
 ```
@@ -1814,7 +1820,6 @@ No body required for this request.
       "userId": "",
       "eventId": "",
       "paymentId": "" | null,
-      "qrCodeString": "", // bde_{_id}
     },
     "payment": {
       "buyOn": "",

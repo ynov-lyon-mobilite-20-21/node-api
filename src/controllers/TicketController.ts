@@ -95,6 +95,27 @@ export const getCurrentUserTickets = async (req: Request, res: Response): Promis
 
   const tickets = await findManyBy<Ticket>({ model: TicketModel, condition: { userId: currentUserId } });
 
+  if (!tickets) {
+    res.status(404).json({
+      error: {
+        code: 'NO_TICKETS',
+        message: 'No ticket found.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  for (let ticketIndex = 0; ticketIndex < tickets.length; ticketIndex += 1) {
+    const currentTicket = tickets[ticketIndex];
+
+    tickets[ticketIndex] = {
+      ...currentTicket._doc,
+      qrCodeString: `bde_${currentTicket._id}`,
+    };
+  }
+
   res.status(200).json({
     error: null,
     data: tickets,
@@ -104,6 +125,27 @@ export const getCurrentUserTickets = async (req: Request, res: Response): Promis
 // [GET] Shields : isAuthenticated + isAdmin
 export const getTickets = async (req: Request, res: Response): Promise<void> => {
   const tickets = await findManyBy<Ticket>({ model: TicketModel, condition: {} });
+
+  if (!tickets) {
+    res.status(404).json({
+      error: {
+        code: 'NO_TICKETS',
+        message: 'No ticket found.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  for (let ticketIndex = 0; ticketIndex < tickets.length; ticketIndex += 1) {
+    const currentTicket = tickets[ticketIndex];
+
+    tickets[ticketIndex] = {
+      ...currentTicket._doc,
+      qrCodeString: `bde_${currentTicket._id}`,
+    };
+  }
 
   res.status(200).json({
     error: null,
@@ -132,9 +174,24 @@ export const getCurrentUserTicketById = async (req: Request, res: Response): Pro
 
   const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId, userId: currentUserId } });
 
+  if (!ticket) {
+    res.status(404).json({
+      error: {
+        code: 'TICKET_NOT_FOUND',
+        message: 'No ticket found with this id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
   res.status(200).json({
     error: null,
-    data: ticket,
+    data: {
+      ...ticket._doc,
+      qrCodeString: `bde_${ticket._id}`,
+    },
   });
 };
 
@@ -156,9 +213,24 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
 
   const ticket = await findOneBy<Ticket>({ model: TicketModel, condition: { _id: ticketId } });
 
+  if (!ticket) {
+    res.status(404).json({
+      error: {
+        code: 'TICKET_NOT_FOUND',
+        message: 'No ticket found with this id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
   res.status(200).json({
     error: null,
-    data: ticket,
+    data: {
+      ...ticket._doc,
+      qrCodeString: `bde_${ticket._id}`,
+    },
   });
 };
 
@@ -301,10 +373,7 @@ export const checkTicketById = async (req: Request, res: Response): Promise<void
   const userOfTicket = await findOneBy<User>({ model: UserModel, condition: { _id: ticket.userId } });
 
   const validationTicketInfos = {
-    ticket: {
-      ...ticket._doc,
-      qrCodeString: `bde_${ticket._id}`,
-    },
+    ticket,
     payment: {
       buyOn: 'null',
       amount: 'null',
@@ -314,7 +383,10 @@ export const checkTicketById = async (req: Request, res: Response): Promise<void
   };
 
   if (ticket && ticket.paymentId) {
-    const paymentOfTicket = await findOneBy<StripePayment>({ model: StripePaymentModel, condition: { _id: ticket.paymentId } });
+    const paymentOfTicket = await findOneBy<StripePayment>({
+      model: StripePaymentModel,
+      condition: { _id: ticket.paymentId },
+    });
 
     if (!paymentOfTicket) {
       res.status(500).json({
