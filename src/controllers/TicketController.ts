@@ -301,7 +301,10 @@ export const checkTicketById = async (req: Request, res: Response): Promise<void
   const userOfTicket = await findOneBy<User>({ model: UserModel, condition: { _id: ticket.userId } });
 
   const validationTicketInfos = {
-    ticket,
+    ticket: {
+      ...ticket._doc,
+      qrCodeString: `bde_${ticket._id}`,
+    },
     payment: {
       buyOn: 'null',
       amount: 'null',

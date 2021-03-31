@@ -12,6 +12,7 @@ const TicketSchema = new Schema({
 });
 
 export interface Ticket extends Document {
+  _doc: object; // The document data on destructuring
   _id: string;
   userId: string;
   eventId: string;

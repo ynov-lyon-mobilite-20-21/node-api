@@ -1813,7 +1813,8 @@ No body required for this request.
       "_id": "",
       "userId": "",
       "eventId": "",
-      "paymentId": "" | null
+      "paymentId": "" | null,
+      "qrCodeString": "", // bde_{_id}
     },
     "payment": {
       "buyOn": "",
