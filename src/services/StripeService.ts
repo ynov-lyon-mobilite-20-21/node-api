@@ -106,3 +106,28 @@ export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent):
     return_url: `${ENDPOINT_APP}`, // TODO: update the env var
   });
 }
+
+export async function updatePaymentIntent(webhookEvent: Stripe.Event): Promise<boolean> {
+  const payementIntent = webhookEvent.data.object as Stripe.PaymentIntent;
+
+  console.log('#### WEBHOOK HANDLED - START ####');
+  console.log(webhookEvent.type);
+
+  console.log(payementIntent);
+
+  if (webhookEvent.type === 'payment_intent.payment_failed') {
+
+  }
+
+  if (webhookEvent.type === 'payment_intent.succeeded') {
+
+  }
+
+  console.log('#### WEBHOOK HANDLED - END ####');
+
+  // payment_intent.attached
+  // payment_intent.processing
+  // payment_intent.amount_capturable_updated
+
+  return true;
+}

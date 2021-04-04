@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
-import { User } from '../models/UserModel';
-import { linkCardToCustomer } from '../services/StripeService';
+import Stripe from 'stripe';
+import { linkCardToCustomer, updatePaymentIntent } from '../services/StripeService';
 import {
   deleteOnyBy, findManyBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
@@ -9,24 +9,10 @@ import { Card, CardModel } from '../models/CardModel';
 import { APIRequest } from '../Interfaces/APIRequest';
 
 export const webhookPaymentIntent = async (req: Request, res: Response): Promise<void> => {
-  const event = req.body;
+  const event = req.body as Stripe.Event;
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      console.log('PaymentIntent was successful!');
-      break;
-    case 'payment_method.attached':
-      console.log('PaymentMethod was attached to a Customer!');
-      break;
-    // ... handle other event types
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
+  await updatePaymentIntent(event);
 
-  console.log(event);
-
-  // Return a 200 response to acknowledge receipt of the event
   res.status(200).json({ received: true });
 };
 
