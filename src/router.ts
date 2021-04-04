@@ -12,7 +12,7 @@ import {
 import { authMiddlewares } from './services/AuthService';
 import { logout, refreshUserToken, login } from './controllers/AuthController';
 import {
-  getCurrentUserCards, linkCardToCurrentUser, removeCardForCurrentUser, setDefaultCardForCurrentUser,
+  getCurrentUserCards, linkCardToCurrentUser, removeCardForCurrentUser, setDefaultCardForCurrentUser, webhookPaymentIntent,
 } from './controllers/StripeController';
 import {
   createNewEvent, deleteEventById, getEventById, getAllEvents, updateEventById, pay,
@@ -68,6 +68,7 @@ appRouter.delete('/events/:id', [authMiddlewares.isAuthenticated, authMiddleware
 appRouter.post('/events/pay/:id', [authMiddlewares.isAuthenticated], pay); // Buy a ticket
 
 /* STRIPE */
+appRouter.post('/stripe/webhook/payment_intent', [], webhookPaymentIntent); // handle payment events
 appRouter.post('/stripe/credit-cards', [authMiddlewares.isAuthenticated], linkCardToCurrentUser); // Create new stripe credit card (link it to current user)
 appRouter.get('/stripe/credit-cards/me', [authMiddlewares.isAuthenticated], getCurrentUserCards); // Read all credit cards of current user
 appRouter.put('/stripe/credit-cards/set-default/:cardId', authMiddlewares.isAuthenticated, setDefaultCardForCurrentUser); // Update default credit card of the current user

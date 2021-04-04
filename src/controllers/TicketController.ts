@@ -405,6 +405,8 @@ export const checkTicketById = async (req: Request, res: Response): Promise<void
     validationTicketInfos.payment.paymentStatus = paymentOfTicket!.status;
   }
 
+  // TODO: increment ticket validation count
+
   res.status(200).json({
     error: null,
     data: validationTicketInfos,
