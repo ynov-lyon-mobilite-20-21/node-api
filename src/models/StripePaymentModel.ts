@@ -3,7 +3,7 @@ import {
 } from 'mongoose';
 
 const StripePaymentSchema = new Schema({
-  intentId: { type: 'string', required: true, unique: true },
+  intentId: { type: 'string', required: true }, // TODO: fix unique: true parameter
   userId: { type: 'string', required: true },
   createdAt: { type: 'Date', required: true },
   amount: { type: 'number', required: true },
