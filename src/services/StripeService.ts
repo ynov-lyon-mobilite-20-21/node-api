@@ -2,8 +2,12 @@
 import Stripe from 'stripe';
 
 import { User } from '../models/UserModel';
-import { findManyBy, findOneBy, saveData } from './MongooseService';
+import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
+import {
+  findManyBy, findOneBy, saveData, updateOneBy,
+} from './MongooseService';
 import { Card, CardModel } from '../models/CardModel';
+import { Ticket, TicketModel } from '../models/TicketModel';
 
 const { STRIPE_API_KEY, ENDPOINT_APP } = process.env;
 
@@ -107,27 +111,48 @@ export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent):
   });
 }
 
-export async function updatePaymentIntent(webhookEvent: Stripe.Event): Promise<boolean> {
-  const payementIntent = webhookEvent.data.object as Stripe.PaymentIntent;
+export async function updatePaymentIntent(webhookEvent: Stripe.Event): Promise<void> {
+  const eventPaymentIntent = webhookEvent.data.object as Stripe.PaymentIntent;
 
-  console.log('#### WEBHOOK HANDLED - START ####');
-  console.log(webhookEvent.type);
+  const payment = await updateOneBy<StripePayment>({
+    model: StripePaymentModel,
+    condition: {
+      intentId: eventPaymentIntent.id,
+    },
+    update: {
+      status: eventPaymentIntent.status,
+    },
+  });
 
-  console.log(payementIntent);
-
-  if (webhookEvent.type === 'payment_intent.payment_failed') {
-
+  if (!payment) {
+    return;
   }
 
-  if (webhookEvent.type === 'payment_intent.succeeded') {
+  await updateOneBy<Ticket>({
+    model: TicketModel,
+    condition: { paymentId: payment._id },
+    update: {
+      isValid: eventPaymentIntent.status === 'succeeded',
+    },
+  });
 
-  }
+  // console.log('#### WEBHOOK HANDLED - START ####');
+  // console.log(webhookEvent.type);
+  //
+  // console.log(eventPaymentIntent);
+  //
+  // if (webhookEvent.type === 'payment_intent.payment_failed') {
+  //
+  // }
+  //
+  // if (webhookEvent.type === 'payment_intent.succeeded') {
+  //
+  // }
+  //
+  // console.log('#### WEBHOOK HANDLED - END ####');
 
-  console.log('#### WEBHOOK HANDLED - END ####');
-
+  // payment_intent.created
   // payment_intent.attached
   // payment_intent.processing
   // payment_intent.amount_capturable_updated
-
-  return true;
 }
