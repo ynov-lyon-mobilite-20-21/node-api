@@ -60,7 +60,7 @@ appRouter.post('/auth/refreshToken', refreshUserToken); // Generate new tokens
 appRouter.post('/auth/logout', logout); // Delete tokens
 
 /*   EVENTS   */
-appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createNewEvent); // Create nwe event
+appRouter.post('/events', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], createNewEvent); // Create new event
 appRouter.get('/events', [], getAllEvents); // Get all events
 appRouter.get('/events/:id', [], getEventById); // Get event informations by ID
 appRouter.put('/events/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], updateEventById); // Update event informations by ID
