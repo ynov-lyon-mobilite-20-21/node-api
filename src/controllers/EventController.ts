@@ -122,7 +122,7 @@ export const createNewEvent = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  if (!price) {
+  if (!price && price < 0) { // 0 is falsy and it's not possible to have negative price
     res.status(400).json({
       error: {
         code: 'PRICE_REQUIRED',
