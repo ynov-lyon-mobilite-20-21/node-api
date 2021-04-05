@@ -32,6 +32,8 @@ const EventSchema = new Schema({
   description: { type: 'string', required: true },
   price: { type: 'number', required: true }, // In cents : 100 => 1,00€
   stripeProductId: { type: 'string', default: null, select: false },
+  stripePriceIds: { type: 'array', default: null, select: false },
+  isArchived: { type: 'boolean', default: false },
   __v: { type: Number, select: false },
 });
 
@@ -45,6 +47,13 @@ export interface Event extends Document {
   description: string;
   price: number;
   stripeProductId: string;
+  stripePriceIds: StripeProductPrices[];
+  isArchived: boolean;
+}
+
+export interface StripeProductPrices {
+  id: string;
+  isActive: boolean;
 }
 
 export const EventModel: Model<Event> = model<Event>('Event', EventSchema);

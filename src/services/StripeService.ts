@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import Stripe from 'stripe';
 
+import { Promise } from 'mongoose';
 import { User } from '../models/UserModel';
 import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import {
@@ -8,6 +9,7 @@ import {
 } from './MongooseService';
 import { Card, CardModel } from '../models/CardModel';
 import { Ticket, TicketModel } from '../models/TicketModel';
+import { StripeProductPrices } from '../models/EventModel';
 
 const { STRIPE_API_KEY, ENDPOINT_APP } = process.env;
 
@@ -139,22 +141,33 @@ function statementDescriptorSanitizer(value: string): string {
   return value.replace(new RegExp('/<*|>*|\\\\*|"*|’*/gm'), ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-export async function createProduct(name: string, description: string, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<Stripe.Product & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
+export async function createProduct(name: string, description: string, price: number, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<{ productId: string; priceId: string }> {
   const sanitizedStatementDescriptor = !statement_descriptor ? statementDescriptorSanitizer(name) : statementDescriptorSanitizer(statement_descriptor);
 
-  return stripe.products.create({
+  const stripeProduct = await stripe.products.create({
     name,
     description,
     images,
     statement_descriptor: sanitizedStatementDescriptor,
     url,
   });
+
+  const stripePrice = await stripe.prices.create({
+    product: stripeProduct.id,
+    currency: 'eur',
+    unit_amount: price,
+  });
+
+  return {
+    productId: stripeProduct.id,
+    priceId: stripePrice.id,
+  };
 }
 
-export async function updateProduct(id: string, name: string, description: string, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<Stripe.Product & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
+export async function updateProduct(id: string, name: string, description: string, priceId?: string | undefined, price?: number | undefined, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<{ productId: string; priceId: string | null }> {
   const sanitizedStatementDescriptor = !statement_descriptor ? statementDescriptorSanitizer(name) : statementDescriptorSanitizer(statement_descriptor);
 
-  return stripe.products.update(
+  const stripeProduct = await stripe.products.update(
     id,
     {
       name,
@@ -164,8 +177,52 @@ export async function updateProduct(id: string, name: string, description: strin
       url,
     },
   );
+
+  if (priceId) {
+    // It's impossible to change the amount with stripe API. The only solution was to archive the old price and create a new one.
+    await stripe.prices.update(
+      priceId,
+      { active: false },
+    );
+
+    const stripePrice = await stripe.prices.create({
+      product: stripeProduct.id,
+      currency: 'eur',
+      unit_amount: price,
+    });
+
+    return {
+      productId: stripeProduct.id,
+      priceId: stripePrice.id,
+    };
+  }
+
+  return {
+    productId: stripeProduct.id,
+    priceId: null,
+  };
 }
 
-export async function deleteProduct(id: string): Promise<Stripe.Response<Stripe.DeletedProduct>> {
-  return stripe.products.del(id);
+export async function deleteProduct(productId: string, pricesProductIds?: StripeProductPrices[] | undefined): Promise<void> {
+  if (pricesProductIds && pricesProductIds.length > 0) {
+    const promises = [];
+
+    for (let index = 0; index < pricesProductIds.length; index += 1) {
+      promises.push(stripe.prices.update(
+        pricesProductIds[index].id,
+        { active: false },
+      ));
+    }
+
+    await Promise.all(promises);
+
+    await stripe.products.update(productId, { active: false });
+
+    const error = new Error('Impossible to delete the product because of api limitation. It has been archived instead.');
+    error.name = 'PAYMENT_SERVICE_LIMITATION';
+
+    throw error;
+  }
+
+  await stripe.products.del(productId);
 }

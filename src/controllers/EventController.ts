@@ -153,12 +153,23 @@ export const createNewEvent = async (req: Request, res: Response): Promise<void>
 
   let newEvent = null;
   try {
-    const stripeEvent = await createProduct(name, description, ['https://via.placeholder.com/50']);
+    const stripeIds = await createProduct(name, description, price, ['https://via.placeholder.com/50']);
 
     newEvent = await saveData<Event>({
       model: EventModel,
       params: {
-        name, type, imgType, date: typedDate, address, description, price, stripeProductId: stripeEvent.id,
+        name,
+        type,
+        imgType,
+        date: typedDate,
+        address,
+        description,
+        price,
+        stripeProductId: stripeIds.productId,
+        stripePriceIds: [{
+          id: stripeIds.priceId,
+          isActive: true,
+        }],
       },
     });
   } catch (e) {
@@ -283,7 +294,50 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
 
   const event = req.body;
 
-  const updatedEvent = await updateOneBy<Event>({ model: EventModel, condition: { _id: eventId }, update: event });
+  const storedEvent = await findOneBy<Event>({
+    model: EventModel,
+    condition: { _id: eventId },
+    hiddenPropertiesToSelect: ['stripeProductId', 'stripePriceIds'],
+  });
+
+  if (!storedEvent) {
+    res.status(500).json({
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred getting the event in database.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  const activePriceId = storedEvent.stripePriceIds.filter((price) => price.isActive)[0];
+
+  if (event.price && activePriceId && storedEvent.price !== event.price) {
+    const updateStripeProduct = await updateProduct(storedEvent.stripeProductId, event.name, event.description, activePriceId.id, event.price);
+
+    if (updateStripeProduct.priceId) {
+      event.stripePriceIds = storedEvent.stripePriceIds;
+
+      for (let index = 0; index < event.stripePriceIds.length; index += 1) {
+        storedEvent.stripePriceIds[index].isActive = false;
+      }
+
+      event.stripePriceIds.push({
+        id: updateStripeProduct.priceId,
+        isActive: true,
+      });
+    }
+  } else {
+    await updateProduct(storedEvent.stripeProductId, event.name, event.description);
+  }
+
+  const updatedEvent = await updateOneBy<Event>({
+    model: EventModel,
+    condition: { _id: eventId },
+    update: event,
+  });
 
   if (!updatedEvent) {
     res.status(500).json({
@@ -295,12 +349,6 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
     });
 
     return;
-  }
-
-  const fullEvent = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId }, hiddenPropertiesToSelect: ['stripeProductId'] });
-
-  if (fullEvent) {
-    await updateProduct(fullEvent.stripeProductId, fullEvent.name, fullEvent.description);
   }
 
   res.status(200).json({
@@ -325,7 +373,75 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
     return;
   }
 
-  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId }, hiddenPropertiesToSelect: ['stripeProductId'] });
+  const event = await findOneBy<Event>({
+    model: EventModel,
+    condition: { _id: eventId },
+    hiddenPropertiesToSelect: ['stripeProductId', 'stripePriceIds'],
+  });
+
+  if (!event) {
+    res.status(404).json({
+      error: {
+        code: 'EVENT_NOT_FOUND',
+        message: 'An unknown error has occurs while deleting the event. It seems that your event does not exist.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  if (event.isArchived) {
+    res.status(400).json({
+      error: {
+        code: 'EVENT_ARCHIVED',
+        message: 'This event couldn\'t be deleted and already archived.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  if (event && event.stripeProductId) {
+    try {
+      await deleteProduct(event.stripeProductId, event.stripePriceIds);
+    } catch (e) {
+      if (e.name === 'PAYMENT_SERVICE_LIMITATION') {
+        for (let index = 0; index < event.stripePriceIds.length; index += 1) {
+          event.stripePriceIds[index].isActive = false;
+        }
+
+        event.isArchived = true;
+
+        await updateOneBy<Event>({
+          model: EventModel,
+          condition: { _id: eventId },
+          update: event,
+        });
+
+        res.status(200).json({
+          error: {
+            code: e.name,
+            message: `${e.message} This isn't really a problem, just a warning.`,
+          },
+          data: null,
+        });
+
+        return;
+      }
+
+      res.status(500).json({
+        error: {
+          code: 'PAYMENT_SERVICE_ERROR',
+          message: 'Impossible to delete this product in payment service.',
+        },
+        data: null,
+      });
+
+      return;
+    }
+  }
 
   const deleteEvent = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: eventId } });
 
@@ -339,10 +455,6 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
     });
 
     return;
-  }
-
-  if (event && event.stripeProductId) {
-    await deleteProduct(event.stripeProductId);
   }
 
   res.status(204).send();
