@@ -9,9 +9,10 @@ import { Card, CardModel } from '../models/CardModel';
 import { APIRequest } from '../Interfaces/APIRequest';
 
 export const webhookPaymentIntent = async (req: Request, res: Response): Promise<void> => {
-  const event = req.body as Stripe.Event;
+  const webhookEvent = req.body as Stripe.Event;
+  const eventPaymentIntent = webhookEvent.data.object as Stripe.PaymentIntent;
 
-  await updatePaymentIntent(event);
+  await updatePaymentIntent(eventPaymentIntent);
 
   res.status(200).json({ received: true });
 };

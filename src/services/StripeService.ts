@@ -111,9 +111,7 @@ export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent):
   });
 }
 
-export async function updatePaymentIntent(webhookEvent: Stripe.Event): Promise<void> {
-  const eventPaymentIntent = webhookEvent.data.object as Stripe.PaymentIntent;
-
+export async function updatePaymentIntent(eventPaymentIntent: Stripe.PaymentIntent): Promise<void> {
   const payment = await updateOneBy<StripePayment>({
     model: StripePaymentModel,
     condition: {
@@ -135,24 +133,4 @@ export async function updatePaymentIntent(webhookEvent: Stripe.Event): Promise<v
       isValid: eventPaymentIntent.status === 'succeeded',
     },
   });
-
-  // console.log('#### WEBHOOK HANDLED - START ####');
-  // console.log(webhookEvent.type);
-  //
-  // console.log(eventPaymentIntent);
-  //
-  // if (webhookEvent.type === 'payment_intent.payment_failed') {
-  //
-  // }
-  //
-  // if (webhookEvent.type === 'payment_intent.succeeded') {
-  //
-  // }
-  //
-  // console.log('#### WEBHOOK HANDLED - END ####');
-
-  // payment_intent.created
-  // payment_intent.attached
-  // payment_intent.processing
-  // payment_intent.amount_capturable_updated
 }
