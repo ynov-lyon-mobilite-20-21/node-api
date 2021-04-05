@@ -6,7 +6,13 @@ import {
 import { Event, EventModel } from '../models/EventModel';
 import { APIRequest } from '../Interfaces/APIRequest';
 import { Card, CardModel } from '../models/CardModel';
-import { confirmStripePaymentIntent, createStripePaymentIntent } from '../services/StripeService';
+import {
+  confirmStripePaymentIntent,
+  createProduct,
+  createStripePaymentIntent,
+  deleteProduct,
+  updateProduct,
+} from '../services/StripeService';
 import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import { Ticket, TicketModel } from '../models/TicketModel';
 
@@ -147,17 +153,19 @@ export const createNewEvent = async (req: Request, res: Response): Promise<void>
 
   let newEvent = null;
   try {
+    const stripeEvent = await createProduct(name, description, ['https://via.placeholder.com/50']);
+
     newEvent = await saveData<Event>({
       model: EventModel,
       params: {
-        name, type, imgType, date: typedDate, address, description, price,
+        name, type, imgType, date: typedDate, address, description, price, stripeProductId: stripeEvent.id,
       },
     });
   } catch (e) {
     res.status(500).json({
       error: {
         code: 'UNKNOWN_ERROR',
-        message: 'An error has occurred while saving event in database. A field does not appear to have an acceptable value or type.',
+        message: 'An error has occurred while saving event.',
       },
       data: null,
     });
@@ -289,6 +297,12 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
     return;
   }
 
+  const fullEvent = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId }, hiddenPropertiesToSelect: ['stripeProductId'] });
+
+  if (fullEvent) {
+    await updateProduct(fullEvent.stripeProductId, fullEvent.name, fullEvent.description);
+  }
+
   res.status(200).json({
     error: null,
     data: updatedEvent,
@@ -311,6 +325,8 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
     return;
   }
 
+  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId }, hiddenPropertiesToSelect: ['stripeProductId'] });
+
   const deleteEvent = await deleteOnyBy<Event>({ model: EventModel, condition: { _id: eventId } });
 
   if (!deleteEvent) {
@@ -323,6 +339,10 @@ export const deleteEventById = async (req: Request, res: Response): Promise<void
     });
 
     return;
+  }
+
+  if (event && event.stripeProductId) {
+    await deleteProduct(event.stripeProductId);
   }
 
   res.status(204).send();

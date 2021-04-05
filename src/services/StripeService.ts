@@ -134,3 +134,38 @@ export async function updatePaymentIntent(eventPaymentIntent: Stripe.PaymentInte
     },
   });
 }
+
+function statementDescriptorSanitizer(value: string): string {
+  return value.replace(new RegExp('/<*|>*|\\\\*|"*|’*/gm'), ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+export async function createProduct(name: string, description: string, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<Stripe.Product & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
+  const sanitizedStatementDescriptor = !statement_descriptor ? statementDescriptorSanitizer(name) : statementDescriptorSanitizer(statement_descriptor);
+
+  return stripe.products.create({
+    name,
+    description,
+    images,
+    statement_descriptor: sanitizedStatementDescriptor,
+    url,
+  });
+}
+
+export async function updateProduct(id: string, name: string, description: string, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<Stripe.Product & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
+  const sanitizedStatementDescriptor = !statement_descriptor ? statementDescriptorSanitizer(name) : statementDescriptorSanitizer(statement_descriptor);
+
+  return stripe.products.update(
+    id,
+    {
+      name,
+      description,
+      images,
+      statement_descriptor: sanitizedStatementDescriptor,
+      url,
+    },
+  );
+}
+
+export async function deleteProduct(id: string): Promise<Stripe.Response<Stripe.DeletedProduct>> {
+  return stripe.products.del(id);
+}
