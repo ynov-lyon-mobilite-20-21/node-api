@@ -265,15 +265,15 @@ export async function unlinkCardToCustomer(customerId: string, cardId: string): 
 }
 
 export async function createInvoice(customerId: string, priceID: string): Promise<Stripe.Invoice & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
-  const invoice = await stripe.invoices.create({
-    customer: customerId,
-    auto_advance: true, // auto-finalize this draft after ~1 hour
-  });
-
   await stripe.invoiceItems.create({
     customer: customerId,
     price: priceID,
-    invoice: invoice.id,
+  });
+
+  const invoice = await stripe.invoices.create({
+    customer: customerId,
+    auto_advance: true, // auto-finalize this draft after ~1 hour
+
   });
 
   return stripe.invoices.finalizeInvoice(invoice.id);
