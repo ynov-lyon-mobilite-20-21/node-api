@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
+import * as stripe from 'stripe';
 import {
-  linkCardToCustomer,
+  linkCardToCustomer, sendInvoice,
   unlinkCardToCustomer,
   updatePaymentIntent,
   updatePaymentIntentInvoice,
@@ -25,6 +26,10 @@ export const webhookPaymentIntent = async (req: Request, res: Response): Promise
 export const webhookInvoice = async (req: Request, res: Response): Promise<void> => {
   const webhookEvent = req.body as Stripe.Event;
   const invoice = webhookEvent.data.object as Stripe.Invoice;
+
+  if (webhookEvent.type === 'invoice.paid') {
+    await sendInvoice(invoice.id);
+  }
 
   // https://stripe.com/docs/api/events/types?lang=node#event_types-invoice.finalization_failed
   // switch (webhookEvent.type) {
