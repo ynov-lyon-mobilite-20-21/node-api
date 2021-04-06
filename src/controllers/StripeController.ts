@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
-import { linkCardToCustomer, updatePaymentIntent } from '../services/StripeService';
 import {
-  deleteOnyBy, findManyBy, updateManyBy, updateOneBy,
+  linkCardToCustomer,
+  unlinkCardToCustomer,
+  updatePaymentIntent,
+  updatePaymentIntentInvoice,
+} from '../services/StripeService';
+import {
+  deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
 import { Card, CardModel } from '../models/CardModel';
 import { APIRequest } from '../Interfaces/APIRequest';
@@ -13,6 +18,41 @@ export const webhookPaymentIntent = async (req: Request, res: Response): Promise
   const eventPaymentIntent = webhookEvent.data.object as Stripe.PaymentIntent;
 
   await updatePaymentIntent(eventPaymentIntent);
+
+  res.status(200).json({ received: true });
+};
+
+export const webhookInvoice = async (req: Request, res: Response): Promise<void> => {
+  const webhookEvent = req.body as Stripe.Event;
+  const invoice = webhookEvent.data.object as Stripe.Invoice;
+
+  // https://stripe.com/docs/api/events/types?lang=node#event_types-invoice.finalization_failed
+  // switch (webhookEvent.type) {
+  //   case 'invoice.marked_uncollectible':
+  //   case 'invoice.payment_failed':
+  //     break;
+  //
+  //   case 'invoice.payment_action_required':
+  //
+  //     break;
+  //
+  //   case 'invoice.finalized':
+  //   case 'invoice.paid':
+  //   case 'invoice.payment_succeeded':
+  //     break;
+  //
+  //   case 'invoice.created':
+  //   case 'invoice.deleted':
+  //   case 'invoice.finalization_failed':
+  //   case 'invoice.sent':
+  //   case 'invoice.upcoming':
+  //   case 'invoice.updated':
+  //   case 'invoice.voided':
+  //   default:
+  //     break;
+  // }
+
+  await updatePaymentIntentInvoice(invoice);
 
   res.status(200).json({ received: true });
 };
@@ -174,6 +214,7 @@ export const getCurrentUserCards = async (req: Request, res: Response): Promise<
 
 export const removeCardForCurrentUser = async (req: Request, res: Response): Promise<void> => {
   const { cardId } = req.params;
+  const request = req as APIRequest;
 
   if (!cardId) {
     res.status(400).json({
@@ -182,12 +223,32 @@ export const removeCardForCurrentUser = async (req: Request, res: Response): Pro
     });
     return;
   }
+  const card = await findOneBy<Card>({ model: CardModel, condition: { _id: cardId } });
+
+  if (card?.stripeId) {
+    try {
+      await unlinkCardToCustomer(request.currentUser.stripeId, card.stripeId);
+    } catch (e) {
+      res.status(500).json({
+        error: {
+          code: 'PAYMENT_SERVICE_ERROR',
+          message: 'An error has occurred while unlink card to the user.',
+        },
+        data: null,
+      });
+
+      return;
+    }
+  }
 
   const deletion = await deleteOnyBy<Card>({ model: CardModel, condition: { _id: cardId } });
 
   if (!deletion) {
     res.status(400).json({
-      error: { code: 'UNKNOWN_ERROR', message: 'An error has occurred while deleting the card. It is possible that the card does not exist.' },
+      error: {
+        code: 'UNKNOWN_ERROR',
+        message: 'An error has occurred while deleting the card. It is possible that the card does not exist.',
+      },
       data: null,
     });
   }

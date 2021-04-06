@@ -8,9 +8,11 @@ import { APIRequest } from '../Interfaces/APIRequest';
 import { Card, CardModel } from '../models/CardModel';
 import {
   confirmStripePaymentIntent,
+  createInvoice,
   createProduct,
   createStripePaymentIntent,
   deleteProduct,
+  getPaymentIntentClientSecret,
   updateProduct,
 } from '../services/StripeService';
 import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
@@ -312,10 +314,10 @@ export const updateEventById = async (req: Request, res: Response): Promise<void
     return;
   }
 
-  const activePriceId = storedEvent.stripePriceIds.filter((price) => price.isActive)[0];
+  const activePrice = storedEvent.stripePriceIds.filter((price) => price.isActive)[0];
 
-  if (event.price && activePriceId && storedEvent.price !== event.price) {
-    const updateStripeProduct = await updateProduct(storedEvent.stripeProductId, event.name, event.description, activePriceId.id, event.price);
+  if (event.price && activePrice && storedEvent.price !== event.price) {
+    const updateStripeProduct = await updateProduct(storedEvent.stripeProductId, event.name, event.description, activePrice.id, event.price);
 
     if (updateStripeProduct.priceId) {
       event.stripePriceIds = storedEvent.stripePriceIds;
@@ -478,13 +480,29 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const event = await findOneBy<Event>({ model: EventModel, condition: { _id: eventId } });
+  const event = await findOneBy<Event>({
+    model: EventModel,
+    condition: { _id: eventId },
+    hiddenPropertiesToSelect: ['stripePriceIds'],
+  });
 
   if (!event) {
     res.status(404).json({
       error: {
         code: 'EVENT_NOT_FOUND',
         message: 'No event found with the given id.',
+      },
+      data: null,
+    });
+
+    return;
+  }
+
+  if (event.isArchived) {
+    res.status(400).json({
+      error: {
+        code: 'EVENT_ARCHIVED',
+        message: 'This event is archived, you can\'t pay for it.',
       },
       data: null,
     });
@@ -534,55 +552,107 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
   // TODO: Implement stripe invoice generation with event stripe product
 
-  const paymentIntent = await createStripePaymentIntent(currentUser, card.stripeId, event.price); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
+  let payment;
+  let paymentIntentId = '';
+  let paymentIntentClientSecret;
 
-  if (!paymentIntent) {
-    res.status(400).json({
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An an error occurred while ',
+  if (request.body.basicPaymentFallback === true) {
+    const paymentIntent = await createStripePaymentIntent(currentUser, card.stripeId, event.price); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
+
+    if (!paymentIntent) {
+      res.status(400).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'An an error occurred while ',
+        },
+        data: null,
+      });
+
+      return;
+    }
+
+    paymentIntentId = paymentIntent.id;
+    paymentIntentClientSecret = paymentIntent.client_secret;
+
+    payment = await saveData<StripePayment>({
+      model: StripePaymentModel,
+      params: {
+        intentId: paymentIntentId,
+        userId: currentUserId,
+        createdAt: new Date(paymentIntent.created * 1000),
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
+        status: paymentIntent.status,
       },
-      data: null,
     });
 
-    return;
-  }
+    if (!payment) {
+      res.status(500).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'An error has occurred while saving the payment in our database.',
+        },
+        data: null,
+      });
+      return;
+    }
 
-  const payment = await saveData<StripePayment>({
-    model: StripePaymentModel,
-    params: {
-      intentId: paymentIntent.id,
-      userId: currentUserId,
-      createdAt: new Date(paymentIntent.created),
-      amount: paymentIntent.amount / 100,
-      currency: paymentIntent.currency,
-      status: paymentIntent.status,
-    },
-  });
+    try {
+      await confirmStripePaymentIntent(paymentIntent);
+    } catch (e) {
+      res.status(500).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'An error has occurred while confirm the payment intent.',
+        },
+        data: null,
+      });
 
-  if (!payment) {
-    res.status(500).json({
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An error has occurred while saving the payment in our database.',
-      },
-      data: null,
-    });
-    return;
-  }
+      return;
+    }
+  } else {
+    const activePrice = event.stripePriceIds.filter((price) => price.isActive)[0];
 
-  try {
-    await confirmStripePaymentIntent(paymentIntent);
-  } catch (e) {
-    res.status(500).json({
-      error: {
-        code: 'UNKNOWN_ERROR',
-        message: 'An error has occurred while confirm the payment intent.',
-      },
-      data: null,
-    });
+    try {
+      const invoice = await createInvoice(currentUser.stripeId, activePrice.id);
 
-    return;
+      // @ts-ignore
+      paymentIntentId = invoice.payment_intent;
+      paymentIntentClientSecret = await getPaymentIntentClientSecret(paymentIntentId);
+
+      payment = await saveData<StripePayment>({
+        model: StripePaymentModel,
+        params: {
+          intentId: paymentIntentId,
+          userId: currentUserId,
+          createdAt: new Date(invoice.created * 1000),
+          amount: invoice.amount_due,
+          currency: invoice.currency,
+          status: invoice.status,
+        },
+      });
+
+      if (!payment) {
+        res.status(500).json({
+          error: {
+            code: 'UNKNOWN_ERROR',
+            message: 'An error has occurred while saving the payment in our database.',
+          },
+          data: null,
+        });
+        return;
+      }
+    } catch (e) {
+      res.status(500).json({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: 'An error has occurred while create the invoice.',
+        },
+        data: null,
+      });
+
+      return;
+    }
   }
 
   const ticket = await saveData<Ticket>({
@@ -591,7 +661,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       userId: currentUserId,
       eventId: event._id,
       paymentId: payment.id,
-      currency: paymentIntent.currency,
+      currency: payment.currency,
     },
   });
 
@@ -610,8 +680,9 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
   res.status(200).json({
     error: null,
     data: {
-      paymentIntentId: paymentIntent.id,
-      clientSecret: paymentIntent.client_secret,
+      basicPaymentFallback: request.body.basicPaymentFallback,
+      paymentIntentId,
+      clientSecret: paymentIntentClientSecret,
     },
   });
 };

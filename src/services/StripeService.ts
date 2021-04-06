@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import Stripe from 'stripe';
-
-import { Promise } from 'mongoose';
 import { User } from '../models/UserModel';
 import { StripePayment, StripePaymentModel } from '../models/StripePaymentModel';
 import {
@@ -137,6 +135,37 @@ export async function updatePaymentIntent(eventPaymentIntent: Stripe.PaymentInte
   });
 }
 
+export async function updatePaymentIntentInvoice(invoice: Stripe.Invoice): Promise<void> {
+  if (invoice.payment_intent) {
+    let intentId = invoice.payment_intent;
+    if (typeof intentId !== 'string') {
+      intentId = intentId.id;
+    }
+
+    const payment = await updateOneBy<StripePayment>({
+      model: StripePaymentModel,
+      condition: {
+        intentId,
+      },
+      update: {
+        status: invoice.status,
+      },
+    });
+
+    if (!payment) {
+      return;
+    }
+
+    await updateOneBy<Ticket>({
+      model: TicketModel,
+      condition: { paymentId: payment._id },
+      update: {
+        isValid: invoice.status === 'paid',
+      },
+    });
+  }
+}
+
 function statementDescriptorSanitizer(value: string): string {
   return value.replace(new RegExp('/<*|>*|\\\\*|"*|’*/gm'), ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -225,4 +254,31 @@ export async function deleteProduct(productId: string, pricesProductIds?: Stripe
   }
 
   await stripe.products.del(productId);
+}
+
+export async function unlinkCardToCustomer(customerId: string, cardId: string): Promise<void> {
+  await stripe.customers.deleteSource(
+    customerId,
+    cardId,
+  );
+}
+
+export async function createInvoice(customerId: string, priceID: string): Promise<Stripe.Invoice & { headers: { [p: string]: string }; lastResponse: { requestId: string; statusCode: number; apiVersion?: string; idempotencyKey?: string; stripeAccount?: string } }> {
+  await stripe.invoiceItems.create({
+    customer: customerId,
+    price: priceID,
+  });
+
+  const invoice = await stripe.invoices.create({
+    customer: customerId,
+    auto_advance: true, // auto-finalize this draft after ~1 hour
+  });
+
+  return stripe.invoices.finalizeInvoice(invoice.id);
+}
+
+export async function getPaymentIntentClientSecret(paymentIntentId: string): Promise<string | null> {
+  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+  return paymentIntent.client_secret;
 }
