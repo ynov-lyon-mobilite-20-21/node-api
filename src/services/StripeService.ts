@@ -167,7 +167,8 @@ export async function updatePaymentIntentInvoice(invoice: Stripe.Invoice): Promi
 }
 
 function statementDescriptorSanitizer(value: string): string {
-  return value.replace(new RegExp('/<*|>*|\\\\*|"*|’*/gm'), ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return value.replace(new RegExp('/<*|>*|\\\\*|"*|’*/gm'), ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .substr(0, 22);
 }
 
 export async function createProduct(name: string, description: string, price: number, images?: string[] | undefined, statement_descriptor?: string | undefined, url?: string | undefined): Promise<{ productId: string; priceId: string }> {
