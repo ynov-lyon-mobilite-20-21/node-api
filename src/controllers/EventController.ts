@@ -501,10 +501,10 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       condition: { userId: currentUserId, isDefaultCard: true },
     });
   } else {
-    const { cardId } = request.body.cardId;
+    const { cardId } = request.body;
     card = await findOneBy<Card>({
       model: CardModel,
-      condition: { _id: cardId, currentUserId },
+      condition: { _id: cardId, userId: currentUserId },
     });
 
     if (!card) {
