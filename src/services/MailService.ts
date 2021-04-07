@@ -7,7 +7,7 @@ const { ENDPOINT_API, EMAIL_ADDRESS, EMAIL_PASSWORD } = process.env;
 // const mailer = NodeMailer.createTransport({
 //   service: 'gmail',
 //   auth: {
-//     user: GMAIL_ADDRESS,
+//     user: EMAIL_ADDRESS,
 //     pass: GMAIL_PASSWORD,
 //   },
 // });
@@ -57,7 +57,7 @@ export async function sendRegistrationMail(to: string, activationKey: string): P
 
     const mail: SendMailOptions = {
       subject: `Valide ton compte sur ${projectName} !`,
-      from: process.env.GMAIL_ADDRESS,
+      from: process.env.EMAIL_ADDRESS,
       html: html as string,
       to,
     };
@@ -80,7 +80,29 @@ export async function sendInactiveUserAccountExistMail(to: string, activationKey
 
     const mail: SendMailOptions = {
       subject: `Tu as déjà un compte sur ${projectName} ! Active le !`,
-      from: process.env.GMAIL_ADDRESS,
+      from: process.env.EMAIL_ADDRESS,
+      html: html as string,
+      to,
+    };
+
+    await send(mail);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function sendInvoice(to: string, invoiceLink: string): Promise<boolean> {
+  try {
+    const html = await getMailTemplate('invoice', { invoiceLink });
+
+    if (!html) {
+      return false;
+    }
+
+    const mail: SendMailOptions = {
+      subject: `Ta facture - ${projectName}`,
+      from: process.env.EMAIL_ADDRESS,
       html: html as string,
       to,
     };

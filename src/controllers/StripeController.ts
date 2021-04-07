@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
-import * as stripe from 'stripe';
 import {
-  linkCardToCustomer, sendInvoice,
+  linkCardToCustomer,
   unlinkCardToCustomer,
   updatePaymentIntent,
   updatePaymentIntentInvoice,
 } from '../services/StripeService';
+import { sendInvoice } from '../services/MailService';
 import {
   deleteOnyBy, findManyBy, findOneBy, updateManyBy, updateOneBy,
 } from '../services/MongooseService';
@@ -28,7 +28,43 @@ export const webhookInvoice = async (req: Request, res: Response): Promise<void>
   const invoice = webhookEvent.data.object as Stripe.Invoice;
 
   if (webhookEvent.type === 'invoice.paid') {
-    await sendInvoice(invoice.id);
+    if (!invoice.customer_email) {
+      res.status(400).json({
+        error: {
+          code: 'INVOICE_EMAIL_MISSING',
+          message: 'There is no email associated to this invoice. We can not send it to the user.',
+        },
+        data: { invoice },
+      });
+
+      return;
+    }
+
+    if (!invoice.invoice_pdf) {
+      res.status(400).json({
+        error: {
+          code: 'INVOICE_LINK8MISSING',
+          message: 'There is no link to download the pdf. We can not send it to the user.',
+        },
+        data: { invoice },
+      });
+
+      return;
+    }
+
+    const emailSendingResult = await sendInvoice(invoice.customer_email, invoice.invoice_pdf);
+
+    if (!emailSendingResult) {
+      res.status(400).json({
+        error: {
+          code: 'INVOICE_NOT_SENT',
+          message: 'An error has occurs while sending the invoice.',
+        },
+        data: { invoice },
+      });
+
+      return;
+    }
   }
 
   // https://stripe.com/docs/api/events/types?lang=node#event_types-invoice.finalization_failed

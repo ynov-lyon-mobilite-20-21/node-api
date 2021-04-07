@@ -273,14 +273,9 @@ export async function createInvoice(customerId: string, priceID: string): Promis
   const invoice = await stripe.invoices.create({
     customer: customerId,
     auto_advance: true, // auto-finalize this draft after ~1 hour
-
   });
 
   return stripe.invoices.finalizeInvoice(invoice.id);
-}
-
-export async function sendInvoice(invoiceId: string): Promise<void> {
-  await stripe.invoices.sendInvoice(invoiceId);
 }
 
 export async function getPaymentIntentClientSecret(paymentIntentId: string): Promise<string | null> {
