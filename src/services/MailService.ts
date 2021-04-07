@@ -94,7 +94,7 @@ export async function sendInactiveUserAccountExistMail(to: string, activationKey
 
 export async function sendInvoice(to: string, invoiceLink: string): Promise<boolean> {
   try {
-    const html = await getMailTemplate('invoice', { invoiceLink });
+    const html = await getMailTemplate('invoice', { projectName, invoiceLink });
 
     if (!html) {
       return false;
