@@ -273,7 +273,8 @@ export async function createInvoice(customerId: string, priceID: string): Promis
   const invoice = await stripe.invoices.create({
     customer: customerId,
     auto_advance: true, // auto-finalize this draft after ~1 hour
-
+    collection_method: 'send_invoice',
+    days_until_due: 30,
   });
 
   return stripe.invoices.finalizeInvoice(invoice.id);
