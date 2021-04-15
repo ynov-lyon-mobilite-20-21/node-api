@@ -29,6 +29,7 @@ import {
   getCurrentUserTickets,
   updateTicketById, getTickets, getCurrentUserTicketById, checkTicketById,
 } from './controllers/TicketController';
+import { appleSiteAssociation } from './controllers/AppleController';
 
 const appRouter: Router = Router();
 
@@ -97,5 +98,8 @@ appRouter.get('/ticket/:id/check', [authMiddlewares.isAuthenticated, authMiddlew
 // appRouter.get('/images/:id', getOneImageById);
 // appRouter.get('/images', getAllImages);
 // appRouter.delete('/images/:id', [authMiddlewares.isAuthenticated, authMiddlewares.isAdmin], deleteImageById);
+
+/* App links */
+appRouter.get('/.well-known/apple-app-site-association', [], appleSiteAssociation); // Get ticket informations by ID
 
 export default (): Router => appRouter;
