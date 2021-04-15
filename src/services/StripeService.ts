@@ -99,6 +99,7 @@ export async function createStripePaymentIntent(user: User, stripeCardId: string
       payment_method: stripeCardId,
       receipt_email: user.mail,
       use_stripe_sdk: true, // Set to true only when using manual confirmation and the iOS or Android SDKs to handle additional authentication steps.
+      return_url: ENDPOINT_APP,
     });
   } catch (e) {
     return null;
