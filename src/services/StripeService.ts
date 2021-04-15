@@ -9,7 +9,7 @@ import { Card, CardModel } from '../models/CardModel';
 import { Ticket, TicketModel } from '../models/TicketModel';
 import { StripeProductPrices } from '../models/EventModel';
 
-const { STRIPE_API_KEY, ENDPOINT_APP } = process.env;
+const { STRIPE_API_KEY, ENDPOINT_APP, PAYMENT_RETURN_URL_FRAGMENT } = process.env;
 
 // @ts-ignore
 const stripe = new Stripe(STRIPE_API_KEY!, { apiVersion: '2020-08-27' });
@@ -99,7 +99,7 @@ export async function createStripePaymentIntent(user: User, stripeCardId: string
       payment_method: stripeCardId,
       receipt_email: user.mail,
       use_stripe_sdk: true, // Set to true only when using manual confirmation and the iOS or Android SDKs to handle additional authentication steps.
-      return_url: ENDPOINT_APP,
+      return_url: `${ENDPOINT_APP} + ${PAYMENT_RETURN_URL_FRAGMENT}`,
     });
   } catch (e) {
     return null;
