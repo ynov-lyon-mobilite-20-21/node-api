@@ -555,6 +555,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
   let payment;
   let paymentIntentId = '';
   let paymentIntentClientSecret;
+  let payLink = null;
 
   if (request.body.basicPaymentFallback === true) {
     const paymentIntent = await createStripePaymentIntent(currentUser, card.stripeId, event.price); // https://stripe.com/docs/api/prices/create?lang=node -> https://stripe.com/docs/api/invoiceitems/create?lang=node
@@ -619,6 +620,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       // @ts-ignore
       paymentIntentId = invoice.payment_intent;
       paymentIntentClientSecret = await getPaymentIntentClientSecret(paymentIntentId);
+      payLink = invoice.hosted_invoice_url;
 
       payment = await saveData<StripePayment>({
         model: StripePaymentModel,
@@ -683,6 +685,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       basicPaymentFallback: request.body.basicPaymentFallback,
       paymentIntentId,
       clientSecret: paymentIntentClientSecret,
+      payLink,
     },
   });
 };
