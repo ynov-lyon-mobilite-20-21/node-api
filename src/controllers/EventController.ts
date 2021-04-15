@@ -686,7 +686,8 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       basicPaymentFallback: request.body.basicPaymentFallback,
       paymentIntentId,
       clientSecret: paymentIntentClientSecret,
-      payLink,
+      // eslint-disable-next-line object-shorthand
+      payLink: payLink,
     },
   });
 };
