@@ -564,7 +564,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({
         error: {
           code: 'UNKNOWN_ERROR',
-          message: 'An an error occurred while ',
+          message: 'An an error occurred while creating payment intent',
         },
         data: null,
       });
@@ -574,7 +574,6 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
     paymentIntentId = paymentIntent.id;
     paymentIntentClientSecret = paymentIntent.client_secret;
-    payLink = paymentIntent.next_action;
 
     payment = await saveData<StripePayment>({
       model: StripePaymentModel,
@@ -600,7 +599,8 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
     }
 
     try {
-      await confirmStripePaymentIntent(paymentIntent);
+      const confirmedPaymentIntent = await confirmStripePaymentIntent(paymentIntent);
+      payLink = confirmedPaymentIntent.next_action?.redirect_to_url?.url;
     } catch (e) {
       res.status(500).json({
         error: {

@@ -99,7 +99,6 @@ export async function createStripePaymentIntent(user: User, stripeCardId: string
       payment_method: stripeCardId,
       receipt_email: user.mail,
       use_stripe_sdk: true, // Set to true only when using manual confirmation and the iOS or Android SDKs to handle additional authentication steps.
-      return_url: `${ENDPOINT_APP} + ${PAYMENT_RETURN_URL_FRAGMENT}`,
     });
   } catch (e) {
     return null;
@@ -108,7 +107,7 @@ export async function createStripePaymentIntent(user: User, stripeCardId: string
 
 export function confirmStripePaymentIntent(paymentIntent: Stripe.PaymentIntent): Promise<Stripe.PaymentIntent> {
   return stripe.paymentIntents.confirm(paymentIntent.id, {
-    return_url: `${ENDPOINT_APP}`, // TODO: update the env var
+    return_url: `${ENDPOINT_APP}${PAYMENT_RETURN_URL_FRAGMENT}`,
   });
 }
 
