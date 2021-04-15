@@ -574,6 +574,7 @@ export const pay = async (req: Request, res: Response): Promise<void> => {
 
     paymentIntentId = paymentIntent.id;
     paymentIntentClientSecret = paymentIntent.client_secret;
+    payLink = paymentIntent.next_action;
 
     payment = await saveData<StripePayment>({
       model: StripePaymentModel,
