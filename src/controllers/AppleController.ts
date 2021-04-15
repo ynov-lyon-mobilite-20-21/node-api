@@ -12,11 +12,10 @@ export const appleSiteAssociation = async (req: Request, res: Response) => {
     applinks: {
       details: [
         {
-          appIDs: ['LYON YNOV CAMPUS.com.ynovlyon.bde'],
+          appIDs: ['94FLWD5X32.com.ynovlyon.bde'],
           components: [
             {
               '/': '/stripe/paymentReturn',
-              exclude: true,
               comment: 'Matches any URL whose fragment equals no_universal_links and instructs the system not to open it as a universal link',
             },
           ],
