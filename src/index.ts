@@ -35,7 +35,7 @@ app.use(cors());
 app.use(morgan(':method :url :status - :response-time ms - CONTENT-TYPE: :req[Content-Type] - ACCEPT: :req[Accept]'));
 morganBody(app);
 app.use(json());
-app.use('/api', router());
+app.use('', router());
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
